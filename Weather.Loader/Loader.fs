@@ -12,11 +12,14 @@ let dataContext = SqlProvider.GetDataContext()
 
 let observationsTable = dataContext.Dbo.Observations
 
-let insertRow (observation: Observation) =
+let insertObservation (observation: Observation) =
     let row = observationsTable.Create()
     row.StationNumber <- observation.StationNumber
     row.Date <- observation.Date
     row.Hour <- observation.Hour
+
+let saveObservations (observations: Observation seq) =
+    observations |> Seq.map insertObservation |> ignore
     dataContext.SubmitUpdates()
 
 let getObservations () = 
