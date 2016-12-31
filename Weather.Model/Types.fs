@@ -4,5 +4,5 @@ type Observation = {
     Date: System.DateTime;
     Hour: byte;
     StationNumber: int;
-    Temperature: decimal
+    Temperature: decimal option
 }

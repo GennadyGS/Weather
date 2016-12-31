@@ -6,7 +6,9 @@ open Weather.Model
 let [<Literal>] SchemaConnectionString =
     "Data Source=gennadygs.database.windows.net;Initial Catalog=Weather;Integrated Security=False;User ID=gennadygs;Password=zl0zYH`};Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
 
-type SqlProvider = SqlDataProvider<ConnectionString = SchemaConnectionString>
+type SqlProvider = SqlDataProvider<
+    ConnectionString = SchemaConnectionString,
+    UseOptionTypes = true>
 
 let dataContext = SqlProvider.GetDataContext()
 
