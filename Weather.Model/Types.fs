@@ -1,8 +1,13 @@
 ﻿namespace Weather.Model
 
-type Observation = {
+type ObservationTime = {
     Date: System.DateTime;
     Hour: byte;
+}
+
+type Observation = {
+    Time: ObservationTime; 
     StationNumber: int;
     Temperature: decimal option
 }
+
