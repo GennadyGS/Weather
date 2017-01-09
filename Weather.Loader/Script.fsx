@@ -8,17 +8,24 @@
 open Weather.Model
 open System
 
+
+type DateTimeInterval = {
+    From : DateTime;
+    To: DateTime
+}
+
 let private getMissingObservationTimes 
         (observationTimes : ObservationTime seq)
-        (dateFrom : DateTime, dateTo : DateTime) =
+        (interval: DateTimeInterval) 
+        : ObservationTime seq =
     Seq.empty
 
-let run getSavedObservations 
-        requestObservations 
+let run (getSavedObservations : int -> DateTimeInterval -> ObservationTime seq * (Observation seq -> unit))
+        (requestObservations : ObservationTime seq -> Observation seq)
         (stationNumber : int) 
-        (dateFrom : DateTime, dateTo : DateTime) : unit =
+        (interval: DateTimeInterval) : unit =
     let (savedObservationTimes : ObservationTime seq, saveObservations : (Observation seq -> unit)) = 
-        getSavedObservations stationNumber
-    let missingObservationTimes = getMissingObservationTimes savedObservationTimes (dateFrom, dateTo)
+        getSavedObservations stationNumber interval
+    let missingObservationTimes = getMissingObservationTimes savedObservationTimes interval
     let observations = requestObservations missingObservationTimes
     saveObservations observations

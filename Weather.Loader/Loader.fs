@@ -15,7 +15,7 @@ let dataContext = SqlProvider.GetDataContext()
 
 let observationsTable = dataContext.Dbo.Observations
 
-let insertObservation (observation: Observation) =
+let private insertObservation (observation: Observation) =
     let row = observationsTable.Create()
     row.StationNumber <- observation.StationNumber
     row.Date <- observation.Time.Date
