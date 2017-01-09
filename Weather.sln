@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Loader", "Weather.L
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Model", "Weather.Model\Weather.Model.fsproj", "{1EE46EEE-C926-4D3C-9DB2-4B2ED025F511}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Composition", "Weather.Composition\Weather.Composition.fsproj", "{6CFC4593-8112-4AFC-9C3A-4DF17581A8CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{1EE46EEE-C926-4D3C-9DB2-4B2ED025F511}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EE46EEE-C926-4D3C-9DB2-4B2ED025F511}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EE46EEE-C926-4D3C-9DB2-4B2ED025F511}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CFC4593-8112-4AFC-9C3A-4DF17581A8CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CFC4593-8112-4AFC-9C3A-4DF17581A8CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CFC4593-8112-4AFC-9C3A-4DF17581A8CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CFC4593-8112-4AFC-9C3A-4DF17581A8CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
