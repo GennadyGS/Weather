@@ -2,20 +2,31 @@
 
 open FSharp.Data
 open System
+open Weather.Utils.TryParser
+open Weather.Utils.String
 open Weather.Model
-
-let private splitString (char : char) (string : string) : string[] = 
-    string.Split([|char|])
 
 let private formatDate (date : DateTime) : string = 
     date.ToString("yyyyMMddHHmm")
 
 let private getRequestUrl (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) = 
-    sprintf "http://www.ogimet.com/cgi-bin/getsynop?block=%d&begin=%s&end=%s" stationNumber (dateFrom |> formatDate) (dateTo |> formatDate)
+    sprintf "http://www.ogimet.com/cgi-bin/getsynop?block=%d&begin=%s&end=%s" stationNumber (formatDate dateFrom) (formatDate dateTo)
 
-
-let private parseObservation (string : string) : Observation = 
-    raise (NotImplementedException ())
+let parseObservation (string : string) : Observation = 
+    string
+        |> splitString ','
+        |> function
+            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); "00"; synopCode|] -> 
+                {
+                    Time = 
+                        {
+                            Date = System.DateTime(year, month, day);
+                            Hour = hour
+                        };
+                    StationNumber = station;
+                    Temperature = None
+                }
+            | _ -> raise (sprintf "Invalid observation string format: %s" string |> FormatException)
 
 let loadObservations (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) : Observation list = 
     getRequestUrl stationNumber dateFrom dateTo
