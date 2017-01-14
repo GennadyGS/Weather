@@ -64,4 +64,7 @@
   <ItemGroup>
     <RefactorLog Include="Weather.DB.refactorlog" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Weather.DB.publish.xml" />
+  </ItemGroup>
 </Project>

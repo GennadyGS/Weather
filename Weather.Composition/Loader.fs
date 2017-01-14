@@ -5,6 +5,7 @@ open System
 open Weather.Utils.TryParser
 open Weather.Utils.String
 open Weather.Model
+open Weather.Synop.Parser
 
 let private formatDate (date : DateTime) : string = 
     date.ToString("yyyyMMddHHmm")
@@ -12,11 +13,11 @@ let private formatDate (date : DateTime) : string =
 let private getRequestUrl (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) = 
     sprintf "http://www.ogimet.com/cgi-bin/getsynop?block=%d&begin=%s&end=%s" stationNumber (formatDate dateFrom) (formatDate dateTo)
 
-let parseObservation (string : string) : Observation = 
+let private parseObservation (string : string) : Observation = 
     string
         |> splitString ','
         |> function
-            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); "00"; synopCode|] -> 
+            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop synop|] -> 
                 {
                     Time = 
                         {
@@ -24,7 +25,7 @@ let parseObservation (string : string) : Observation =
                             Hour = hour
                         };
                     StationNumber = station;
-                    Temperature = None
+                    Temperature = synop.Temperature
                 }
             | _ -> raise (sprintf "Invalid observation string format: %s" string |> FormatException)
 

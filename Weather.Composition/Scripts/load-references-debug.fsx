@@ -7,3 +7,4 @@
 #r "System.Xml.Linq.dll"
 #r "../../Weather.Model/bin/Debug/Weather.Model.dll"
 #r "../../Weather.Utils/bin/Debug/Weather.Utils.dll"
+#r "../../Weather.Synop/bin/Debug/Weather.Synop.dll"

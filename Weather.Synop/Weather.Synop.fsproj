@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>793beaf7-68d5-4f4a-830a-c53ab634d011</ProjectGuid>
+    <ProjectGuid>ff33577f-b962-4808-b27a-c3d077dba9eb</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Weather.Utils</RootNamespace>
-    <AssemblyName>Weather.Utils</AssemblyName>
+    <RootNamespace>Weather.Synop</RootNamespace>
+    <AssemblyName>Weather.Synop</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Weather.Utils</Name>
+    <Name>Weather.Synop</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Weather.Utils.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Weather.Synop.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Weather.Utils.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Weather.Synop.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -44,9 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="TryParse.fs" />
-    <Compile Include="String.fs" />
-    <Compile Include="RegEx.fs" />
+    <Compile Include="Parser.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
