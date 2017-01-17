@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="TryParse.fs" />
+    <Compile Include="TryParser.fs" />
     <Compile Include="String.fs" />
     <Compile Include="RegEx.fs" />
     <None Include="Script.fsx" />

@@ -45,7 +45,15 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Parser.fs" />
-    <None Include="Script.fsx" />
+    <None Include="Scripts\load-references-debug.fsx" />
+    <None Include="Scripts\load-project-debug.fsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Weather.Utils\Weather.Utils.fsproj">
+      <Name>Weather.Utils</Name>
+      <Project>{793beaf7-68d5-4f4a-830a-c53ab634d011}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
