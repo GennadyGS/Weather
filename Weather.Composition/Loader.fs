@@ -17,7 +17,7 @@ let private parseObservation (string : string) : Observation =
     string
         |> splitString ','
         |> function
-            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop synop|] -> 
+            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
                 {
                     Time = 
                         {
@@ -34,4 +34,5 @@ let loadObservations (stationNumber : int) (dateFrom : DateTime) (dateTo : DateT
         |> Http.RequestString 
         |> splitString '\n' 
         |> List.ofArray 
+        |> List.filter (fun line -> line <> String.Empty)
         |> List.map parseObservation
