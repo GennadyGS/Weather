@@ -20,9 +20,10 @@ let private insertObservation (observation: Observation) =
     row.StationNumber <- observation.StationNumber
     row.Date <- observation.Time.Date
     row.Hour <- observation.Time.Hour
+    row.Temperature <- observation.Temperature
 
 let saveObservations (observations: Observation seq) =
-    observations |> Seq.map insertObservation |> ignore
+    observations |> Seq.map insertObservation |> Seq.toArray |> ignore
     dataContext.SubmitUpdates()
 
 let getObservations () = 
