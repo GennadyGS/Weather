@@ -11,11 +11,9 @@ type SqlProvider =
         ConnectionString = SchemaConnectionString,
         UseOptionTypes = true>
 
-let dataContext = SqlProvider.GetDataContext()
-
-let observationsTable = dataContext.Dbo.Observations
-
-let private insertObservation (observation: Observation) =
+let private insertObservation 
+        (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
+        (observation: Observation) =
     let row = observationsTable.Create()
     row.StationNumber <- observation.StationNumber
     row.Date <- observation.Time.Date
@@ -23,10 +21,14 @@ let private insertObservation (observation: Observation) =
     row.Temperature <- observation.Temperature
 
 let saveObservations (observations: Observation seq) =
-    observations |> Seq.map insertObservation |> Seq.toArray |> ignore
+    let dataContext = SqlProvider.GetDataContext()
+    let observationsTable = dataContext.Dbo.Observations
+    observations |> Seq.map (insertObservation observationsTable) |> Seq.toArray |> ignore
     dataContext.SubmitUpdates()
 
 let getObservations () = 
+    let dataContext = SqlProvider.GetDataContext()
+    let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
         select {
