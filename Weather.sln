@@ -15,6 +15,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Utils", "Weather.Ut
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Synop", "Weather.Synop\Weather.Synop.fsproj", "{FF33577F-B962-4808-B27A-C3D077DBA9EB}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Tests", "Weather.Tests\Weather.Tests.fsproj", "{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{FF33577F-B962-4808-B27A-C3D077DBA9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF33577F-B962-4808-B27A-C3D077DBA9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF33577F-B962-4808-B27A-C3D077DBA9EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
