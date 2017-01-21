@@ -2,6 +2,7 @@
 
 open FSharp.Data
 open System
+open Weather.Utils
 open Weather.Utils.TryParser
 open Weather.Utils.String
 open Weather.Utils.Result
@@ -48,3 +49,7 @@ let fetchObservations
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map parseObservation
+
+let fetchObservationsByInterval (stationNumber : string) (interval : DateTimeInterval) : Result<Observation, string> list = 
+    fetchObservations stationNumber (Some interval.From) (Some interval.To)
+

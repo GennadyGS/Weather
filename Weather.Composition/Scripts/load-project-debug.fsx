@@ -4,3 +4,4 @@
 #load "../AssemblyInfo.fs"
       "../Filler.fs"
       "../ObservationProvider.fs"
+      "../CompositionRoot.fs"

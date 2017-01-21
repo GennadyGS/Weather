@@ -8,3 +8,4 @@
 #r "../../Weather.Utils/bin/Debug/Weather.Utils.dll"
 #r "../../packages/FSharp.Data.2.3.2/lib/net40/FSharp.Data.dll"
 #r "../../Weather.Synop/bin/Debug/Weather.Synop.dll"
+#r "../../Weather.Persistence/bin/Debug/Weather.Persistence.dll"

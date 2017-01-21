@@ -58,6 +58,11 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Weather.Utils\Weather.Utils.fsproj">
+      <Name>Weather.Utils</Name>
+      <Project>{793beaf7-68d5-4f4a-830a-c53ab634d011}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="FSharp.Data.SqlProvider">
       <HintPath>..\packages\SQLProvider.1.0.41\lib\FSharp.Data.SqlProvider.dll</HintPath>
       <Private>True</Private>

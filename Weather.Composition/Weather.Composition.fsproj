@@ -57,8 +57,14 @@
     <Content Include="packages.config" />
     <None Include="Scripts\load-references-debug.fsx" />
     <None Include="Scripts\load-project-debug.fsx" />
+    <Compile Include="CompositionRoot.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Weather.Persistence\Weather.Persistence.fsproj">
+      <Name>Weather.Persistence</Name>
+      <Project>{c24a0431-685f-4a3b-8a0e-2faca0401e3c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Weather.Synop\Weather.Synop.fsproj">
       <Name>Weather.Synop</Name>
       <Project>{ff33577f-b962-4808-b27a-c3d077dba9eb}</Project>
