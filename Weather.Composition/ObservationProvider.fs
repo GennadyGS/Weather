@@ -13,13 +13,15 @@ let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 let private formatDate (date : DateTime) : string = 
     date.ToString("yyyyMMddHHmm")
 
-let private getUrlParams (stationNumber : string) (dateFrom : DateTime option) (dateTo : DateTime option) = 
-    List.concat [
-        ["block", stationNumber]; 
-        (dateFrom |> Option.map(fun item -> "begin", formatDate(item)) |> Option.toList); 
-        (dateTo |> Option.map(fun item -> "end", formatDate(item)) |> Option.toList)]
-    
+let private mapTupleOption f (a, b) = 
+    b |> Option.map (fun item -> a, f item)
 
+let private getUrlQueryParams (stationNumber : string) (dateFrom : DateTime option) (dateTo : DateTime option) = 
+    ("block", stationNumber) ::
+    List.concat [
+        ("begin", dateFrom) |> (mapTupleOption formatDate) |> Option.toList;
+        ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
+    
 let private parseObservation (string : string) : Result<Observation, string> = 
     string
         |> splitString ','
@@ -36,8 +38,12 @@ let private parseObservation (string : string) : Result<Observation, string> =
                 }
             | _ -> Failure (sprintf "Invalid observation string format: %s" string)
 
-let loadObservations (stationNumber : string) (dateFrom : DateTime option) (dateTo : DateTime option) : Result<Observation, string> list = 
-    Http.RequestString (Url, query = getUrlParams stationNumber dateFrom dateTo)
+let fetchObservations 
+        (stationNumber : string) 
+        (dateFrom : DateTime option) 
+        (dateTo : DateTime option) 
+        : Result<Observation, string> list = 
+    Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
         |> splitString '\n' 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
