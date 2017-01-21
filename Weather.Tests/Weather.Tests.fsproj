@@ -83,14 +83,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Weather.Loader\Weather.Loader.fsproj">
-      <Name>Weather.Loader</Name>
-      <Project>{c24a0431-685f-4a3b-8a0e-2faca0401e3c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
       <Name>Weather.Model</Name>
       <Project>{1ee46eee-c926-4d3c-9db2-4b2ed025f511}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Weather.Persistence\Weather.Persistence.fsproj">
+      <Name>Weather.Persistence</Name>
+      <Project>{c24a0431-685f-4a3b-8a0e-2faca0401e3c}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

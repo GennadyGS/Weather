@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Weather.DB", "Weather.DB\Weather.DB.sqlproj", "{8A06A06E-CC71-45B1-80F9-30D0ED4FD34D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Loader", "Weather.Loader\Weather.Loader.fsproj", "{C24A0431-685F-4A3B-8A0E-2FACA0401E3C}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Persistence", "Weather.Persistence\Weather.Persistence.fsproj", "{C24A0431-685F-4A3B-8A0E-2FACA0401E3C}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Model", "Weather.Model\Weather.Model.fsproj", "{1EE46EEE-C926-4D3C-9DB2-4B2ED025F511}"
 EndProject

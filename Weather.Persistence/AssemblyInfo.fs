@@ -1,4 +1,4 @@
-﻿namespace Weather.Loader.AssemblyInfo
+﻿namespace Weather.Persistence.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices

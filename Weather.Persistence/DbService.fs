@@ -1,4 +1,4 @@
-﻿module Weather.Loader.Loader
+﻿module Weather.Persistence.DbService
 
 open FSharp.Data.Sql
 open Weather.Model
