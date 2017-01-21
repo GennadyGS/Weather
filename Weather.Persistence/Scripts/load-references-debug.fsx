@@ -3,5 +3,5 @@
 #r "System.Core.dll"
 #r "System.dll"
 #r "System.Numerics.dll"
-#r "../../packages/SQLProvider.1.0.40/lib/FSharp.Data.SqlProvider.dll"
 #r "../../Weather.Model/bin/Debug/Weather.Model.dll"
+#r "../../packages/SQLProvider.1.0.41/lib/FSharp.Data.SqlProvider.dll"

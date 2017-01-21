@@ -10,7 +10,7 @@
     <RootNamespace>Weather.Persistence</RootNamespace>
     <AssemblyName>Weather.Persistence</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Weather.Persistence</Name>
     <TargetFrameworkProfile />
@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Weather.Loader.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Weather.Persistence.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Weather.Loader.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Weather.Persistence.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Data.SqlProvider">
-      <HintPath>..\packages\SQLProvider.1.0.40\lib\FSharp.Data.SqlProvider.dll</HintPath>
+      <HintPath>..\packages\SQLProvider.1.0.41\lib\FSharp.Data.SqlProvider.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
@@ -69,8 +69,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
       <Name>Weather.Model</Name>
       <Project>{1ee46eee-c926-4d3c-9db2-4b2ed025f511}</Project>

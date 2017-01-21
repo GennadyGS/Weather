@@ -1,4 +1,4 @@
-﻿module Weather.Loader
+﻿module Weather.Composition.Loader
 
 open FSharp.Data
 open System
