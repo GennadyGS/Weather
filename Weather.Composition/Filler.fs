@@ -8,18 +8,20 @@ type DateTimeInterval = {
     To: DateTime
 }
 
-let private getMissingObservationTimes 
-        (observationTimes : ObservationTime seq)
-        (interval: DateTimeInterval) 
-        : ObservationTime seq =
-    Seq.empty
+let inline (|??) (a: 'a option) b = 
+    if a.IsSome then a.Value else b  
 
-let run (getSavedObservations : int -> DateTimeInterval -> ObservationTime seq * (Observation seq -> unit))
-        (requestObservations : ObservationTime seq -> Observation seq)
-        (stationNumber : int) 
-        (interval: DateTimeInterval) : unit =
-    let (savedObservationTimes : ObservationTime seq, saveObservations : (Observation seq -> unit)) = 
-        getSavedObservations stationNumber interval
-    let missingObservationTimes = getMissingObservationTimes savedObservationTimes interval
-    let observations = requestObservations missingObservationTimes
-    saveObservations observations
+let fillNewData 
+        (getLastObservationTime : string -> DateTimeInterval -> DateTime option)
+        (saveObservations : Observation list -> unit)
+        (fetchObservations : string -> DateTimeInterval -> Observation list)
+        (stationNumber : string)
+        (interval: DateTimeInterval)
+        : unit =
+    let lastObservationTime = getLastObservationTime stationNumber interval
+    let actualInterval = {interval with From = (lastObservationTime |?? interval.From)}
+    if (actualInterval.From <= actualInterval.To) then
+        let observations = fetchObservations stationNumber actualInterval
+        saveObservations observations
+    else
+        ()
