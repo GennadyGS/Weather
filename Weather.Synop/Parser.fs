@@ -19,7 +19,7 @@ let private (|SignedDecimal|_|) = tryParseSignedDecimal
 
 let tryParseSynop = function
 | Regex @"^AAXX (\d{2})(\d{2})1 (\d{5}) [\d\/]{5} [\d\/]{5} 1([01]\d{3})" 
-    [Byte(day); Byte(hour); Int(stationNumber); SignedDecimal(temperature)] -> 
+    [Byte(day); Byte(hour); stationNumber; SignedDecimal(temperature)] -> 
         Some { 
             Day = day; 
             Hour = hour; 

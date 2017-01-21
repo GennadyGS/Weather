@@ -22,14 +22,14 @@ let private parseObservation (string : string) : Result<Observation, string> =
     string
         |> splitString ','
         |> function
-            | [|Int(station); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
+            | [|stationNumber; Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
                 Success {
                     Time = 
                         {
                             Date = System.DateTime(year, month, day);
                             Hour = hour
                         };
-                    StationNumber = station;
+                    StationNumber = stationNumber;
                     Temperature = synop.Temperature
                 }
             | _ -> Failure (sprintf "Invalid observation string format: %s" string)
