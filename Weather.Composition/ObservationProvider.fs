@@ -1,4 +1,4 @@
-﻿module Weather.Composition.Loader
+﻿module Weather.Composition.ObservationProvider
 
 open FSharp.Data
 open System
@@ -8,11 +8,15 @@ open Weather.Utils.Result
 open Weather.Model
 open Weather.Synop.Parser
 
+let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
+
 let private formatDate (date : DateTime) : string = 
     date.ToString("yyyyMMddHHmm")
 
-let private getRequestUrl (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) = 
-    sprintf "http://www.ogimet.com/cgi-bin/getsynop?block=%d&begin=%s&end=%s" stationNumber (formatDate dateFrom) (formatDate dateTo)
+let private getUrlParams (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) = 
+    ["block", string(stationNumber); 
+        "begin", formatDate(dateFrom); 
+        "end", formatDate(dateTo)]
 
 let private parseObservation (string : string) : Result<Observation, string> = 
     string
@@ -31,8 +35,7 @@ let private parseObservation (string : string) : Result<Observation, string> =
             | _ -> Failure (sprintf "Invalid observation string format: %s" string)
 
 let loadObservations (stationNumber : int) (dateFrom : DateTime) (dateTo : DateTime) : Result<Observation, string> list = 
-    getRequestUrl stationNumber dateFrom dateTo
-        |> Http.RequestString 
+    Http.RequestString (Url, query = getUrlParams stationNumber dateFrom dateTo)
         |> splitString '\n' 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)

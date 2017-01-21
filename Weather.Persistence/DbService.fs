@@ -3,10 +3,10 @@
 open FSharp.Data.Sql
 open Weather.Model
 
-let [<Literal>] SchemaConnectionString =
+let [<Literal>] private SchemaConnectionString =
     "Data Source=gennadygs.database.windows.net;Initial Catalog=Weather;Integrated Security=False;User ID=gennadygs;Password=zl0zYH`};Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
 
-type SqlProvider = 
+type private SqlProvider = 
     SqlDataProvider<
         ConnectionString = SchemaConnectionString,
         UseOptionTypes = true>

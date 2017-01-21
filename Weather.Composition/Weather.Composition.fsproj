@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Filler.fs" />
-    <Compile Include="Loader.fs" />
+    <Compile Include="ObservationProvider.fs" />
     <Content Include="packages.config" />
     <None Include="Scripts\load-references-debug.fsx" />
     <None Include="Scripts\load-project-debug.fsx" />
