@@ -54,10 +54,10 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Filler.fs" />
     <Compile Include="ObservationProvider.fs" />
+    <Compile Include="CompositionRoot.fs" />
     <Content Include="packages.config" />
     <None Include="Scripts\load-references-debug.fsx" />
     <None Include="Scripts\load-project-debug.fsx" />
-    <Compile Include="CompositionRoot.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Weather.Persistence\Weather.Persistence.fsproj">

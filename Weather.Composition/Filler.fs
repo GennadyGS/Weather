@@ -16,7 +16,8 @@ let fillNewData
         (interval: DateTimeInterval)
         : unit =
     let lastObservationTime = getLastObservationTime stationNumber interval
-    let actualInterval = {interval with From = (lastObservationTime |?? interval.From)}
+    let actualFromInterval = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
+    let actualInterval = {interval with From = (actualFromInterval |?? interval.From)}
     if (actualInterval.From <= actualInterval.To) then
         let observations = fetchObservations stationNumber actualInterval
         observations 

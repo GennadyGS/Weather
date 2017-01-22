@@ -55,5 +55,5 @@ let getLastObservationTime (stationNumber : string) (interval : DateTimeInterval
         }
         for od in observationDates do
         where (od >= interval.From && od <= interval.To)
-        minBy (Some (od))
+        maxBy (Some (od))
     }

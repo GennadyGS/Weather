@@ -84,6 +84,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Weather.Composition\Weather.Composition.fsproj">
+      <Name>Weather.Composition</Name>
+      <Project>{6cfc4593-8112-4afc-9c3a-4df17581a8cf}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
       <Name>Weather.Model</Name>
       <Project>{1ee46eee-c926-4d3c-9db2-4b2ed025f511}</Project>
@@ -92,6 +97,16 @@
     <ProjectReference Include="..\Weather.Persistence\Weather.Persistence.fsproj">
       <Name>Weather.Persistence</Name>
       <Project>{c24a0431-685f-4a3b-8a0e-2faca0401e3c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Weather.Synop\Weather.Synop.fsproj">
+      <Name>Weather.Synop</Name>
+      <Project>{ff33577f-b962-4808-b27a-c3d077dba9eb}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Weather.Utils\Weather.Utils.fsproj">
+      <Name>Weather.Utils</Name>
+      <Project>{793beaf7-68d5-4f4a-830a-c53ab634d011}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

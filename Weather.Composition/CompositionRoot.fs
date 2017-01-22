@@ -10,6 +10,3 @@ let fillNewData (stationNumber : string) (interval: DateTimeInterval) : unit =
         ObservationProvider.fetchObservationsByInterval
         stationNumber
         interval
-
-
-
