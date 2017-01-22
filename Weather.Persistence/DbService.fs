@@ -47,13 +47,14 @@ let getObservations () =
 let getLastObservationTime (stationNumber : string) (interval : DateTimeInterval) : DateTime option = 
     let dataContext = SqlProvider.GetDataContext()
     let observationsTable = dataContext.Dbo.Observations
-    let observationDatesQuery = query {
-        for o in observationsTable do
-        select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
-    }
     query {
+        let observationDatesQuery = query {
+            for o in observationsTable do
+            where (o.StationNumber = stationNumber)
+            select (o.Date.AddHours(float(o.Hour)), 0)
+        }
         for od in observationDatesQuery do
-        where (fst(od) = stationNumber)
-        where (snd(od) >= interval.From && snd(od) <= interval.To)
-        maxBy (Some (snd(od)))
+        let observationDate = fst od
+        where (observationDate >= interval.From && observationDate <= interval.To)
+        maxBy (Some (observationDate))
     }
