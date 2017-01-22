@@ -42,7 +42,18 @@ let getObservations () =
             StationNumber = o.StationNumber;
             Temperature = o.Temperature
         }
-    } 
+    } |> List.ofSeq
 
 let getLastObservationTime (stationNumber : string) (interval : DateTimeInterval) : DateTime option = 
-    raise (NotImplementedException())
+    let dataContext = SqlProvider.GetDataContext()
+    let observationsTable = dataContext.Dbo.Observations
+    query {
+        let observationDates = query {
+            for o in observationsTable do
+            where (o.StationNumber = stationNumber)
+            select (o.Date.AddHours(float(o.Hour)))
+        }
+        for od in observationDates do
+        where (od >= interval.From && od <= interval.To)
+        minBy (Some (od))
+    }
