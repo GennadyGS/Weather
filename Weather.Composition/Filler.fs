@@ -20,12 +20,9 @@ let fillNewData
     if (actualInterval.From <= actualInterval.To) then
         let observations = fetchObservations stationNumber actualInterval
         observations 
-            |> List.filter (function
-                | Success _ -> true
-                | Failure _ -> false)
-            |> List.map (function
-                | Success observation -> observation
-                | Failure _ -> (raise (InvalidOperationException())))
+            |> List.choose (function
+                | Success observation -> Some observation
+                | Failure _ -> None)
             |> saveObservations
     else
         ()
