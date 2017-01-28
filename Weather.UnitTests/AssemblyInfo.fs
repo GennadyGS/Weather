@@ -1,4 +1,4 @@
-﻿namespace Weather.Tests.AssemblyInfo
+﻿namespace Weather.UnitTests.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -7,11 +7,11 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("Weather.Tests")>]
+[<assembly: AssemblyTitle("Weather.UnitTests")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("EPAM Systems")>]
-[<assembly: AssemblyProduct("Weather.Tests")>]
+[<assembly: AssemblyProduct("Weather.UnitTests")>]
 [<assembly: AssemblyCopyright("Copyright © EPAM Systems 2017")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]

@@ -15,7 +15,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Utils", "Weather.Ut
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Synop", "Weather.Synop\Weather.Synop.fsproj", "{FF33577F-B962-4808-B27A-C3D077DBA9EB}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.Tests", "Weather.Tests\Weather.Tests.fsproj", "{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.UnitTests", "Weather.UnitTests\Weather.UnitTests.fsproj", "{D938E131-74FC-4D89-BC71-BB6C5F73D0D0}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Weather.IntegrationTests", "Weather.IntegrationTests\Weather.IntegrationTests.fsproj", "{9C7E1F31-D456-4282-9767-C9802B2525B1}"
 EndProject
