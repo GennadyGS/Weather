@@ -3,5 +3,4 @@
 #load "load-references-debug.fsx"
 #load "../AssemblyInfo.fs"
       "../Filler.fs"
-      "../ObservationProvider.fs"
       "../CompositionRoot.fs"

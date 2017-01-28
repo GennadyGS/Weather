@@ -1,4 +1,4 @@
-﻿module Weather.Composition.ObservationProvider
+﻿module Weather.DataProvider.ObservationProvider
 
 open FSharp.Data
 open System
@@ -52,4 +52,3 @@ let fetchObservations
 
 let fetchObservationsByInterval (stationNumber : string) (interval : DateTimeInterval) : Result<Observation, string> list = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
-
