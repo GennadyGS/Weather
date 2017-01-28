@@ -1,4 +1,4 @@
-﻿module Weather.Tests.LoaderTests
+﻿module Weather.IntegraionTests.LoaderTests
 
 open Xunit
 open Weather.Persistence.DbService

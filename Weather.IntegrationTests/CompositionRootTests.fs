@@ -1,4 +1,4 @@
-﻿module Weather.IntegrationTests.LoaderTests
+﻿module Weather.IntegraionTests.CompositionRootTests
 
 open Xunit
 open System

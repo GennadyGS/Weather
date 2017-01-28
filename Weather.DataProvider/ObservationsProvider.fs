@@ -25,7 +25,7 @@ let private getUrlQueryParams (stationNumber : string) (dateFrom : DateTime opti
     
 let private parseObservation (string : string) : Result<Observation, string> = 
     string
-        |> splitString ','
+        |> splitString [|','|]
         |> function
             | [|stationNumber; Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
                 Success {
@@ -45,7 +45,7 @@ let fetchObservations
         (dateTo : DateTime option) 
         : Result<Observation, string> list = 
     Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
-        |> splitString '\n' 
+        |> splitString [|'\r'; '\n'|] 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map parseObservation
