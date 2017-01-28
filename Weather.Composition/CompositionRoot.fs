@@ -8,6 +8,6 @@ let fillNewData (stationNumber : string) (interval: DateTimeInterval) : unit =
     Weather.Filler.fillNewData 
         DbService.getLastObservationTime 
         DbService.saveObservations
-        ObservationProvider.fetchObservationsByInterval
+        ObservationsProvider.fetchObservationsByInterval
         stationNumber
         interval

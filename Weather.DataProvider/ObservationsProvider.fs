@@ -1,4 +1,4 @@
-﻿module Weather.DataProvider.ObservationProvider
+﻿module Weather.DataProvider.ObservationsProvider
 
 open FSharp.Data
 open System
