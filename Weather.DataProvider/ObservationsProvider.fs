@@ -6,8 +6,10 @@ open Weather.Utils
 open Weather.Utils.TryParser
 open Weather.Utils.String
 open Weather.Utils.Result
+open Weather.Utils.RegEx
 open Weather.Model
 open Weather.Synop.Parser
+open System.Net
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
@@ -39,6 +41,15 @@ let private parseObservation (string : string) : Result<Observation, string> =
                 }
             | _ -> Failure (sprintf "Invalid observation string format: %s" string)
 
+let private checkHttpStatusInResponseString (string : string) : string = 
+    match string with
+    | Regex @"^Status: (\d{3}) (.*)$" 
+        [Int(status); message] -> 
+            let errorText = sprintf "The remote server returned an error: (%d) %s" status message
+            let statusCode : WebExceptionStatus = LanguagePrimitives.EnumOfValue(status)
+            raise (WebException(errorText, statusCode))
+    | _ -> string
+
 let fetchObservations 
         (stationNumber : string) 
         (dateFrom : DateTime option) 
@@ -48,7 +59,7 @@ let fetchObservations
         |> splitString [|'\r'; '\n'|] 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
-        |> List.map parseObservation
+        |> List.map (checkHttpStatusInResponseString >> parseObservation)
 
 let fetchObservationsByInterval (stationNumber : string) (interval : DateTimeInterval) : Result<Observation, string> list = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
