@@ -1,10 +1,6 @@
 ﻿namespace Weather.Utils
 
 module Result = 
-    type Result<'a, 'b> = 
-        | Success of 'a
-        | Failure of 'b
-
     let map f xResult = 
         match xResult with
         | Success success -> Success (f success)
