@@ -4,10 +4,14 @@ open Weather.Utils
 open Weather.Persistence
 open Weather.DataProvider
 
-let fillNewData (stationNumber : string) (interval: DateTimeInterval) : unit =
+let fillNewData 
+        (connectionString : string) 
+        (stationNumber : string) 
+        (interval: DateTimeInterval) 
+        : unit =
     Weather.Filler.fillNewData 
-        DbService.getLastObservationTime 
-        DbService.saveObservations
+        (DbService.getLastObservationTime connectionString)
+        (DbService.saveObservations connectionString)
         ObservationsProvider.fetchObservationsByInterval
         stationNumber
         interval

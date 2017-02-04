@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{8a06a06e-cc71-45b1-80f9-30d0ed4fd34d}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -66,5 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Weather.DB.publish.xml" />
+    <None Include="Weather.DB.Local.publish.publish.xml" />
   </ItemGroup>
 </Project>

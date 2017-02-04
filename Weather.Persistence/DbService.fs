@@ -5,12 +5,9 @@ open Weather.Utils
 open Weather.Model
 open System
 
-let [<Literal>] private SchemaConnectionString =
-    "Data Source=gennadygs.database.windows.net;Initial Catalog=Weather;Integrated Security=False;User ID=gennadygs;Password=zl0zYH`};Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
-
 type private SqlProvider = 
     SqlDataProvider<
-        ConnectionString = SchemaConnectionString,
+        ConnectionStringName = "Weather",
         UseOptionTypes = true>
 
 let private insertObservation 
@@ -22,14 +19,14 @@ let private insertObservation
     row.Hour <- observation.Time.Hour
     row.Temperature <- observation.Temperature
 
-let saveObservations (observations: Observation seq) =
-    let dataContext = SqlProvider.GetDataContext()
+let saveObservations (connectionString : string) (observations: Observation seq) : unit =
+    let dataContext = SqlProvider.GetDataContext connectionString
     let observationsTable = dataContext.Dbo.Observations
     observations |> Seq.map (insertObservation observationsTable) |> Seq.toArray |> ignore
     dataContext.SubmitUpdates()
 
-let getObservations () = 
-    let dataContext = SqlProvider.GetDataContext()
+let getObservations (connectionString : string) : Observation list = 
+    let dataContext = SqlProvider.GetDataContext connectionString
     let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -44,8 +41,12 @@ let getObservations () =
         }
     } |> List.ofSeq
 
-let getLastObservationTime (stationNumber : string) (interval : DateTimeInterval) : DateTime option = 
-    let dataContext = SqlProvider.GetDataContext()
+let getLastObservationTime 
+        (connectionString : string) 
+        (stationNumber : string) 
+        (interval : DateTimeInterval) 
+        : DateTime option = 
+    let dataContext = SqlProvider.GetDataContext connectionString
     let observationsTable = dataContext.Dbo.Observations
     let observationsQuery = query {
         for o in observationsTable do
