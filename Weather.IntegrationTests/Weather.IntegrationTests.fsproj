@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="DbTests.fs" />
-    <Compile Include="ObservationProviderTest.fs" />
+    <Compile Include="ObservationProviderTests.fs" />
     <Compile Include="LoaderTests.fs" />
     <Compile Include="CompositionRootTests.fs" />
     <Content Include="packages.config" />

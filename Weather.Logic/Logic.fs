@@ -1,4 +1,4 @@
-﻿module Weather.Filler
+﻿module Weather.Logic
 
 open System
 open Weather.Utils

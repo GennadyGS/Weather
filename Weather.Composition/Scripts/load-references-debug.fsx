@@ -9,3 +9,4 @@
 #r "../../Weather.Synop/bin/Debug/Weather.Synop.dll"
 #r "../../Weather.Persistence/bin/Debug/Weather.Persistence.dll"
 #r "../../Weather.DataProvider/bin/Debug/Weather.DataProvider.dll"
+#r "../../Weather.Logic/bin/Debug/Weather.Logic.dll"
