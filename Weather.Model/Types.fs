@@ -7,7 +7,7 @@ type ObservationTime = {
 
 type Observation = {
     Time: ObservationTime; 
-    StationNumber: string;
+    StationNumber: int;
     Temperature: decimal
 }
 

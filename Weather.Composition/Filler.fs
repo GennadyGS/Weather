@@ -9,10 +9,10 @@ let inline (|??) (a: 'a option) b =
     if a.IsSome then a.Value else b  
 
 let fillNewData 
-        (getLastObservationTime : string -> DateTimeInterval -> DateTime option)
+        (getLastObservationTime : int -> DateTimeInterval -> DateTime option)
         (saveObservations : Observation list -> unit)
-        (fetchObservations : string -> DateTimeInterval -> Result<Observation, string> list)
-        (stationNumber : string)
+        (fetchObservations : int -> DateTimeInterval -> Result<Observation, string> list)
+        (stationNumber : int)
         (interval: DateTimeInterval)
         : unit =
     let lastObservationTime = getLastObservationTime stationNumber interval

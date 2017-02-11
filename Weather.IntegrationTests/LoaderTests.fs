@@ -18,5 +18,5 @@ type LoaderTests() =
         let now = System.DateTime.UtcNow
         DbService.saveObservations Settings.ConnectionStrings.Weather 
                                 ([| { Time = { Date = now; Hour = byte(now.Hour) };
-                                    StationNumber = "0";
+                                    StationNumber = 0;
                                     Temperature = -1.3m } |])

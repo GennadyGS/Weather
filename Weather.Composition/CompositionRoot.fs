@@ -6,7 +6,7 @@ open Weather.DataProvider
 
 let fillNewData 
         (connectionString : string) 
-        (stationNumber : string) 
+        (stationNumber : int) 
         (interval: DateTimeInterval) 
         : unit =
     Weather.Filler.fillNewData 

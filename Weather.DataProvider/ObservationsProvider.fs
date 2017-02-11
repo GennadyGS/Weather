@@ -16,11 +16,14 @@ let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 let private formatDate (date : DateTime) : string = 
     date.ToString("yyyyMMddHHmm")
 
+let private formatStationNumber : (int -> string) =
+    sprintf "%05d"
+
 let private mapTupleOption f (a, b) = 
     b |> Option.map (fun item -> a, f item)
 
-let private getUrlQueryParams (stationNumber : string) (dateFrom : DateTime option) (dateTo : DateTime option) = 
-    ("block", stationNumber) ::
+let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option) (dateTo : DateTime option) = 
+    ("block", stationNumber |> formatStationNumber) ::
     List.concat [
         ("begin", dateFrom) |> (mapTupleOption formatDate) |> Option.toList;
         ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
@@ -29,7 +32,7 @@ let private parseObservation (string : string) : Result<Observation, string> =
     string
         |> splitString [|','|]
         |> function
-            | [|stationNumber; Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
+            | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
                 Success {
                     Time = 
                         {
@@ -51,7 +54,7 @@ let private checkHttpStatusInResponseString (string : string) : string =
     | _ -> string
 
 let fetchObservations 
-        (stationNumber : string) 
+        (stationNumber : int) 
         (dateFrom : DateTime option) 
         (dateTo : DateTime option) 
         : Result<Observation, string> list = 
@@ -61,5 +64,5 @@ let fetchObservations
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map (checkHttpStatusInResponseString >> parseObservation)
 
-let fetchObservationsByInterval (stationNumber : string) (interval : DateTimeInterval) : Result<Observation, string> list = 
+let fetchObservationsByInterval (stationNumber : int) (interval : DateTimeInterval) : Result<Observation, string> list = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)

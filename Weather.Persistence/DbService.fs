@@ -43,7 +43,7 @@ let getObservations (connectionString : string) : Observation list =
 
 let getLastObservationTime 
         (connectionString : string) 
-        (stationNumber : string) 
+        (stationNumber : int) 
         (interval : DateTimeInterval) 
         : DateTime option = 
     let dataContext = SqlProvider.GetDataContext connectionString
