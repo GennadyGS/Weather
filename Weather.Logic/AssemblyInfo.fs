@@ -1,4 +1,4 @@
-﻿namespace Weather
+﻿namespace Weather.Logic
 
 open System.Reflection
 open System.Runtime.CompilerServices
