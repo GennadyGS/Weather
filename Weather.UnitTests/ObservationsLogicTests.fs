@@ -17,7 +17,9 @@ let ``FillNewData calls getMaxObservationTime``
     
     // Arrange
     let mutable getLastObservationTimeCalled = false
-    let getLastObservationTime _ _ = 
+    let getLastObservationTime stationNumberArg intervalArg = 
+        stationNumberArg =! stationNumber
+        intervalArg =! interval
         getLastObservationTimeCalled <- true
         lastObservationTime
 
@@ -65,21 +67,56 @@ let ``FillNewData does not call fetchObservations when last observation time plu
 
 [<Property>]
 let ``FillNewData calls fetchObservations when last observation time plus 1 munute is lower then interval.To`` 
-        maxObservationTime
+        lastObservationTime
         observations 
         saveObservations 
         stationNumber 
         interval = 
     
     // Restrictions
-    (maxObservationTime < interval.To.AddMinutes(1.0)) ==> lazy
+    (interval.From < interval.To) ==> lazy
+    (lastObservationTime < interval.To.AddMinutes(1.0)) ==> lazy
     
     // Arrange
     let getLastObservationTime _ _ = 
-        Some maxObservationTime
+        Some lastObservationTime
 
     let mutable fetchObservationsCalled = false
-    let fetchObservations _ _ =
+    let fetchObservations stationNumberArg intervalArg =
+        stationNumberArg =! stationNumber
+        intervalArg =! { interval with From = lastObservationTime.AddMinutes(1.0) }
+        fetchObservationsCalled <- true
+        observations
+
+    // Act
+    Observations.fillNewData 
+        getLastObservationTime 
+        fetchObservations
+        saveObservations 
+        stationNumber
+        interval
+
+    // Assert
+    fetchObservationsCalled =! true
+
+[<Property>]
+let ``FillNewData calls fetchObservations when last observation time is None`` 
+        observations 
+        saveObservations 
+        stationNumber 
+        interval = 
+    
+    // Restrictions
+    (interval.From < interval.To) ==> lazy
+
+    // Arrange
+    let getLastObservationTime _ _ = 
+        None
+
+    let mutable fetchObservationsCalled = false
+    let fetchObservations stationNumberArg intervalArg =
+        stationNumberArg =! stationNumber
+        intervalArg =! interval
         fetchObservationsCalled <- true
         observations
 
