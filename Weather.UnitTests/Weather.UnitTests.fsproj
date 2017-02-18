@@ -56,6 +56,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <Content Include="App.config" />
+    <Compile Include="ObservationsLogicTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
@@ -74,6 +75,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="Unquote">
+      <HintPath>..\packages\Unquote.3.1.2\lib\net45\Unquote.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="xunit.abstractions">
       <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
@@ -92,9 +97,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Weather.Composition\Weather.Composition.fsproj">
-      <Name>Weather.Composition</Name>
-      <Project>{6cfc4593-8112-4afc-9c3a-4df17581a8cf}</Project>
+    <ProjectReference Include="..\Weather.Logic\Weather.Logic.fsproj">
+      <Name>Weather.Logic</Name>
+      <Project>{79157338-0322-4af0-bbd9-3ee02e48796c}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">

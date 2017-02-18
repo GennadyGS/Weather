@@ -12,7 +12,7 @@ let fillNewData
         : unit =
     Weather.Logic.Observations.fillNewData 
         (DbService.getLastObservationTime connectionString)
-        (DbService.saveObservations connectionString)
         ObservationsProvider.fetchObservationsByInterval
+        (DbService.saveObservations connectionString)
         stationNumber
         interval
