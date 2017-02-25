@@ -32,7 +32,7 @@ let private parseObservation (string : string) : Result<Observation, string> =
     result {
         let! (time, stationNumber, synop) = 
             string
-            |> splitString [|','|]
+            |> split [|','|]
             |> function
                 | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
                     let time = { Date = DateTime(year, month, day); Hour = hour };
@@ -63,7 +63,7 @@ let fetchObservations
         (dateTo : DateTime option) 
         : Result<Observation, string> list = 
     Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
-        |> splitString [|'\r'; '\n'|] 
+        |> split [|'\r'; '\n'|] 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map (checkHttpStatusInResponseString >> parseObservation)
