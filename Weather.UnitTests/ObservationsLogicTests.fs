@@ -6,7 +6,13 @@ open Swensen.Unquote
 open Weather.Logic
 open System
 open Weather.Utils
+open Weather.Utils.DateTime
 open Weather.Model
+open Weather.Utils.Result
+
+let private filterObservationsByInterval interval observations
+    = observations 
+    |> List.filter (fun observation -> inside interval (observation.Time.ToDateTime())) 
 
 [<Property>]
 let ``GetNewData throws exception interval is empty`` 
@@ -80,9 +86,11 @@ let ``GetNewData returns fetched observations from last observation time to inte
     let getLastObservationTime _ _ = 
         Some lastObservationTime
 
+    let expectedActualInterval = { interval with From = lastObservationTime.AddMinutes(1.0) }
+
     let fetchObservations stationNumberArg intervalArg =
         stationNumberArg =! stationNumber
-        intervalArg =! { interval with From = lastObservationTime.AddMinutes(1.0) }
+        intervalArg =! expectedActualInterval
         observations |> List.map Success
 
     // Act
@@ -94,7 +102,7 @@ let ``GetNewData returns fetched observations from last observation time to inte
             interval
 
     // Assert
-    result =! observations
+    result =! (observations |> filterObservationsByInterval expectedActualInterval)
 
 [<Property>]
 let ``GetNewData returns fetched observations from interval when last observation time is before interval.From`` 
@@ -125,7 +133,7 @@ let ``GetNewData returns fetched observations from interval when last observatio
             interval
 
     // Assert
-    result =! observations
+    result =! (observations |> filterObservationsByInterval interval)
 
 [<Property>]
 let ``GetNewData returns fetched observation when last observation time is None`` 
@@ -154,7 +162,7 @@ let ``GetNewData returns fetched observation when last observation time is None`
             interval
 
     // Assert
-    result =! observations
+    result =! (observations |> (filterObservationsByInterval interval))
 
 [<Property>]
 let ``GetNewData returns only success fetched observations`` 
@@ -180,11 +188,7 @@ let ``GetNewData returns only success fetched observations``
             interval
 
     // Assert
-    let expectedObservations 
-        = observations 
-        |> List.choose (
-            function
-            | Success observation -> Some observation
-            | _ -> None)
-    result =! expectedObservations
+    result =! (observations 
+        |> filterSuccess
+        |> filterObservationsByInterval interval)
         

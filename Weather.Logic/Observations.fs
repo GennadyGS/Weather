@@ -2,12 +2,10 @@
 
 open System
 open Weather.Utils
+open Weather.Utils.DateTime
 open Weather.Utils.Option
 open Weather.Utils.Result
 open Weather.Model
-
-let private maxDate (date1: DateTime) (date2 : DateTime) = 
-    DateTime(Math.Max(date1.Ticks, date2.Ticks))
 
 let getNewData 
         (getLastObservationTime : int -> DateTimeInterval -> DateTime option)
@@ -20,7 +18,7 @@ let getNewData
     let getActualInterval interval = 
         let lastObservationTime = getLastObservationTime stationNumber interval
         let lastObservationTimePlus1Minute = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
-        let actualIntervalFrom = maxDate interval.From (lastObservationTimePlus1Minute |?? interval.From)
+        let actualIntervalFrom = max interval.From (lastObservationTimePlus1Minute |?? interval.From)
         {interval with From = actualIntervalFrom}
     
     let fetchObservationsSafe interval = 
@@ -28,9 +26,9 @@ let getNewData
             fetchObservations stationNumber interval
         else []
     
-    interval
-        |> getActualInterval
+    let actualInterval = getActualInterval interval
+    actualInterval
         |> fetchObservationsSafe
-        |> List.choose (function
-            | Success observation -> Some observation
-            | Failure _ -> None)
+        |> filterSuccess
+        |> List.filter (fun observation -> 
+            inside actualInterval (observation.Time.ToDateTime()))
