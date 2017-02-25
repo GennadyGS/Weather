@@ -50,6 +50,7 @@
     <Compile Include="String.fs" />
     <Compile Include="RegEx.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="Option.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

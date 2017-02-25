@@ -2,11 +2,9 @@
 
 open System
 open Weather.Utils
+open Weather.Utils.Option
 open Weather.Utils.Result
 open Weather.Model
-
-let inline (|??) (a: 'a option) b = 
-    if a.IsSome then a.Value else b  
 
 let private maxDate (date1: DateTime) (date2 : DateTime) = 
     DateTime(Math.Max(date1.Ticks, date2.Ticks))
