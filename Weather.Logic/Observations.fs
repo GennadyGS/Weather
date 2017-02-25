@@ -8,6 +8,9 @@ open Weather.Model
 let inline (|??) (a: 'a option) b = 
     if a.IsSome then a.Value else b  
 
+let private maxDate (date1: DateTime) (date2 : DateTime) = 
+    DateTime(Math.Max(date1.Ticks, date2.Ticks))
+
 let getNewData 
         (getLastObservationTime : int -> DateTimeInterval -> DateTime option)
         (fetchObservations : int -> DateTimeInterval -> Result<Observation, string> list)
@@ -15,18 +18,21 @@ let getNewData
         (interval: DateTimeInterval)
         : Observation list =
     if interval.To < interval.From then raise (ArgumentException("interval"))
-    let lastObservationTime = getLastObservationTime stationNumber interval
-    let lastObservationTimePlus1Minute = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
-    let maxDate (date1: DateTime) (date2 : DateTime) = 
-        DateTime(Math.Max(date1.Ticks, date2.Ticks))
-    let actualIntervalFrom = maxDate interval.From (lastObservationTimePlus1Minute |?? interval.From)
-    let actualInterval = {interval with From = actualIntervalFrom}
-    let observations = 
-        if actualInterval.From <= actualInterval.To then
-            fetchObservations stationNumber actualInterval
-        else
-            []
-    observations
+    
+    let getActualInterval interval = 
+        let lastObservationTime = getLastObservationTime stationNumber interval
+        let lastObservationTimePlus1Minute = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
+        let actualIntervalFrom = maxDate interval.From (lastObservationTimePlus1Minute |?? interval.From)
+        {interval with From = actualIntervalFrom}
+    
+    let fetchObservationsSafe interval = 
+        if interval.From <= interval.To then 
+            fetchObservations stationNumber interval
+        else []
+    
+    interval
+        |> getActualInterval
+        |> fetchObservationsSafe
         |> List.choose (function
             | Success observation -> Some observation
             | Failure _ -> None)
