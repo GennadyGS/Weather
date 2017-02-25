@@ -155,3 +155,36 @@ let ``GetNewData returns fetched observation when last observation time is None`
 
     // Assert
     result =! observations
+
+[<Property>]
+let ``GetNewData returns only success fetched observations`` 
+        observations 
+        stationNumber 
+        interval = 
+    
+    // Restrictions
+    (interval.From < interval.To) ==> lazy
+
+    let getLastObservationTime _ _ = 
+        None
+
+    let fetchObservations _ _ =
+        observations
+
+    // Act
+    let result = 
+        Observations.getNewData 
+            getLastObservationTime 
+            fetchObservations
+            stationNumber
+            interval
+
+    // Assert
+    let expectedObservations 
+        = observations 
+        |> List.choose (
+            function
+            | Success observation -> Some observation
+            | _ -> None)
+    result =! expectedObservations
+        
