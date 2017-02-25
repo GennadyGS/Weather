@@ -14,9 +14,13 @@ let getNewData
         (stationNumber : int)
         (interval: DateTimeInterval)
         : Observation list =
+    if interval.To < interval.From then raise (ArgumentException("interval"))
     let lastObservationTime = getLastObservationTime stationNumber interval
-    let actualFromTime = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
-    let actualInterval = {interval with From = (actualFromTime |?? interval.From)}
+    let lastObservationTimePlus1Minute = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
+    let maxDate (date1: DateTime) (date2 : DateTime) = 
+        DateTime(Math.Max(date1.Ticks, date2.Ticks))
+    let actualIntervalFrom = maxDate interval.From (lastObservationTimePlus1Minute |?? interval.From)
+    let actualInterval = {interval with From = actualIntervalFrom}
     let observations = 
         if actualInterval.From <= actualInterval.To then
             fetchObservations stationNumber actualInterval
