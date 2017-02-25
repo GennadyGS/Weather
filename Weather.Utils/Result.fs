@@ -19,6 +19,7 @@ let bind f xResult =
 
 type ResultBuilder() =
     member this.Return x = Success x
+    member this.ReturnFrom x = x
     member this.Zero() = Success ()
     member this.Bind(xResult, f) = bind f xResult
     

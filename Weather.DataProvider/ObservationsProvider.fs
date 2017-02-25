@@ -29,21 +29,25 @@ let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option)
         ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
     
 let private parseObservation (string : string) : Result<Observation, string> = 
-    string
-        |> splitString [|','|]
-        |> function
-            | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); Synop(synop)|] -> 
+    result {
+        let! (time, stationNumber, synop) = 
+            string
+            |> splitString [|','|]
+            |> function
+                | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
+                    let time = { Date = DateTime(year, month, day); Hour = hour };
+                    Success (time, stationNumber, synop)
+                | _ -> Failure (sprintf "Invalid observation string format: %s" string)
+        return! 
+            match synop with
+            | Synop(synop) -> 
                 Success {
-                    Time = 
-                        {
-                            Date = System.DateTime(year, month, day);
-                            Hour = hour
-                        };
+                    Time = time;
                     StationNumber = stationNumber;
                     Temperature = synop.Temperature
                 }
-            | _ -> Failure (sprintf "Invalid observation string format: %s" string)
-
+            | _ -> Failure (sprintf "Invalid SYNOP format: %s" string)
+    }
 let private checkHttpStatusInResponseString (string : string) : string = 
     match string with
     | Regex @"^Status: (\d{3}) (.*)$" 
