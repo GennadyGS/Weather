@@ -8,13 +8,12 @@ open Weather.Model
 let inline (|??) (a: 'a option) b = 
     if a.IsSome then a.Value else b  
 
-let fillNewData 
+let getNewData 
         (getLastObservationTime : int -> DateTimeInterval -> DateTime option)
         (fetchObservations : int -> DateTimeInterval -> Result<Observation, string> list)
-        (saveObservations : Observation list -> unit)
         (stationNumber : int)
         (interval: DateTimeInterval)
-        : unit =
+        : Observation list =
     let lastObservationTime = getLastObservationTime stationNumber interval
     let actualFromTime = lastObservationTime |> Option.map (fun d -> d.AddMinutes(1.0))
     let actualInterval = {interval with From = (actualFromTime |?? interval.From)}
@@ -23,11 +22,7 @@ let fillNewData
             fetchObservations stationNumber actualInterval
         else
             []
-    let successfulObservations = 
-        observations
-            |> List.choose (function
-                | Success observation -> Some observation
-                | Failure _ -> None)
-    if not (List.isEmpty successfulObservations) then 
-        saveObservations successfulObservations 
-    else ()
+    observations
+        |> List.choose (function
+            | Success observation -> Some observation
+            | Failure _ -> None)
