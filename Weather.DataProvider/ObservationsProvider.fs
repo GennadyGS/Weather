@@ -8,6 +8,7 @@ open Weather.Utils.String
 open Weather.Utils.Result
 open Weather.Utils.RegEx
 open Weather.Model
+open Weather.Synop
 open Weather.Synop.Parser
 open System.Net
 
@@ -28,6 +29,12 @@ let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option)
         ("begin", dateFrom) |> (mapTupleOption formatDate) |> Option.toList;
         ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
     
+let private toObservation header (synop : Synop) =
+    {  
+        Header = header
+        Temperature = synop.Temperature 
+    }
+
 let private parseObservation string = 
     result {
         let! (header, synop) = 
@@ -45,9 +52,7 @@ let private parseObservation string =
         return! 
             match synop with
             | Synop(synop) -> 
-                Success {
-                    Header = header
-                    Temperature = synop.Temperature }
+                Success (toObservation header synop)
             | _ -> Failure (InvalidObservationFormat (header, sprintf "Invalid SYNOP format: %s" string))
     }
 let private checkHttpStatusInResponseString (string : string) : string = 
