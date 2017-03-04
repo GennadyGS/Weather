@@ -15,8 +15,8 @@ let private insertObservation
         observation =
     let row = observationsTable.Create()
     row.StationNumber <- observation.Header.StationNumber
-    row.Date <- observation.Header.Time.Date
-    row.Hour <- observation.Header.Time.Hour
+    row.Date <- observation.Header.ObservationTime.Date
+    row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
 
 let saveObservations connectionString observations =
@@ -33,7 +33,7 @@ let getObservations (connectionString : string) : Observation list =
         select {
             Header = 
                 {
-                    Time = 
+                    ObservationTime = 
                         {
                             Date = o.Date; 
                             Hour = o.Hour;

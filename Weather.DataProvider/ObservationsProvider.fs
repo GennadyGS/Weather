@@ -14,10 +14,14 @@ open System.Net
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
-let private formatDate (date : DateTime) : string = 
-    date.ToString("yyyyMMddHHmm")
+let private formatDateTime (dateTime : DateTime) : string = 
+    dateTime.ToString("yyyyMMddHHmm")
 
-let private formatStationNumber : (int -> string) =
+let private roundToMinutes (dateTime : DateTime) = 
+    let updated = dateTime.AddMinutes(30.0)
+    DateTime(updated.Year, updated.Month, updated.Day, updated.Hour, 0, 0, dateTime.Kind);
+
+let private formatStationNumber =
     sprintf "%05d"
 
 let private mapTupleOption f (a, b) = 
@@ -26,37 +30,36 @@ let private mapTupleOption f (a, b) =
 let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option) (dateTo : DateTime option) = 
     ("block", stationNumber |> formatStationNumber) ::
     List.concat [
-        ("begin", dateFrom) |> (mapTupleOption formatDate) |> Option.toList;
-        ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
+        ("begin", dateFrom) |> (mapTupleOption formatDateTime) |> Option.toList;
+        ("end", dateTo) |> (mapTupleOption formatDateTime) |> Option.toList]
     
-let private toObservation header (synop : Synop) =
-    {  
-        Header = header
-        Temperature = synop.Temperature 
-    }
+let private toObservation header synop =
+    { Header = header
+      Temperature = synop.Temperature }
 
 let private parseHeader string =
     string
     |> split [|','|]
     |> function
-        | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
+        | [|Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString|] -> 
+            let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> roundToMinutes
             let header = 
-                { 
-                    Time = { Date = DateTime(year, month, day); Hour = hour }
-                    StationNumber = stationNumber
-                }
-            Success (header, synop)
+                { StationNumber = stationNumber
+                  ObservationTime = 
+                    { Date = roundedObservationTime.Date
+                      Hour = byte roundedObservationTime.Hour }}
+            Success (header, synopString)
         | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
 
+let private parseSynop header string =  
+    match string with
+    | Synop(synop) -> Success (toObservation header synop)
+    | _ -> Failure (InvalidObservationFormat (header, sprintf "Invalid SYNOP format: %s" string))
 
 let private parseObservation string = 
     result {
-        let! (header, synop) = parseHeader string
-        return! 
-            match synop with
-            | Synop(synop) -> 
-                Success (toObservation header synop)
-            | _ -> Failure (InvalidObservationFormat (header, sprintf "Invalid SYNOP format: %s" string))
+        let! (header, synopString) = parseHeader string
+        return! parseSynop header synopString
     }
 let private checkHttpStatusInResponseString (string : string) : string = 
     match string with

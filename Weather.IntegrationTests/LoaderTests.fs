@@ -20,7 +20,7 @@ type LoaderTests() =
             ([| { 
                 Header = 
                     {
-                        Time = 
+                        ObservationTime = 
                             { 
                                 Date = now 
                                 Hour = byte(now.Hour) 

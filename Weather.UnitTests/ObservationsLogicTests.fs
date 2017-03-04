@@ -12,7 +12,7 @@ open Weather.Utils.Result
 
 let private filterObservationsByInterval interval observations = 
     observations 
-    |> List.filter (fun observation -> inside interval (observation.Header.Time.ToDateTime())) 
+    |> List.filter (fun observation -> inside interval (observation.Header.ObservationTime.ToDateTime())) 
 
 [<Property>]
 let ``GetNewData throws exception interval is empty`` 
