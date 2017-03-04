@@ -35,20 +35,23 @@ let private toObservation header (synop : Synop) =
         Temperature = synop.Temperature 
     }
 
+let private parseHeader string =
+    string
+    |> split [|','|]
+    |> function
+        | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
+            let header = 
+                { 
+                    Time = { Date = DateTime(year, month, day); Hour = hour }
+                    StationNumber = stationNumber
+                }
+            Success (header, synop)
+        | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
+
+
 let private parseObservation string = 
     result {
-        let! (header, synop) = 
-            string
-            |> split [|','|]
-            |> function
-                | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
-                    let header = 
-                        { 
-                            Time = { Date = DateTime(year, month, day); Hour = hour }
-                            StationNumber = stationNumber
-                        }
-                    Success (header, synop)
-                | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
+        let! (header, synop) = parseHeader string
         return! 
             match synop with
             | Synop(synop) -> 
