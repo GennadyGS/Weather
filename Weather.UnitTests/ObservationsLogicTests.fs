@@ -10,40 +10,38 @@ open Weather.Utils.DateTime
 open Weather.Model
 open Weather.Utils.Result
 
-let private filterObservationsByInterval interval observations
-    = observations 
+let private filterObservationsByInterval interval observations = 
+    observations 
     |> List.filter (fun observation -> inside interval (observation.Time.ToDateTime())) 
 
 [<Property>]
 let ``GetNewData throws exception interval is empty`` 
-        stationNumber 
-        interval = 
+        (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From > interval.To) ==> lazy
 
-    let getLastObservationTime (_ : int) (_ : DateTimeInterval) : DateTime option = 
+    let getLastObservationTime _ _ = 
         failwith "Should not be called"
         None
     
-    let fetchObservations (_ : int) (_ : DateTimeInterval) : Result<Observation, string> list = 
+    let fetchObservations _ _ = 
         failwith "Should not be called"
         []
     
-    // Act & Assert
-    raises<ArgumentException> 
-        <@ Observations.getNewData 
+    let getResult () =
+        Observations.getNewData 
             getLastObservationTime 
             fetchObservations
             stationNumber
-            interval @>
+            interval
+
+    // Act & Assert
+    raises<ArgumentException> <@ getResult() @>
 
 [<Property>]
 let ``GetNewData returns empty list when last observation time is after interval.To`` 
-        lastObservationTime
-        observations 
-        stationNumber 
-        interval = 
+        lastObservationTime observations (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From < interval.To) ==> lazy
@@ -56,7 +54,7 @@ let ``GetNewData returns empty list when last observation time is after interval
     let mutable fetchObservationsCalled = false
     let fetchObservations _ _ =
         fetchObservationsCalled <- true
-        observations
+        observations |> List.map Success
 
     // Act
     let result = 
@@ -72,10 +70,7 @@ let ``GetNewData returns empty list when last observation time is after interval
 
 [<Property>]
 let ``GetNewData returns fetched observations from last observation time to interval.To when it is inside interval`` 
-        lastObservationTime
-        observations 
-        stationNumber 
-        interval = 
+        lastObservationTime observations (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From < interval.To) ==> lazy
@@ -106,10 +101,7 @@ let ``GetNewData returns fetched observations from last observation time to inte
 
 [<Property>]
 let ``GetNewData returns fetched observations from interval when last observation time is before interval.From`` 
-        lastObservationTime
-        observations 
-        stationNumber 
-        interval = 
+        lastObservationTime observations (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From < interval.To) ==> lazy
@@ -137,9 +129,7 @@ let ``GetNewData returns fetched observations from interval when last observatio
 
 [<Property>]
 let ``GetNewData returns fetched observation when last observation time is None`` 
-        observations 
-        stationNumber 
-        interval = 
+        observations (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From < interval.To) ==> lazy
@@ -162,13 +152,11 @@ let ``GetNewData returns fetched observation when last observation time is None`
             interval
 
     // Assert
-    result =! (observations |> (filterObservationsByInterval interval))
+    result =! (observations |> filterObservationsByInterval interval)
 
 [<Property>]
 let ``GetNewData returns only success fetched observations`` 
-        observations 
-        stationNumber 
-        interval = 
+        observations  (stationNumber : int) interval = 
     
     // Restrictions
     (interval.From < interval.To) ==> lazy
@@ -177,7 +165,7 @@ let ``GetNewData returns only success fetched observations``
         None
 
     let fetchObservations _ _ =
-        observations
+        observations |> List.map Success
 
     // Act
     let result = 
@@ -188,7 +176,5 @@ let ``GetNewData returns only success fetched observations``
             interval
 
     // Assert
-    result =! (observations 
-        |> filterSuccess
-        |> filterObservationsByInterval interval)
+    result =! (observations |> filterObservationsByInterval interval)
         

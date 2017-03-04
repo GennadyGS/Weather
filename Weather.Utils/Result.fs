@@ -1,7 +1,7 @@
 ﻿module Weather.Utils.Result
 
-let filterSuccess results
-    = results 
+let filterSuccess results = 
+    results 
     |> List.choose (
         function
         | Success observation -> Some observation

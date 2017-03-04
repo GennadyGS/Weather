@@ -28,7 +28,7 @@ let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option)
         ("begin", dateFrom) |> (mapTupleOption formatDate) |> Option.toList;
         ("end", dateTo) |> (mapTupleOption formatDate) |> Option.toList]
     
-let private parseObservation (string : string) : Result<Observation, string> = 
+let private parseObservation string = 
     result {
         let! (time, stationNumber, synop) = 
             string
@@ -37,7 +37,7 @@ let private parseObservation (string : string) : Result<Observation, string> =
                 | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
                     let time = { Date = DateTime(year, month, day); Hour = hour };
                     Success (time, stationNumber, synop)
-                | _ -> Failure (sprintf "Invalid observation string format: %s" string)
+                | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
         return! 
             match synop with
             | Synop(synop) -> 
@@ -46,7 +46,7 @@ let private parseObservation (string : string) : Result<Observation, string> =
                     StationNumber = stationNumber;
                     Temperature = synop.Temperature
                 }
-            | _ -> Failure (sprintf "Invalid SYNOP format: %s" string)
+            | _ -> Failure (InvalidObservationFormat (sprintf "Invalid SYNOP format: %s" string))
     }
 let private checkHttpStatusInResponseString (string : string) : string = 
     match string with
@@ -57,16 +57,12 @@ let private checkHttpStatusInResponseString (string : string) : string =
             raise (WebException(errorText, statusCode))
     | _ -> string
 
-let fetchObservations 
-        (stationNumber : int) 
-        (dateFrom : DateTime option) 
-        (dateTo : DateTime option) 
-        : Result<Observation, string> list = 
+let fetchObservations stationNumber dateFrom dateTo = 
     Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
         |> split [|'\r'; '\n'|] 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map (checkHttpStatusInResponseString >> parseObservation)
 
-let fetchObservationsByInterval (stationNumber : int) (interval : DateTimeInterval) : Result<Observation, string> list = 
+let fetchObservationsByInterval stationNumber interval = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
