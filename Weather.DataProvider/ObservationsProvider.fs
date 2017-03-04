@@ -30,21 +30,25 @@ let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option)
     
 let private parseObservation string = 
     result {
-        let! (time, stationNumber, synop) = 
+        let! (header, synop) = 
             string
             |> split [|','|]
             |> function
                 | [|Int(stationNumber); Int(year); Int(month); Int(day); Byte(hour); Byte(0uy); synop|] -> 
-                    let time = { Date = DateTime(year, month, day); Hour = hour };
-                    Success (time, stationNumber, synop)
+                    let header = 
+                        { 
+                            Time = { Date = DateTime(year, month, day); Hour = hour }
+                            StationNumber = stationNumber
+                        }
+                    Success (header, synop)
                 | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
         return! 
             match synop with
             | Synop(synop) -> 
                 Success {
-                    Header = { Time = time; StationNumber = stationNumber }
+                    Header = header
                     Temperature = synop.Temperature }
-            | _ -> Failure (InvalidObservationFormat (sprintf "Invalid SYNOP format: %s" string))
+            | _ -> Failure (InvalidObservationFormat (header, sprintf "Invalid SYNOP format: %s" string))
     }
 let private checkHttpStatusInResponseString (string : string) : string = 
     match string with
