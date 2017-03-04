@@ -5,11 +5,7 @@ open Weather.Persistence
 open Weather.DataProvider
 open Weather.Logic
 
-let fillNewData 
-        (connectionString : string) 
-        (stationNumber : int) 
-        (interval: DateTimeInterval) 
-        : unit =
+let fillNewData connectionString stationNumber interval =
     Weather.Logic.Observations.getNewData 
         (DbService.getLastObservationTime connectionString)
         ObservationsProvider.fetchObservationsByInterval

@@ -12,14 +12,14 @@ type private SqlProvider =
 
 let private insertObservation 
         (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
-        (observation: Observation) =
+        observation =
     let row = observationsTable.Create()
-    row.StationNumber <- observation.StationNumber
-    row.Date <- observation.Time.Date
-    row.Hour <- observation.Time.Hour
+    row.StationNumber <- observation.Header.StationNumber
+    row.Date <- observation.Header.Time.Date
+    row.Hour <- observation.Header.Time.Hour
     row.Temperature <- observation.Temperature
 
-let saveObservations (connectionString : string) (observations: Observation seq) : unit =
+let saveObservations connectionString observations =
     let dataContext = SqlProvider.GetDataContext connectionString
     let observationsTable = dataContext.Dbo.Observations
     observations |> Seq.map (insertObservation observationsTable) |> Seq.toArray |> ignore
@@ -31,21 +31,20 @@ let getObservations (connectionString : string) : Observation list =
     query {
         for o in observationsTable do
         select {
-            Time = 
+            Header = 
                 {
-                    Date = o.Date; 
-                    Hour = o.Hour;
-                };
-            StationNumber = o.StationNumber;
+                    Time = 
+                        {
+                            Date = o.Date; 
+                            Hour = o.Hour;
+                        };
+                    StationNumber = o.StationNumber;
+                }
             Temperature = o.Temperature
         }
     } |> List.ofSeq
 
-let getLastObservationTime 
-        (connectionString : string) 
-        (stationNumber : int) 
-        (interval : DateTimeInterval) 
-        : DateTime option = 
+let getLastObservationTime connectionString stationNumber interval = 
     let dataContext = SqlProvider.GetDataContext connectionString
     let observationsTable = dataContext.Dbo.Observations
     let observationsQuery = query {

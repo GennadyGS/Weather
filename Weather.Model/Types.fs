@@ -1,8 +1,8 @@
 ﻿namespace Weather.Model
 
 type ObservationTime = {
-    Date: System.DateTime;
-    Hour: byte;
+    Date: System.DateTime
+    Hour: byte
 } with
     member this.ToDateTime() = 
         this.Date.AddHours(float this.Hour)
@@ -11,9 +11,13 @@ type ParseObservationFailure =
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of string
 
+type ObservationHeader = {
+    Time: ObservationTime
+    StationNumber: int
+}
+
 type Observation = {
-    Time: ObservationTime; 
-    StationNumber: int;
+    Header : ObservationHeader
     Temperature: decimal
 }
 

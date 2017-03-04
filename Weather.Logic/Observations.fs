@@ -26,4 +26,4 @@ let getNewData getLastObservationTime fetchObservations stationNumber interval =
         |> fetchObservationsSafe
         |> filterSuccess
         |> List.filter (fun observation -> 
-            inside actualInterval (observation.Time.ToDateTime()))
+            inside actualInterval (observation.Header.Time.ToDateTime()))

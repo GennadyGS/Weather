@@ -42,10 +42,8 @@ let private parseObservation string =
             match synop with
             | Synop(synop) -> 
                 Success {
-                    Time = time;
-                    StationNumber = stationNumber;
-                    Temperature = synop.Temperature
-                }
+                    Header = { Time = time; StationNumber = stationNumber }
+                    Temperature = synop.Temperature }
             | _ -> Failure (InvalidObservationFormat (sprintf "Invalid SYNOP format: %s" string))
     }
 let private checkHttpStatusInResponseString (string : string) : string = 
