@@ -13,6 +13,16 @@ type private SqlProvider =
 type private DataContext = 
     SqlProvider.dataContext
 
+let private mapContextReadFunc func = 
+    SqlProvider.GetDataContext >> func
+
+let private mapContextUpdateFunc func = 
+    fun connectionString ->
+        let dataContext = SqlProvider.GetDataContext connectionString 
+        let result = func dataContext
+        dataContext.SubmitUpdates()
+        result
+
 let private insertObservation 
         (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
         observation =
@@ -27,22 +37,15 @@ let private saveObservationsInternal (dataContext : DataContext) observations =
     |> List.map (insertObservation dataContext.Dbo.Observations) 
     |> ignore
 
-let saveObservations connectionString observations = 
-    let dataContext = SqlProvider.GetDataContext connectionString 
-    saveObservationsInternal dataContext observations
-    dataContext.SubmitUpdates()
+let saveObservations = mapContextUpdateFunc saveObservationsInternal
 
 let private saveParseObservationsResultsInternal 
-        (dataContext : DataContext) 
-        observationResults =
+        (dataContext : DataContext) observationResults =
     observationResults.Success
     |> saveObservationsInternal dataContext
     // TODO: save failures
 
-let saveParseObservationsResults connectionString observations = 
-    let dataContext = SqlProvider.GetDataContext connectionString 
-    saveParseObservationsResultsInternal dataContext observations
-    dataContext.SubmitUpdates()
+let saveParseObservationsResults = mapContextUpdateFunc saveParseObservationsResultsInternal
 
 let private getObservationsInternal (dataContext : DataContext) : Observation list = 
     let observationsTable = dataContext.Dbo.Observations
@@ -58,10 +61,7 @@ let private getObservationsInternal (dataContext : DataContext) : Observation li
         }
     } |> List.ofSeq
 
-let getObservations connectionString = 
-    connectionString 
-    |> SqlProvider.GetDataContext 
-    |> getObservationsInternal
+let getObservations = mapContextReadFunc getObservationsInternal
 
 let private getLastObservationTimeInternal (dataContext : DataContext) stationNumber interval = 
     let observationsTable = dataContext.Dbo.Observations
@@ -77,7 +77,4 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
         maxBy (Some (observationTime))
     }
 
-let getLastObservationTime connectionString = 
-    connectionString 
-    |> SqlProvider.GetDataContext 
-    |> getLastObservationTimeInternal
+let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
