@@ -10,6 +10,9 @@ type private SqlProvider =
         ConnectionStringName = "Weather",
         UseOptionTypes = true>
 
+type private DataContext = 
+    SqlProvider.dataContext
+
 let private insertObservation 
         (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
         observation =
@@ -19,33 +22,48 @@ let private insertObservation
     row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
 
-let saveObservations connectionString observations =
-    let dataContext = SqlProvider.GetDataContext connectionString
-    let observationsTable = dataContext.Dbo.Observations
-    observations |> Seq.map (insertObservation observationsTable) |> Seq.toArray |> ignore
+let private saveObservationsInternal (dataContext : DataContext) observations =
+    observations 
+    |> List.map (insertObservation dataContext.Dbo.Observations) 
+    |> ignore
+
+let saveObservations connectionString observations = 
+    let dataContext = SqlProvider.GetDataContext connectionString 
+    saveObservationsInternal dataContext observations
     dataContext.SubmitUpdates()
 
-let getObservations (connectionString : string) : Observation list = 
-    let dataContext = SqlProvider.GetDataContext connectionString
+let private saveParseObservationsResultsInternal 
+        (dataContext : DataContext) 
+        observationResults =
+    observationResults.Success
+    |> saveObservationsInternal dataContext
+    // TODO: save failures
+
+let saveParseObservationsResults connectionString observations = 
+    let dataContext = SqlProvider.GetDataContext connectionString 
+    saveParseObservationsResultsInternal dataContext observations
+    dataContext.SubmitUpdates()
+
+let private getObservationsInternal (dataContext : DataContext) : Observation list = 
     let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
         select {
             Header = 
-                {
-                    ObservationTime = 
-                        {
-                            Date = o.Date; 
-                            Hour = o.Hour;
-                        };
-                    StationNumber = o.StationNumber;
-                }
+                { ObservationTime = 
+                    { Date = o.Date 
+                      Hour = o.Hour }
+                  StationNumber = o.StationNumber }
             Temperature = o.Temperature
         }
     } |> List.ofSeq
 
-let getLastObservationTime connectionString stationNumber interval = 
-    let dataContext = SqlProvider.GetDataContext connectionString
+let getObservations connectionString = 
+    connectionString 
+    |> SqlProvider.GetDataContext 
+    |> getObservationsInternal
+
+let private getLastObservationTimeInternal (dataContext : DataContext) stationNumber interval = 
     let observationsTable = dataContext.Dbo.Observations
     let observationsQuery = query {
         for o in observationsTable do
@@ -58,3 +76,8 @@ let getLastObservationTime connectionString stationNumber interval =
             && observationTime <= interval.To)
         maxBy (Some (observationTime))
     }
+
+let getLastObservationTime connectionString = 
+    connectionString 
+    |> SqlProvider.GetDataContext 
+    |> getLastObservationTimeInternal

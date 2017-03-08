@@ -1,12 +1,5 @@
 ﻿module Weather.Utils.Result
 
-let filterSuccess results = 
-    results 
-    |> List.choose (
-        function
-        | Success observation -> Some observation
-        | _ -> None)
-
 let map f xResult = 
     match xResult with
     | Success success -> Success (f success)

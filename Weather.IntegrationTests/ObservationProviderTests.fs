@@ -12,7 +12,7 @@ type ObservationsProviderTests() =
     inherit DbTests()
 
     [<Fact>]
-    let ``FetchObservations for empty interval should return`` () =
+    let ``FetchObservations for empty interval should throw WebException`` () =
         raisesWith<WebException> 
             <@ ObservationsProvider.fetchObservations 33345 
                 (Some DateTime.Now) (Some (DateTime.Now.AddDays(-1.0))) @>

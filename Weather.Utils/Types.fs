@@ -10,3 +10,8 @@ type DateTimeInterval = {
     From : DateTime;
     To: DateTime
 }
+
+type BoolWithData<'a, 'b> =
+    | True of 'a
+    | False of 'b   
+

@@ -19,3 +19,7 @@ type ParseObservationFailure =
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)
 
+type ParseObservationsResults = 
+    { Success: Observation list
+      WithInvalidObservationFormat : (ObservationHeader * string) list 
+      WithInvalidHeaderFormat : string list }

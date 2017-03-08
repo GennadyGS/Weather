@@ -6,9 +6,7 @@ open Weather.DataProvider
 open Weather.Logic
 
 let fillNewData connectionString stationNumber interval =
-    Weather.Logic.Observations.getNewData 
-        (DbService.getLastObservationTime connectionString)
-        ObservationsProvider.fetchObservationsByInterval
-        stationNumber
-        interval
-    |> DbService.saveObservations connectionString
+    DbService.getLastObservationTime connectionString stationNumber interval
+        |> Weather.Logic.Observations.getMissingInterval interval
+        |> Option.map (ObservationsProvider.fetchObservationsByInterval stationNumber)
+        |> Option.map (DbService.saveParseObservationsResults connectionString)

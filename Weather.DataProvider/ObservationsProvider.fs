@@ -70,12 +70,27 @@ let private checkHttpStatusInResponseString (string : string) : string =
             raise (WebException(errorText, statusCode))
     | _ -> string
 
-let fetchObservations stationNumber dateFrom dateTo = 
+let private partitionFailureResults = 
+    Weather.Utils.List.mapAndPartition (function
+        | InvalidObservationFormat value -> True value
+        | InvalidHeaderFormat value -> False value)
+
+let private partitionResults results = 
+    let (successResults, failureResults) = 
+        Weather.Utils.List.partition results
+    let (invalidObservationFormatResults, invalidHeaderFormatResults) = 
+        partitionFailureResults failureResults
+    { Success = successResults
+      WithInvalidObservationFormat = invalidObservationFormatResults
+      WithInvalidHeaderFormat = invalidHeaderFormatResults }
+
+let fetchObservations stationNumber dateFrom dateTo : ParseObservationsResults = 
     Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
         |> split [|'\r'; '\n'|] 
         |> List.ofArray 
         |> List.filter (fun line -> line <> String.Empty)
         |> List.map (checkHttpStatusInResponseString >> parseObservation)
+        |> partitionResults
 
 let fetchObservationsByInterval stationNumber interval = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
