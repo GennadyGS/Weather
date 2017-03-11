@@ -17,9 +17,9 @@ let private mapContextReadFunc func =
     SqlProvider.GetDataContext >> func
 
 let private mapContextUpdateFunc func = 
-    fun connectionString ->
+    fun connectionString arg ->
         let dataContext = SqlProvider.GetDataContext connectionString 
-        let result = func dataContext
+        let result = func dataContext arg
         dataContext.SubmitUpdates()
         result
 
@@ -27,6 +27,8 @@ let private insertObservation
         (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
         observation =
     let row = observationsTable.Create()
+    // TODO: Pass RequestTime with observation
+    row.RequestTime <- DateTime.UtcNow
     row.StationNumber <- observation.Header.StationNumber
     row.Date <- observation.Header.ObservationTime.Date
     row.Hour <- observation.Header.ObservationTime.Hour
