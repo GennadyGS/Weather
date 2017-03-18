@@ -1,10 +1,10 @@
 ﻿namespace Weather.IntegraionTests
 
 open Xunit
+open Swensen.Unquote
+open Weather.Model
 open Weather.Persistence
 open Weather.IntegrationTests
-open System.Diagnostics
-open System
 
 type DbServiceTests() =
     inherit DbTests()
@@ -16,10 +16,12 @@ type DbServiceTests() =
     [<Fact>]
     let ``SaveObservations should save single observation correctly``() = 
         let now = System.DateTime.UtcNow
-        DbService.saveObservations Settings.ConnectionStrings.Weather 
-            ([{ Header = 
-                    { ObservationTime = 
-                        { Date = now
-                          Hour = byte(now.Hour) }
-                      StationNumber = 0 }
-                Temperature = -1.3m } ])
+        let observation = 
+            { Header = 
+                { ObservationTime = 
+                    { Date = now.Date
+                      Hour = byte(now.Hour) }
+                  StationNumber = 0 }
+              Temperature = -1.3m }
+        DbService.saveObservations Settings.ConnectionStrings.Weather [observation]
+        DbService.getObservations Settings.ConnectionStrings.Weather =! [observation]
