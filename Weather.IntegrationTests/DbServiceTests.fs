@@ -13,7 +13,7 @@ type DbServiceTests() =
         observations |> List.sortBy (fun o -> o.Header)
 
     let testSaveObservations observations = 
-        DbService.saveObservations Settings.ConnectionStrings.Weather observations
+        DbService.insertObservationList Settings.ConnectionStrings.Weather observations
         let results = DbService.getObservations Settings.ConnectionStrings.Weather
         (results |> sortObservations) =! (observations |> sortObservations)
 
