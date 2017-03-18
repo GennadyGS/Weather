@@ -41,17 +41,28 @@ let private insertObservationParsingError (dataContext : DataContext) (observati
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
+let private insertObservationHeaderParsingError (dataContext : DataContext) errorText =
+    let row = dataContext.Dbo.ObservationHeaderParsingErrors.Create()
+    // TODO: insert request time 
+    row.RequestTime <- DateTime.UtcNow
+    row.ErrorText <- errorText
+
 let private saveObservationsInternal (dataContext : DataContext) observations =
     observations 
     |> List.map (insertObservation dataContext) 
     |> ignore
+
+let saveObservations = mapContextUpdateFunc saveObservationsInternal
 
 let private saveObservationParsingErrorsInternal (dataContext : DataContext) observationParsingErrors =
     observationParsingErrors 
     |> List.map (insertObservationParsingError dataContext) 
     |> ignore
 
-let saveObservations = mapContextUpdateFunc saveObservationsInternal
+let private saveObservationHeaderParsingErrorsInternal (dataContext : DataContext) observationHeaderParsingErrors =
+    observationHeaderParsingErrors
+    |> List.map (insertObservationHeaderParsingError dataContext) 
+    |> ignore
 
 let private saveParseObservationsResultsInternal (dataContext : DataContext) observationResults =
     observationResults.Success
@@ -59,7 +70,9 @@ let private saveParseObservationsResultsInternal (dataContext : DataContext) obs
 
     observationResults.WithInvalidObservationFormat
     |> saveObservationParsingErrorsInternal dataContext
-    // TODO: save failures
+    
+    observationResults.WithInvalidHeaderFormat
+    |> saveObservationHeaderParsingErrorsInternal dataContext
 
 let saveParseObservationsResults = mapContextUpdateFunc saveParseObservationsResultsInternal
 
