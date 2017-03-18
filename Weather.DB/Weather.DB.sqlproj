@@ -62,6 +62,7 @@
     <Build Include="Observations.sql" />
     <Build Include="ObservationParsingErrors.sql" />
     <Build Include="ObservationHeaderParsingErrors.sql" />
+    <Build Include="CollectObservationTasks.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Weather.DB.refactorlog" />

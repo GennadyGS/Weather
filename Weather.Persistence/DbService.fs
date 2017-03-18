@@ -47,6 +47,7 @@ let private insertObservationHeaderParsingError (dataContext : DataContext) erro
     row.RequestTime <- DateTime.UtcNow
     row.ErrorText <- errorText
 
+// TODO: Rename to save... for consistency
 let private saveObservationsInternal (dataContext : DataContext) observations =
     observations 
     |> List.map (insertObservation dataContext) 
@@ -106,3 +107,12 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
     }
 
 let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
+
+let private insertCollectObservationTaskInternal (dataContext : DataContext) 
+        (stationNumberMask,  collectStartDate, collectIntervalHours) =
+    let row = dataContext.Dbo.CollectObservationTasks.Create()
+    row.StationNumberMask <- stationNumberMask
+    row.CollectStartDate <- collectStartDate
+    row.CollectIntervalHours <- collectIntervalHours
+    
+let insertCollectObservationTask = mapContextUpdateFunc insertCollectObservationTaskInternal
