@@ -4,6 +4,7 @@ open FSharp.Data.Sql
 open Weather.Utils
 open Weather.Model
 open System
+open System.Linq
 
 type private SqlProvider = 
     SqlDataProvider<
@@ -105,20 +106,34 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
 
 let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
 
-let private getLastObservationTimeListInternal (dataContext : DataContext) stationNumberList interval = 
+let private getLastObservationTimeListInternal 
+        (dataContext : DataContext) 
+        (stationNumberList : int list) 
+        (interval : DateTimeInterval) = 
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
         select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
+    let query2 = query {
+        for stationNumber in stationNumberList.AsQueryable()  do
+        leftOuterJoin (stNumber, observationTime) in observationsQuery
+                on (stationNumber = stNumber) into result
+        for (stNumber, observationTime) in result do
+        let rr = match (stNumber, observationTime) with
+            | Unchecked.defaultof<int * DateTime> -> (stNumber, Some observationTime)
+            | _ -> (stNumber, None))
+        select rr
+    }
+
     query {
-        for (stNumber, observationTime) in observationsQuery do
-        where (List.contains stNumber stationNumberList && 
-            observationTime >= interval.From 
-            && observationTime <= interval.To)
-        groupBy stNumber into group
-        let maxObservationTime = query { for (_, observationTime) in group do maxBy (Some observationTime) }
-        select (group.Key, maxObservationTime)
-    } |> Seq.toList
+        for (stNumber, observationTime) in query2 do
+        let maxObservationTime = 
+            query { 
+                for (_, observationTime) in result do 
+                maxBy (Some observationTime) 
+            }
+        select (stNumber, maxObservationTime)
+    } |> List.ofSeq
 
 let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal
 
