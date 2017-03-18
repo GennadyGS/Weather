@@ -23,28 +23,42 @@ let private mapContextUpdateFunc func =
         dataContext.SubmitUpdates()
         result
 
-let private insertObservation 
-        (observationsTable : SqlProvider.dataContext.dboSchema.``dbo.Observations``) 
-        observation =
-    let row = observationsTable.Create()
-    // TODO: Pass RequestTime with observation
+let private insertObservation (dataContext : DataContext) observation =
+    let row = dataContext.Dbo.Observations.Create()
+    // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
     row.StationNumber <- observation.Header.StationNumber
     row.Date <- observation.Header.ObservationTime.Date
     row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
 
+let private insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
+    let row = dataContext.Dbo.ObservationParsingErrors.Create()
+    // TODO: insert request time 
+    row.RequestTime <- DateTime.UtcNow
+    row.StationNumber <- observationHeader.StationNumber
+    row.Date <- observationHeader.ObservationTime.Date
+    row.Hour <- observationHeader.ObservationTime.Hour
+    row.ErrorText <- errorText
+
 let private saveObservationsInternal (dataContext : DataContext) observations =
     observations 
-    |> List.map (insertObservation dataContext.Dbo.Observations) 
+    |> List.map (insertObservation dataContext) 
+    |> ignore
+
+let private saveObservationParsingErrorsInternal (dataContext : DataContext) observationParsingErrors =
+    observationParsingErrors 
+    |> List.map (insertObservationParsingError dataContext) 
     |> ignore
 
 let saveObservations = mapContextUpdateFunc saveObservationsInternal
 
-let private saveParseObservationsResultsInternal 
-        (dataContext : DataContext) observationResults =
+let private saveParseObservationsResultsInternal (dataContext : DataContext) observationResults =
     observationResults.Success
     |> saveObservationsInternal dataContext
+
+    observationResults.WithInvalidObservationFormat
+    |> saveObservationParsingErrorsInternal dataContext
     // TODO: save failures
 
 let saveParseObservationsResults = mapContextUpdateFunc saveParseObservationsResultsInternal
