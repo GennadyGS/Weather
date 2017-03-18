@@ -13,6 +13,8 @@ type private SqlProvider =
 type private DataContext = 
     SqlProvider.dataContext
 
+// Utilities
+
 let private mapContextReadFunc func = 
     SqlProvider.GetDataContext >> func
 
@@ -22,6 +24,8 @@ let private mapContextUpdateFunc func =
         let result = func dataContext arg
         dataContext.SubmitUpdates()
         result
+
+// Observations
 
 let private insertObservation (dataContext : DataContext) observation =
     let row = dataContext.Dbo.Observations.Create()
@@ -84,6 +88,8 @@ let private getObservationsInternal (dataContext : DataContext) : Observation li
 
 let getObservations = mapContextReadFunc getObservationsInternal
 
+// Last observation times
+
 let private getLastObservationTimeInternal (dataContext : DataContext) stationNumber interval = 
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
@@ -98,6 +104,25 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
     }
 
 let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
+
+let private getLastObservationTimeListInternal (dataContext : DataContext) stationNumberList interval = 
+    let observationsQuery = query {
+        for o in dataContext.Dbo.Observations do
+        select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
+    }
+    query {
+        for (stNumber, observationTime) in observationsQuery do
+        where (List.contains stNumber stationNumberList && 
+            observationTime >= interval.From 
+            && observationTime <= interval.To)
+        groupBy stNumber into group
+        let maxObservationTime = query { for (_, observationTime) in group do maxBy (Some observationTime) }
+        select (group.Key, maxObservationTime)
+    } |> Seq.toList
+
+let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal
+
+// Collect observation tasks
 
 let private insertCollectObservationTaskInternal (dataContext : DataContext) 
         (stationNumberMask,  collectStartDate, collectIntervalHours) =
