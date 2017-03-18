@@ -6,7 +6,7 @@ open Weather.IntegrationTests
 open System.Diagnostics
 open System
 
-type LoaderTests() =
+type DbServiceTests() =
     inherit DbTests()
     
     [<Fact>]

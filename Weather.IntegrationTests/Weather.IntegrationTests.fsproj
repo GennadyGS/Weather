@@ -54,7 +54,7 @@
     <Compile Include="Types.fs" />
     <Compile Include="DbTests.fs" />
     <Compile Include="ObservationProviderTests.fs" />
-    <Compile Include="LoaderTests.fs" />
+    <Compile Include="DbServiceTests.fs" />
     <Compile Include="CompositionRootTests.fs" />
     <Content Include="packages.config" />
     <Content Include="App.config" />

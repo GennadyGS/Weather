@@ -66,9 +66,8 @@ let private getObservationsInternal (dataContext : DataContext) : Observation li
 let getObservations = mapContextReadFunc getObservationsInternal
 
 let private getLastObservationTimeInternal (dataContext : DataContext) stationNumber interval = 
-    let observationsTable = dataContext.Dbo.Observations
     let observationsQuery = query {
-        for o in observationsTable do
+        for o in dataContext.Dbo.Observations do
         select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
     query {
