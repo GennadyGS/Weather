@@ -9,9 +9,17 @@ open Weather.IntegrationTests
 type DbServiceTests() =
     inherit DbTests()
     
+    let sortObservations observations = 
+        observations |> List.sortBy (fun o -> o.Header)
+
+    let testSaveObservations observations = 
+        DbService.saveObservations Settings.ConnectionStrings.Weather observations
+        let results = DbService.getObservations Settings.ConnectionStrings.Weather
+        (results |> sortObservations) =! (observations |> sortObservations)
+
     [<Fact>]
     let ``SaveObservations should save empty list of observation correctly``() = 
-        DbService.saveObservations Settings.ConnectionStrings.Weather ([])
+        testSaveObservations []
 
     [<Fact>]
     let ``SaveObservations should save single observation correctly``() = 
@@ -23,5 +31,4 @@ type DbServiceTests() =
                       Hour = byte(now.Hour) }
                   StationNumber = 0 }
               Temperature = -1.3m }
-        DbService.saveObservations Settings.ConnectionStrings.Weather [observation]
-        DbService.getObservations Settings.ConnectionStrings.Weather =! [observation]
+        testSaveObservations []
