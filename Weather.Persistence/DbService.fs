@@ -106,33 +106,40 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
 
 let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
 
+// TODO: move to utils
+let private toOption item = 
+    if (isNull (box item)) then None else Some(item)
+
 let private getLastObservationTimeListInternal 
         (dataContext : DataContext) 
         (stationNumberList : int list) 
-        (interval : DateTimeInterval) = 
+        interval = 
+    // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
         select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
-    let query2 = query {
-        for stationNumber in stationNumberList.AsQueryable()  do
-        leftOuterJoin (stNumber, observationTime) in observationsQuery
-                on (stationNumber = stNumber) into result
-        for (stNumber, observationTime) in result do
-        let rr = match (stNumber, observationTime) with
-            | Unchecked.defaultof<int * DateTime> -> (stNumber, Some observationTime)
-            | _ -> (stNumber, None))
-        select rr
+    
+    let filteredObservationsQuery = query {
+        for (stNumber, observationTime) in observationsQuery do
+        where (observationTime >= interval.From 
+            && observationTime <= interval.To)
+    }
+    
+    let observationTimesByStation = query {
+        for stationNumber in stationNumberList do
+        leftOuterJoin (stNumber, observationTime) in filteredObservationsQuery
+            on (stationNumber = stNumber) into result
+        for item in result do 
+        let optionalItem = toOption item
+        select (stationNumber, Option.map snd optionalItem)
     }
 
     query {
-        for (stNumber, observationTime) in query2 do
-        let maxObservationTime = 
-            query { 
-                for (_, observationTime) in result do 
-                maxBy (Some observationTime) 
-            }
-        select (stNumber, maxObservationTime)
+        for (stNumber, observationTime) in observationTimesByStation do
+        groupBy stNumber into group
+        let maxObservationTime = query { for (_, observationTime) in group do maxBy observationTime }
+        select (group.Key, maxObservationTime)
     } |> List.ofSeq
 
 let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal

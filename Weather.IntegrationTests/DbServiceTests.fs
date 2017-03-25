@@ -43,14 +43,17 @@ type DbServiceTests() =
     [<Fact>]
     let ``GetLastObservationTimeList should return empty list when there are no observations``() = 
         let now = System.DateTime.UtcNow;
-        let stationNumbers = [0; 10; 100]
+        let requestedStationNumbers = [0; 10; 100]
         let interval = 
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = DbService.getLastObservationTimeList connectionstring stationNumbers interval
+        let result = DbService.getLastObservationTimeList connectionstring requestedStationNumbers interval
 
-        result =! []
+        let expectedresult = 
+            requestedStationNumbers 
+                |> List.map (fun stNumber -> (stNumber, None))
+        result =! expectedresult
 
     [<Fact>]
     let ``GetLastObservationTimeList should return correct last observation time list when there are two observations``() = 
@@ -74,4 +77,4 @@ type DbServiceTests() =
                 | stNumber when List.contains stNumber savedStationNumberList -> 
                     (stNumber, Some (roundDateTimeToHours observationTime))
                 | stNumber -> (stNumber, None))
-        result |> List.sortBy (fun (sn, _) -> sn) =! expectedResult
+        result |> List.sortBy fst =! expectedResult
