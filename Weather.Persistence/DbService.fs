@@ -91,21 +91,6 @@ let getObservations = mapContextReadFunc getObservationsInternal
 
 // Last observation times
 
-let private getLastObservationTimeInternal (dataContext : DataContext) stationNumber interval = 
-    let observationsQuery = query {
-        for o in dataContext.Dbo.Observations do
-        select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
-    }
-    stationNumber, query {
-        for (stNumber, observationTime) in observationsQuery do
-        where (stNumber = stationNumber && 
-            observationTime >= interval.From 
-            && observationTime <= interval.To)
-        maxBy (Some (observationTime))
-    }
-
-let getLastObservationTime = mapContextReadFunc getLastObservationTimeInternal
-
 // TODO: move to utils
 let private toOption item = 
     if (isNull (box item)) then None else Some(item)
