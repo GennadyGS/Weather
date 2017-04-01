@@ -5,7 +5,7 @@ open Weather.Persistence
 open Weather.DataProvider
 open Weather.Logic
 
-let fillNewDataForStationList connectionString minTimeSpan stationList interval =
+let fillNewData connectionString minTimeSpan stationList interval =
     DbService.getLastObservationTimeList connectionString stationList interval
         |> List.choose (Tuple.mapSecondOption (Weather.Logic.Observations.getMissingInterval minTimeSpan interval))
         |> List.map (ObservationsProvider.fetchObservationsByInterval)

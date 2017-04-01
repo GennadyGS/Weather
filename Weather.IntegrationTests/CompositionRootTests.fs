@@ -10,8 +10,8 @@ type CompositionRootTests() =
     inherit DbTests()
 
     [<Fact>]
-    let ``FillNewDataForStationList for emply list should not save observations``() =
-        Weather.Composition.CompositionRoot.fillNewDataForStationList
+    let ``FillNewData for emply list should not save observations``() =
+        Weather.Composition.CompositionRoot.fillNewData
             Settings.ConnectionStrings.Weather 
             Settings.MinTimeSpan
             []
@@ -21,8 +21,8 @@ type CompositionRootTests() =
         DbService.getObservations Settings.ConnectionStrings.Weather =! []
 
     [<Fact>]
-    let ``FillNewDataForStationList for the last day do not throw exception``() =
-        Weather.Composition.CompositionRoot.fillNewDataForStationList
+    let ``FillNewData for the last day do not throw exception``() =
+        Weather.Composition.CompositionRoot.fillNewData
             Settings.ConnectionStrings.Weather 
             Settings.MinTimeSpan
             [33345]
