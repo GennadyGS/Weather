@@ -53,6 +53,7 @@
     <Compile Include="Option.fs" />
     <Compile Include="DateTime.fs" />
     <Compile Include="List.fs" />
+    <Compile Include="Tuple.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

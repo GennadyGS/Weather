@@ -96,7 +96,7 @@ let private getLastObservationTimeInternal (dataContext : DataContext) stationNu
         for o in dataContext.Dbo.Observations do
         select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
-    query {
+    stationNumber, query {
         for (stNumber, observationTime) in observationsQuery do
         where (stNumber = stationNumber && 
             observationTime >= interval.From 

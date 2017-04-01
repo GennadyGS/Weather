@@ -94,5 +94,5 @@ let fetchObservations stationNumber dateFrom dateTo : ParseObservationsResults =
         |> List.map (checkHttpStatusInResponseString >> parseObservation)
         |> partitionResults
 
-let fetchObservationsByInterval stationNumber interval = 
+let fetchObservationsByInterval (stationNumber, interval) = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
