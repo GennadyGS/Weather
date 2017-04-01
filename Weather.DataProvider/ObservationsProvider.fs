@@ -24,14 +24,16 @@ let private roundToMinutes (dateTime : DateTime) =
 let private formatStationNumber =
     sprintf "%05d"
 
-let private mapTupleOption f (a, b) = 
-    b |> Option.map (fun item -> a, f item)
+let private buildOptionalParam name optionalValue = 
+    optionalValue |> Option.map (fun value -> (name, value))
 
 let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option) (dateTo : DateTime option) = 
     ("block", stationNumber |> formatStationNumber) ::
     List.concat [
-        ("begin", dateFrom) |> (mapTupleOption formatDateTime) |> Option.toList;
-        ("end", dateTo) |> (mapTupleOption formatDateTime) |> Option.toList]
+        buildOptionalParam "begin" (dateFrom |> Option.map formatDateTime) 
+            |> Option.toList
+        buildOptionalParam "end" (dateTo |> Option.map formatDateTime) 
+            |> Option.toList]
     
 let private toObservation header synop =
     { Header = header
