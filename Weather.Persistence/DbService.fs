@@ -97,8 +97,8 @@ let private toOption item =
 
 let private getLastObservationTimesForStationsInternal 
         (dataContext : DataContext) 
-        (stationNumberList : int list) 
-        interval = 
+        interval
+        (stationNumberList : int list) = 
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do

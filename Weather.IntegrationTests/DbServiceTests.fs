@@ -41,14 +41,14 @@ type DbServiceTests() =
         testSaveObservations [ getSampleObservation 0 currentTime ]
 
     [<Fact>]
-    let ``GetLastObservationTimeList should return empty list when there are no observations``() = 
+    let ``GetLastObservationTimesForStations should return empty list when there are no observations``() = 
         let now = System.DateTime.UtcNow;
         let requestedStationNumbers = [0; 10; 100]
         let interval = 
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = DbService.getLastObservationTimesForStations connectionstring requestedStationNumbers interval
+        let result = DbService.getLastObservationTimesForStations connectionstring interval requestedStationNumbers
 
         let expectedresult = 
             requestedStationNumbers 
@@ -56,7 +56,7 @@ type DbServiceTests() =
         result =! expectedresult
 
     [<Fact>]
-    let ``GetLastObservationTimeList should return correct last observation time list when there are two observations``() = 
+    let ``GetLastObservationTimesForStations should return correct last observation time list when there are two observations``() = 
         let savedStationNumberList = [1; 2]
         let requestedStationNumberList = 0 :: savedStationNumberList
         let interval = 
@@ -69,7 +69,7 @@ type DbServiceTests() =
         
         DbService.insertObservationList connectionstring observationList
         
-        let result = DbService.getLastObservationTimesForStations connectionstring requestedStationNumberList interval
+        let result = DbService.getLastObservationTimesForStations connectionstring interval requestedStationNumberList
 
         let expectedResult = 
             requestedStationNumberList
