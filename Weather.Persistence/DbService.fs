@@ -95,7 +95,7 @@ let getObservations = mapContextReadFunc getObservationsInternal
 let private toOption item = 
     if (isNull (box item)) then None else Some(item)
 
-let private getLastObservationTimeListInternal 
+let private getLastObservationTimesForStationsInternal 
         (dataContext : DataContext) 
         (stationNumberList : int list) 
         interval = 
@@ -127,7 +127,7 @@ let private getLastObservationTimeListInternal
         select (group.Key, maxObservationTime)
     } |> List.ofSeq
 
-let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal
+let getLastObservationTimesForStations = mapContextReadFunc getLastObservationTimesForStationsInternal
 
 // Collect observation tasks
 
@@ -139,3 +139,4 @@ let private insertCollectObservationTaskInternal (dataContext : DataContext)
     row.CollectIntervalHours <- collectIntervalHours
     
 let insertCollectObservationTask = mapContextUpdateFunc insertCollectObservationTaskInternal
+
