@@ -14,9 +14,9 @@ type CompositionRootTests() =
         Weather.Composition.CompositionRoot.fillNewDataForStations
             Settings.ConnectionStrings.Weather 
             Settings.MinTimeSpan
-            []
             { From = DateTime.UtcNow.AddDays(-1.0)
               To = DateTime.UtcNow }
+            []
     
         DbService.getObservations Settings.ConnectionStrings.Weather =! []
 
@@ -25,8 +25,8 @@ type CompositionRootTests() =
         Weather.Composition.CompositionRoot.fillNewDataForStations
             Settings.ConnectionStrings.Weather 
             Settings.MinTimeSpan
-            [33345]
             { From = DateTime.UtcNow.AddDays(-1.0)
               To = DateTime.UtcNow }
+            [33345]
 
         // TODO: Assert results
