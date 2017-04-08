@@ -17,14 +17,22 @@ type private DataContext =
 // Utilities
 
 let private mapContextReadFunc (func : DataContext -> 'a -> 'b when 'b : equality) = 
-    SqlProvider.GetDataContext >> func
+    let compositeFunc = SqlProvider.GetDataContext >> func
+    fun connectionString arg -> 
+        try
+            compositeFunc connectionString arg |> Success
+        with
+          | :? System.Data.SqlClient.SqlException as e -> e.ToString() |> DatabaseError |> Failure
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
-        let dataContext = SqlProvider.GetDataContext connectionString 
-        let result = func dataContext arg
-        dataContext.SubmitUpdates()
-        result
+        try
+            let dataContext = SqlProvider.GetDataContext connectionString 
+            let result = func dataContext arg
+            dataContext.SubmitUpdates()
+            Success result
+        with
+          | :? System.Data.SqlClient.SqlException as e -> e.ToString() |> DatabaseError |> Failure
 
 // Observations
 

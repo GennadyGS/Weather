@@ -74,6 +74,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
       <Name>Weather.Model</Name>

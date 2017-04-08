@@ -12,6 +12,6 @@ let private processResults connectionString results =
 
 let fillNewDataForStations connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
-        |> List.choose (Tuple.mapSecondOption (Weather.Logic.Observations.getMissingInterval minTimeSpan interval))
-        |> List.collect ObservationsProvider.fetchObservationsByInterval
-        |> processResults connectionString
+        |> Result.map (List.choose (Tuple.mapSecondOption (Weather.Logic.Observations.getMissingInterval minTimeSpan interval)))
+        |> Result.map (List.collect ObservationsProvider.fetchObservationsByInterval)
+        |> Result.map (processResults connectionString)

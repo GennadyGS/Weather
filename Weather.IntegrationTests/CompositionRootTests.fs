@@ -3,6 +3,7 @@
 open Xunit
 open System
 open Swensen.Unquote
+open Weather.Utils
 open Weather.IntegrationTests
 open Weather.Persistence
 
@@ -18,7 +19,7 @@ type CompositionRootTests() =
               To = DateTime.UtcNow }
             []
     
-        DbService.getObservations Settings.ConnectionStrings.Weather () =! []
+        DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
 
     [<Fact>]
     let ``FillNewDataForStations for the last day do not throw exception``() =

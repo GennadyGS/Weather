@@ -14,4 +14,3 @@ type DateTimeInterval = {
 type BoolWithData<'a, 'b> =
     | True of 'a
     | False of 'b   
-
