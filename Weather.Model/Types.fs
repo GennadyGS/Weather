@@ -15,7 +15,7 @@ type Observation =
     { Header : ObservationHeader
       Temperature: decimal }
 
-type ParseObservationFailure =
+type Failure =
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)
 
