@@ -53,22 +53,12 @@ let private insertObservationParsingError (dataContext : DataContext) (observati
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let private insertObservationHeaderParsingError (dataContext : DataContext) errorText =
-    let row = dataContext.Dbo.ObservationHeaderParsingErrors.Create()
-    // TODO: insert request time 
-    row.RequestTime <- DateTime.UtcNow
-    row.ErrorText <- errorText
-
-let private insertParseObservationsResultListInternal (dataContext : DataContext) observationResults =
-    observationResults.Success
+let private insertParseObservationsResultListInternal (dataContext : DataContext) (successResults, invalidObservationFormatResults) =
+    successResults
     |> insertObservationListInternal dataContext
 
-    observationResults.WithInvalidObservationFormat
+    invalidObservationFormatResults
     |> List.map (insertObservationParsingError dataContext) 
-    |> ignore
-    
-    observationResults.WithInvalidHeaderFormat
-    |> List.map (insertObservationHeaderParsingError dataContext) 
     |> ignore
 
 let insertParseObservationsResultList = mapContextUpdateFunc insertParseObservationsResultListInternal

@@ -5,9 +5,12 @@ open Weather.Persistence
 open Weather.DataProvider
 open Weather.Logic
 
-let fillNewDataForStations connectionString minTimeSpan interval stationList =
-    DbService.getLastObservationTimesForStations connectionString interval stationList
+let private processResults connectionString results =
+    let partitionedResults = Weather.Logic.Results.partitionResults results
+    DbService.insertParseObservationsResultList connectionString (partitionedResults.Success, partitionedResults.InvalidObservationFormatFailures)
+
+let fillNewData connectionString minTimeSpan stationList interval =
+    DbService.getLastObservationTimeList connectionString stationList interval
         |> List.choose (Tuple.mapSecondOption (Weather.Logic.Observations.getMissingInterval minTimeSpan interval))
         |> List.collect ObservationsProvider.fetchObservationsByInterval
-        |> Weather.Logic.Results.partitionResults 
-        |> DbService.insertParseObservationsResultList connectionString
+        |> processResults connectionString

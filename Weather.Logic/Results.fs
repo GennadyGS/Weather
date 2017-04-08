@@ -6,15 +6,16 @@ open Weather.Utils
 let private partitionFailureResults = 
     Weather.Utils.List.mapAndPartition (function
         | InvalidObservationFormat value -> True value
-        | InvalidHeaderFormat value -> False value)
+        | InvalidHeaderFormat value -> False value
+        | DatabaseError value -> False value)
 
 let partitionResults results = 
     let (successResults, failureResults) = 
         Weather.Utils.List.partition results
-    let (invalidObservationFormatResults, invalidHeaderFormatResults) = 
+    let (invalidObservationFormatFailures, failures) = 
         partitionFailureResults failureResults
     { Success = successResults
-      WithInvalidObservationFormat = invalidObservationFormatResults
-      WithInvalidHeaderFormat = invalidHeaderFormatResults }
+      InvalidObservationFormatFailures = invalidObservationFormatFailures
+      Failures = failures }
 
 

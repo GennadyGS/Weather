@@ -16,10 +16,11 @@ type Observation =
       Temperature: decimal }
 
 type Failure =
+    | DatabaseError of string
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)
 
 type ParseObservationsResults = 
     { Success: Observation list
-      WithInvalidObservationFormat : (ObservationHeader * string) list 
-      WithInvalidHeaderFormat : string list }
+      InvalidObservationFormatFailures : (ObservationHeader * string) list 
+      Failures : string list }
