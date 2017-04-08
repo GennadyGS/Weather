@@ -17,17 +17,3 @@ let getMissingInterval minTimeSpan interval lastObservationTime =
         Some { interval with From = actualIntervalFrom }
     else
         None
-
-let private partitionFailureResults = 
-    Weather.Utils.List.mapAndPartition (function
-        | InvalidObservationFormat value -> True value
-        | InvalidHeaderFormat value -> False value)
-
-let partitionResults results = 
-    let (successResults, failureResults) = 
-        Weather.Utils.List.partition results
-    let (invalidObservationFormatResults, invalidHeaderFormatResults) = 
-        partitionFailureResults failureResults
-    { Success = successResults
-      WithInvalidObservationFormat = invalidObservationFormatResults
-      WithInvalidHeaderFormat = invalidHeaderFormatResults }
