@@ -19,7 +19,7 @@ type private DataContext =
 let private mapContextReadFunc func = 
     SqlProvider.GetDataContext >> func
 
-let private mapContextUpdateFunc func = 
+let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
         let dataContext = SqlProvider.GetDataContext connectionString 
         let result = func dataContext arg
