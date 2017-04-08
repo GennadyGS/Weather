@@ -19,7 +19,7 @@ type CompositionRootTests() =
               To = DateTime.UtcNow }
             []
     
-        DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
+        DbService.getObservations Settings.ConnectionStrings.Weather () =! []
 
     [<Fact>]
     let ``FillNewDataForStations for the last day do not throw exception``() =

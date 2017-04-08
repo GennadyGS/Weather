@@ -22,12 +22,12 @@ type DbServiceTests() =
           Temperature = -1.3m }
 
     let sortObservations observations = 
-        observations |> List.sortBy (fun o -> o.Header)
+        observations |> (List.sortBy (Result.map (fun o -> o.Header)))
 
     let testSaveObservations observations = 
         DbService.insertObservationList connectionstring observations
         let results = DbService.getObservations connectionstring ()
-        (results |> Result.map sortObservations) =! (observations |> sortObservations |> Success)
+        (results |> sortObservations) =! (observations |> List.map Success |> sortObservations )
 
     let roundDateTimeToHours (dateTime : DateTime) = 
         dateTime.Date.AddHours(float dateTime.Hour)
@@ -52,8 +52,8 @@ type DbServiceTests() =
 
         let expectedresult = 
             requestedStationNumbers 
-                |> List.map (fun stNumber -> (stNumber, None))
-        result =! Success expectedresult
+                |> List.map (fun stNumber -> Success (stNumber, None))
+        result =! expectedresult
 
     [<Fact>]
     let ``GetLastObservationTimeList should return correct last observation time list when there are two observations``() = 
@@ -77,4 +77,5 @@ type DbServiceTests() =
                 | stNumber when List.contains stNumber savedStationNumberList -> 
                     (stNumber, Some (roundDateTimeToHours observationTime))
                 | stNumber -> (stNumber, None))
-        result |> Result.map (List.sortBy fst) =! Success expectedResult
+            |> List.map Success
+        result |> (List.sortBy (Result.map fst)) =! expectedResult

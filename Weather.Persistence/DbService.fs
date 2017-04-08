@@ -16,13 +16,17 @@ type private DataContext =
 
 // Utilities
 
-let private mapContextReadFunc (func : DataContext -> 'a -> 'b when 'b : equality) = 
+let private mapContextReadFunc (func : DataContext -> 'a -> 'b list) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg -> 
         try
-            compositeFunc connectionString arg |> Success
+            compositeFunc connectionString arg |> List.map Success
         with
-          | :? System.Data.SqlClient.SqlException as e -> e.ToString() |> DatabaseError |> Failure
+          | :? System.Data.SqlClient.SqlException as e -> 
+            e.ToString() 
+                |> DatabaseError 
+                |> Failure 
+                |> List.singleton
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
