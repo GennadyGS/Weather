@@ -14,8 +14,4 @@ let partitionResults results =
         Weather.Utils.List.partition results
     let (invalidObservationFormatFailures, failures) = 
         partitionFailureResults failureResults
-    { Success = successResults
-      InvalidObservationFormatFailures = invalidObservationFormatFailures
-      Failures = failures }
-
-
+    (successResults, invalidObservationFormatFailures, failures)

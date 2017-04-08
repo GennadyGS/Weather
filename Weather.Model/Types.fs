@@ -19,8 +19,3 @@ type Failure =
     | DatabaseError of string
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)
-
-type ParseObservationsResults = 
-    { Success: Observation list
-      InvalidObservationFormatFailures : (ObservationHeader * string) list 
-      Failures : string list }
