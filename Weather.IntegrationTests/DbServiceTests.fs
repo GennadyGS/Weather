@@ -26,7 +26,7 @@ type DbServiceTests() =
 
     let testSaveObservations observations = 
         DbService.insertObservationList connectionstring observations
-        let results = DbService.getObservations connectionstring
+        let results = DbService.getObservations connectionstring ()
         (results |> sortObservations) =! (observations |> sortObservations)
 
     let roundDateTimeToHours (dateTime : DateTime) = 
@@ -41,14 +41,14 @@ type DbServiceTests() =
         testSaveObservations [ getSampleObservation 0 currentTime ]
 
     [<Fact>]
-    let ``GetLastObservationTimesForStations should return empty list when there are no observations``() = 
+    let ``GetLastObservationTimeList should return empty list when there are no observations``() = 
         let now = System.DateTime.UtcNow;
         let requestedStationNumbers = [0; 10; 100]
         let interval = 
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = DbService.getLastObservationTimesForStations connectionstring interval requestedStationNumbers
+        let result = DbService.getLastObservationTimeList connectionstring (requestedStationNumbers, interval)
 
         let expectedresult = 
             requestedStationNumbers 
@@ -56,7 +56,7 @@ type DbServiceTests() =
         result =! expectedresult
 
     [<Fact>]
-    let ``GetLastObservationTimesForStations should return correct last observation time list when there are two observations``() = 
+    let ``GetLastObservationTimeList should return correct last observation time list when there are two observations``() = 
         let savedStationNumberList = [1; 2]
         let requestedStationNumberList = 0 :: savedStationNumberList
         let interval = 
@@ -69,7 +69,7 @@ type DbServiceTests() =
         
         DbService.insertObservationList connectionstring observationList
         
-        let result = DbService.getLastObservationTimesForStations connectionstring interval requestedStationNumberList
+        let result = DbService.getLastObservationTimeList connectionstring (requestedStationNumberList, interval)
 
         let expectedResult = 
             requestedStationNumberList

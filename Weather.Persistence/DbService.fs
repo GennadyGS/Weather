@@ -16,7 +16,7 @@ type private DataContext =
 
 // Utilities
 
-let private mapContextReadFunc func = 
+let private mapContextReadFunc (func : DataContext -> 'a -> 'b when 'b : equality) = 
     SqlProvider.GetDataContext >> func
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
@@ -63,7 +63,8 @@ let private insertParseObservationsResultListInternal (dataContext : DataContext
 
 let insertParseObservationsResultList = mapContextUpdateFunc insertParseObservationsResultListInternal
 
-let private getObservationsInternal (dataContext : DataContext) : Observation list = 
+// TODO: Add optional station number and interval parameters
+let private getObservationsInternal (dataContext : DataContext) () : Observation list = 
     let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -85,10 +86,9 @@ let getObservations = mapContextReadFunc getObservationsInternal
 let private toOption item = 
     if (isNull (box item)) then None else Some(item)
 
-let private getLastObservationTimesForStationsInternal 
+let private getLastObservationTimeListInternal 
         (dataContext : DataContext) 
-        interval
-        (stationNumberList : int list) = 
+        (stationNumberList : int list, interval : DateTimeInterval) = 
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
@@ -117,7 +117,7 @@ let private getLastObservationTimesForStationsInternal
         select (group.Key, maxObservationTime)
     } |> List.ofSeq
 
-let getLastObservationTimesForStations = mapContextReadFunc getLastObservationTimesForStationsInternal
+let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal
 
 // Collect observation tasks
 
@@ -129,4 +129,3 @@ let private insertCollectObservationTaskInternal (dataContext : DataContext)
     row.CollectIntervalHours <- collectIntervalHours
     
 let insertCollectObservationTask = mapContextUpdateFunc insertCollectObservationTaskInternal
-
