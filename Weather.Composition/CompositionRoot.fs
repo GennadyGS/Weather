@@ -10,7 +10,7 @@ let private processResults connectionString results =
     DbService.insertParseObservationsResultList connectionString (partitionedResults.Success, partitionedResults.InvalidObservationFormatFailures)
     // TODO: Log errors
 
-let fillNewData connectionString minTimeSpan stationList interval =
+let fillNewDataForStations connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
         |> List.choose (Tuple.mapSecondOption (Weather.Logic.Observations.getMissingInterval minTimeSpan interval))
         |> List.collect ObservationsProvider.fetchObservationsByInterval
