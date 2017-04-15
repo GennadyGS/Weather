@@ -5,6 +5,10 @@ let map f xResult =
     | Success success -> Success (f success)
     | Failure failure -> Failure failure
 
+let mapBoth mapSuccess mapFailure = function
+    | Success success -> mapSuccess success
+    | Failure failure -> mapFailure failure
+
 let bind f xResult = 
     match xResult with
     | Success success -> f success
@@ -24,6 +28,11 @@ let mapToOption func result =
     match result with
         | Success success -> func success |> Option.map Success
         | Failure failure -> Some (Failure failure)
+
+let mapFailureToOption func result = 
+    match result with
+        | Success success -> Some (Success success)
+        | Failure failure -> func failure |> Option.map Failure
 
 let bindToOption func result = 
     match result with

@@ -65,15 +65,12 @@ let private insertObservationParsingError (dataContext : DataContext) (observati
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let private insertParseObservationsResultListInternal (dataContext : DataContext) (successResults, invalidObservationFormatResults) =
-    successResults
-    |> insertObservationListInternal dataContext
-
-    invalidObservationFormatResults
+let private insertObservationParsingErrorListInternal (dataContext : DataContext) observationParsingErrorList =
+    observationParsingErrorList
     |> List.map (insertObservationParsingError dataContext) 
     |> ignore
 
-let insertParseObservationsResultList = mapContextUpdateFunc insertParseObservationsResultListInternal
+let insertObservationParsingErrorList = mapContextUpdateFunc insertObservationParsingErrorListInternal
 
 // TODO: Add optional station number and interval parameters
 let private getObservationsInternal (dataContext : DataContext) () : Observation list = 
