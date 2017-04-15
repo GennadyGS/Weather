@@ -11,17 +11,11 @@ let private processResults connectionString results =
     |> ignore
     // TODO: Log failures
 
-// TODO: Move to Results module
-let mapToList func result = 
-    match result with
-        | Success success -> func success
-        | Failure failure -> [Failure failure]
-
 let fillNewDataForStations connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
         |> List.map
                 (Result.map
                         (Tuple.mapSecondOption 
                             (Weather.Logic.Observations.getMissingInterval minTimeSpan interval)))
-        |> List.collect (mapToList (ObservationsProvider.fetchObservationsByIntervalOption))
+        |> List.collect (Results.mapToList (ObservationsProvider.fetchObservationsByIntervalOption))
         |> processResults connectionString

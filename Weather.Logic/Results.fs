@@ -3,6 +3,11 @@
 open Weather.Model
 open Weather.Utils
 
+let mapToList func result = 
+    match result with
+        | Success success -> func success
+        | Failure failure -> [Failure failure]
+
 let private partitionFailureResults = 
     Weather.Utils.List.mapAndPartition (function
         | InvalidObservationFormat value -> True value
