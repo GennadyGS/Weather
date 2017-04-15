@@ -5,15 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>6cfc4593-8112-4afc-9c3a-4df17581a8cf</ProjectGuid>
+    <ProjectGuid>6d2b4b99-56db-406c-8773-b1a393ce8589</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Weather.Composition</RootNamespace>
-    <AssemblyName>Weather.Composition</AssemblyName>
+    <RootNamespace>Weather.Diagnostic</RootNamespace>
+    <AssemblyName>Weather.Diagnostic</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>Weather.Composition</Name>
-    <TargetFrameworkProfile />
+    <Name>Weather.Diagnostic</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Weather.Composition.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Weather.Diagnostic.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,8 +31,21 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Weather.Composition.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Weather.Diagnostic.XML</DocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Logger.fs" />
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
@@ -50,57 +62,6 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="CompositionRoot.fs" />
-    <None Include="Scripts\load-references-debug.fsx" />
-    <None Include="Scripts\load-project-debug.fsx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Weather.DataProvider\Weather.DataProvider.fsproj">
-      <Name>Weather.DataProvider</Name>
-      <Project>{95e20368-ac52-4ed5-8f50-5da49cd3d8cf}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Weather.Diagnostic\Weather.Diagnostic.fsproj">
-      <Name>Weather.Diagnostic</Name>
-      <Project>{6d2b4b99-56db-406c-8773-b1a393ce8589}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Weather.Logic\Weather.Logic.fsproj">
-      <Name>Weather.Logic</Name>
-      <Project>{79157338-0322-4af0-bbd9-3ee02e48796c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Weather.Persistence\Weather.Persistence.fsproj">
-      <Name>Weather.Persistence</Name>
-      <Project>{c24a0431-685f-4a3b-8a0e-2faca0401e3c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Weather.Synop\Weather.Synop.fsproj">
-      <Name>Weather.Synop</Name>
-      <Project>{ff33577f-b962-4808-b27a-c3d077dba9eb}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Weather.Utils\Weather.Utils.fsproj">
-      <Name>Weather.Utils</Name>
-      <Project>{793beaf7-68d5-4f4a-830a-c53ab634d011}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-    <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
-      <Name>Weather.Model</Name>
-      <Project>{1ee46eee-c926-4d3c-9db2-4b2ed025f511}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

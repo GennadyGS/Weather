@@ -3,11 +3,14 @@
 open Weather.Model
 open Weather.Utils
 open Weather.Persistence
+open Weather.Diagnostic
 open Weather.DataProvider
 
 let private handleInvalidObservationFormats connectionString = function
-    | InvalidObservationFormat value -> 
-        DbService.insertObservationParsingErrorList connectionString [value]
+    | InvalidObservationFormat (header, message) -> 
+        let errorMessage = sprintf "Invalid observation header format (header: %A): %s" header message
+        Logger.logError errorMessage
+        DbService.insertObservationParsingErrorList connectionString [(header, message)]
         |> Result.mapBoth (fun _ -> None) Some
     | value -> Some value
 
@@ -16,9 +19,8 @@ let private logFailure failure =
         match failure with
         | InvalidHeaderFormat message -> sprintf "Invalid header format: %s" message
         | DatabaseError message -> sprintf "Database error: %s" message
-        | InvalidObservationFormat (header, message) -> 
-            sprintf "Invalid observation header format (header: %A): %s" header message
-    // TODO: Log error
+        | InvalidObservationFormat _ -> sprintf "Unexpected error: %A" failure
+    Logger.logError errorMessage
     None
 
 let private combineSuccesses results =
