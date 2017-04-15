@@ -10,6 +10,26 @@ let bind f xResult =
     | Success success -> f success
     | Failure failure -> Failure failure
 
+let mapToList func result = 
+    match result with
+        | Success success -> func success |> List.map Success
+        | Failure failure -> [Failure failure]
+
+let bindToList func result = 
+    match result with
+        | Success success -> func success
+        | Failure failure -> [Failure failure]
+
+let mapToOption func result = 
+    match result with
+        | Success success -> func success |> Option.map Success
+        | Failure failure -> Some (Failure failure)
+
+let bindToOption func result = 
+    match result with
+        | Success success -> func success
+        | Failure failure -> Some (Failure failure)
+
 type ResultBuilder() =
     member this.Return x = Success x
     member this.ReturnFrom x = x

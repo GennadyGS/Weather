@@ -81,7 +81,3 @@ let fetchObservations stationNumber dateFrom dateTo =
 
 let fetchObservationsByInterval (stationNumber, interval) = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
-
-// TODO: Get rid of
-let fetchObservationsByIntervalOption (Some (stationNumber, interval)) = 
-    fetchObservations stationNumber (Some interval.From) (Some interval.To)
