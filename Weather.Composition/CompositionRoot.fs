@@ -32,14 +32,6 @@ let private handleFailures handler results =
     results
     |> List.choose (Result.mapFailureToOption handler)
 
-let private processResults connectionString results =
-    results
-    |> combineSuccesses 
-    |> List.map (Result.bind (DbService.insertObservationList connectionString))
-    |> handleFailures (handleInvalidObservationFormats connectionString)
-    |> handleFailures logFailure
-    |> ignore
-
 let fillNewDataForStations connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
     |> List.choose 
@@ -47,4 +39,9 @@ let fillNewDataForStations connectionString minTimeSpan interval stationList =
             (Tuple.mapSecondOption
                 (Weather.Logic.Observations.getMissingInterval minTimeSpan interval)))
     |> List.collect (Result.bindToList (ObservationsProvider.fetchObservationsByInterval))
-    |> processResults connectionString
+    |> combineSuccesses 
+    |> List.map (Result.bind (DbService.insertObservationList connectionString))
+    |> handleFailures (handleInvalidObservationFormats connectionString)
+
+let logFailures results = 
+    handleFailures logFailure results
