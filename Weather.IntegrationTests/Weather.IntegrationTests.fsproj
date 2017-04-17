@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="LoggingTestFixture.fs" />
     <Compile Include="DbTests.fs" />
     <Compile Include="ObservationProviderTests.fs" />
     <Compile Include="DbServiceTests.fs" />
@@ -88,6 +89,10 @@
       <HintPath>..\packages\SQLProvider.1.0.41\lib\FSharp.Data.SqlProvider.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -100,6 +105,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Unquote">
       <HintPath>..\packages\Unquote.3.1.2\lib\net45\Unquote.dll</HintPath>
