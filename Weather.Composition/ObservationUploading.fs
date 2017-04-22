@@ -1,4 +1,4 @@
-﻿module Weather.Composition.CompositionRoot
+﻿module Weather.Composition.ObservationsUploading
 
 open Weather.Model
 open Weather.Utils

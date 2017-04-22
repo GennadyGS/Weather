@@ -2,5 +2,5 @@
 #I __SOURCE_DIRECTORY__
 #load "load-references-debug.fsx"
 #load "../AssemblyInfo.fs"
-      "../CompositionRoot.fs"
+      "../ObservationUploading.fs"
       "../FailureHandling.fs"

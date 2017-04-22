@@ -8,14 +8,14 @@ open Weather.IntegrationTests
 open Weather.Persistence
 open Weather.Composition
 
-type CompositionRootTests() =
+type ObservationsUploadingTests() =
     inherit DbTests()
     interface IClassFixture<LoggingTestFixture>
 
     [<Fact>]
     member this.``FillNewDataForStations for emply list should not save observations``() =
         let results = 
-            CompositionRoot.fillNewDataForStations
+            ObservationsUploading.fillNewDataForStations
                 Settings.ConnectionStrings.Weather 
                 Settings.MinTimeSpan 
                 { From = DateTime.UtcNow.AddDays(-1.0)
@@ -28,7 +28,7 @@ type CompositionRootTests() =
     [<Fact>]
     member this.``FillNewDataForStations for the last day do not throw exception``() =
         let results = 
-            CompositionRoot.fillNewDataForStations
+            ObservationsUploading.fillNewDataForStations
                 Settings.ConnectionStrings.Weather 
                 Settings.MinTimeSpan
                 { From = DateTime.UtcNow.AddDays(-1.0)

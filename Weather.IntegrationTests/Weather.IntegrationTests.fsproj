@@ -56,7 +56,7 @@
     <Compile Include="DbTests.fs" />
     <Compile Include="ObservationProviderTests.fs" />
     <Compile Include="DbServiceTests.fs" />
-    <Compile Include="CompositionRootTests.fs" />
+    <Compile Include="ObservationsUploadingTests.fs" />
     <Content Include="packages.config" />
     <Content Include="App.config" />
   </ItemGroup>
