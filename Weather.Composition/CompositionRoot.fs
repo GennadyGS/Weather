@@ -28,10 +28,6 @@ let private combineSuccesses results =
     let successList = if not (List.isEmpty successes) then [Success successes] else []
     successList @ (falures |> List.map Failure)
     
-let private handleFailures handler results = 
-    results
-    |> List.choose (Result.mapFailureToOption handler)
-
 let fillNewDataForStations connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
     |> List.choose 
@@ -41,7 +37,7 @@ let fillNewDataForStations connectionString minTimeSpan interval stationList =
     |> List.collect (Result.bindToList (ObservationsProvider.fetchObservationsByInterval))
     |> combineSuccesses 
     |> List.map (Result.bind (DbService.insertObservationList connectionString))
-    |> handleFailures (handleInvalidObservationFormats connectionString)
+    |> FailureHandling.handleFailures (handleInvalidObservationFormats connectionString)
 
 let logFailures results = 
-    handleFailures logFailure results
+    FailureHandling.handleFailures logFailure results
