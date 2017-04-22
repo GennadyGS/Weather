@@ -14,11 +14,6 @@ let private handleInvalidObservationFormats connectionString = function
         |> Result.mapBoth (fun _ -> None) Some
     | value -> Some value
 
-let private combineSuccesses results =
-    let (successes, falures) = ListPartition.partition results
-    let successList = if not (List.isEmpty successes) then [Success successes] else []
-    successList @ (falures |> List.map Failure)
-    
 let getMissingNewStationIntervals connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
     |> List.choose 
@@ -29,7 +24,7 @@ let getMissingNewStationIntervals connectionString minTimeSpan interval stationL
 let fillStationIntervals connectionString stationIntervals = 
     stationIntervals
     |> List.collect ObservationsProvider.fetchObservationsByInterval
-    |> combineSuccesses 
+    |> ResultList.combineSuccesses 
     |> List.map 
         (Result.bind 
             (DbService.insertObservationList connectionString))
@@ -38,7 +33,7 @@ let fillStationIntervals connectionString stationIntervals =
 
 let fillNewDataForStations connectionString minTimeSpan interval stationList =
     getMissingNewStationIntervals connectionString minTimeSpan interval stationList
-    |> combineSuccesses 
+    |> ResultList.combineSuccesses 
     |> List.collect 
         (Result.bindToList 
             (fillStationIntervals connectionString))
