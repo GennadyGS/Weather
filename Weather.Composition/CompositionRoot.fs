@@ -14,15 +14,6 @@ let private handleInvalidObservationFormats connectionString = function
         |> Result.mapBoth (fun _ -> None) Some
     | value -> Some value
 
-let private logFailure failure = 
-    let errorMessage = 
-        match failure with
-        | InvalidHeaderFormat message -> sprintf "Invalid header format: %s" message
-        | DatabaseError message -> sprintf "Database error: %s" message
-        | InvalidObservationFormat _ -> sprintf "Unexpected error: %A" failure
-    Logger.logError errorMessage
-    None
-
 let private combineSuccesses results =
     let (successes, falures) = List.partition results
     let successList = if not (List.isEmpty successes) then [Success successes] else []
@@ -38,6 +29,3 @@ let fillNewDataForStations connectionString minTimeSpan interval stationList =
     |> combineSuccesses 
     |> List.map (Result.bind (DbService.insertObservationList connectionString))
     |> FailureHandling.handleFailures (handleInvalidObservationFormats connectionString)
-
-let logFailures results = 
-    FailureHandling.handleFailures logFailure results
