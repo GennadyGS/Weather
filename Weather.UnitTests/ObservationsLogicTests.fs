@@ -8,7 +8,7 @@ open Weather.Utils
 open System
 
 [<Property>]
-let ``GetMissingInterval returns None when interval is empty`` 
+let ``GetMissingTrailingInterval returns None when interval is empty`` 
         interval lastObservationTime = 
     
     // Arrange
@@ -17,13 +17,13 @@ let ``GetMissingInterval returns None when interval is empty``
     (minTimeSpan.Ticks > 0L) ==> lazy
     
     // Act
-    let result = Observations.getMissingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! None 
 
 [<Property>]
-let ``GetMissingInterval returns None when lastObservationTime is greater then interval.To`` 
+let ``GetMissingTrailingInterval returns None when lastObservationTime is greater then interval.To`` 
         interval lastObservationTime = 
     
     // Arrange
@@ -32,13 +32,13 @@ let ``GetMissingInterval returns None when lastObservationTime is greater then i
     (lastObservationTime > interval.To + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! None 
 
 [<Property>]
-let ``GetMissingInterval returns interval from lastObservationTime when it is inside interval`` 
+let ``GetMissingTrailingInterval returns interval from lastObservationTime when it is inside interval`` 
         interval lastObservationTime  = 
     
     // Arrange
@@ -48,13 +48,13 @@ let ``GetMissingInterval returns interval from lastObservationTime when it is in
     (lastObservationTime < interval.To + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! Some { interval with From = lastObservationTime + minTimeSpan }
 
 [<Property>]
-let ``GetMissingInterval returns input interval when lastObservationTime is less then interval.From`` 
+let ``GetMissingTrailingInterval returns input interval when lastObservationTime is less then interval.From`` 
         interval lastObservationTime  = 
     
     // Arrange
@@ -63,13 +63,13 @@ let ``GetMissingInterval returns input interval when lastObservationTime is less
     (lastObservationTime < interval.From + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! Some interval
 
 [<Property>]
-let ``GetMissingInterval returns interval when lastObservationTime is None`` 
+let ``GetMissingTrailingInterval returns interval when lastObservationTime is None`` 
         interval  = 
     
     // Arrange
@@ -77,7 +77,7 @@ let ``GetMissingInterval returns interval when lastObservationTime is None``
     (interval.From + minTimeSpan < interval.To) ==> lazy
 
     // Act
-    let result = Observations.getMissingInterval minTimeSpan interval None
+    let result = Observations.getMissingTrailingInterval minTimeSpan interval None
 
     // Assert
     result =! Some interval

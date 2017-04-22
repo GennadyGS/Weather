@@ -7,7 +7,7 @@ open Weather.Utils.Option
 open Weather.Utils.Result
 open Weather.Model
 
-let getMissingInterval minTimeSpan interval lastObservationTime =
+let getMissingTrailingInterval minTimeSpan interval lastObservationTime =
     let actualIntervalFrom = 
         lastObservationTime 
         |> Option.map (fun (d : DateTime) -> d + minTimeSpan)
