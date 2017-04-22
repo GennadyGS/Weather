@@ -112,7 +112,7 @@ let getObservations = mapContextReadFunc getObservationsInternal
 
 // Last observation times
 
-let private getLastObservationTimeListInternal 
+let private getLastObservationTimeListForStationsInternal 
         (dataContext : DataContext) 
         (interval : DateTimeInterval)
         (stationNumberList : int list) =
@@ -144,7 +144,7 @@ let private getLastObservationTimeListInternal
         select (group.Key, maxObservationTime)
     } |> List.ofSeq
 
-let getLastObservationTimeList = mapContextReadFunc3 getLastObservationTimeListInternal
+let getLastObservationTimeListForStations = mapContextReadFunc3 getLastObservationTimeListForStationsInternal
 
 // Collect observation tasks
 
