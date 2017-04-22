@@ -3,5 +3,5 @@
 #r "System.Core.dll"
 #r "System.dll"
 #r "System.Numerics.dll"
-#r "../../Weather.Model/bin/Debug/Weather.Model.dll"
 #r "../../Weather.Utils/bin/Debug/Weather.Utils.dll"
+#r "../../Weather.Model/bin/Debug/Weather.Model.dll"

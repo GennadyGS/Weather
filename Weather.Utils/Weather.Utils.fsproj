@@ -51,6 +51,7 @@
     <Compile Include="RegEx.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Option.fs" />
+    <Compile Include="Nullable.fs" />
     <Compile Include="DateTime.fs" />
     <Compile Include="ListPartition.fs" />
     <Compile Include="ResultList.fs" />

@@ -1,11 +1,11 @@
 ﻿namespace Weather.Model
 
-type ObservationTime = {
-    Date: System.DateTime
-    Hour: byte
-} with
-    member this.ToDateTime() = 
-        this.Date.AddHours(float this.Hour)
+type ObservationTime = 
+    { Date: System.DateTime
+      Hour: byte } 
+    with
+        member this.ToDateTime() = 
+            this.Date.AddHours(float this.Hour)
 
 type ObservationHeader = 
     { StationNumber: int

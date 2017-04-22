@@ -91,10 +91,6 @@ let getObservations = mapContextReadFunc getObservationsInternal
 
 // Last observation times
 
-// TODO: move to utils
-let private toOption item = 
-    if (isNull (box item)) then None else Some(item)
-
 let private getLastObservationTimeListInternal 
         (dataContext : DataContext) 
         (stationNumberList : int list, interval : DateTimeInterval) = 
@@ -115,7 +111,7 @@ let private getLastObservationTimeListInternal
         leftOuterJoin (stNumber, observationTime) in filteredObservationsQuery
             on (stationNumber = stNumber) into result
         for item in result do 
-        let optionalItem = toOption item
+        let optionalItem = Nullable.toOption item
         select (stationNumber, Option.map snd optionalItem)
     }
 
