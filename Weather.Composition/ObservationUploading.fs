@@ -19,13 +19,27 @@ let private combineSuccesses results =
     let successList = if not (List.isEmpty successes) then [Success successes] else []
     successList @ (falures |> List.map Failure)
     
-let fillNewDataForStations connectionString minTimeSpan interval stationList =
+let getMissingNewStationIntervals connectionString minTimeSpan interval stationList =
     DbService.getLastObservationTimeList connectionString (stationList, interval)
     |> List.choose 
         (Result.mapToOption
             (Tuple.mapSecondOption
                 (Weather.Logic.Intervals.getMissingTrailingInterval minTimeSpan interval)))
-    |> List.collect (Result.bindToList (ObservationsProvider.fetchObservationsByInterval))
+
+let fillStationIntervals connectionString stationIntervals = 
+    stationIntervals
+    |> List.collect ObservationsProvider.fetchObservationsByInterval
     |> combineSuccesses 
-    |> List.map (Result.bind (DbService.insertObservationList connectionString))
-    |> FailureHandling.handleFailures (handleInvalidObservationFormats connectionString)
+    |> List.map 
+        (Result.bind 
+            (DbService.insertObservationList connectionString))
+    |> FailureHandling.handleFailures 
+        (handleInvalidObservationFormats connectionString)
+
+let fillNewDataForStations connectionString minTimeSpan interval stationList =
+    getMissingNewStationIntervals connectionString minTimeSpan interval stationList
+    |> combineSuccesses 
+    |> List.collect 
+        (Result.bindToList 
+            (fillStationIntervals connectionString))
+
