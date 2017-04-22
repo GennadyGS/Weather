@@ -15,7 +15,7 @@ let private handleInvalidObservationFormats connectionString = function
     | value -> Some value
 
 let private combineSuccesses results =
-    let (successes, falures) = List.partition results
+    let (successes, falures) = ListPartition.partition results
     let successList = if not (List.isEmpty successes) then [Success successes] else []
     successList @ (falures |> List.map Failure)
     

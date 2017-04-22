@@ -1,4 +1,4 @@
-﻿module Weather.Utils.List
+﻿module Weather.Utils.ListPartition
 
 let mapAndPartition mapper list = 
   let rec partitionAux list outTrue outFalse =

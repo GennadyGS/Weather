@@ -52,7 +52,7 @@
     <Compile Include="Result.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="DateTime.fs" />
-    <Compile Include="List.fs" />
+    <Compile Include="ListPartition.fs" />
     <Compile Include="Tuple.fs" />
     <Compile Include="FailureHandling.fs" />
   </ItemGroup>
