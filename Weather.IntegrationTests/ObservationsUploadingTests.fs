@@ -16,21 +16,21 @@ type ObservationsUploadingTests() =
     member this.``FillNewDataForStations for emply list should not save observations``() =
         let results = 
             ObservationsUploading.fillNewDataForStations
-                Settings.ConnectionStrings.Weather 
                 Settings.MinTimeSpan 
+                Settings.ConnectionStrings.Weather 
                 { From = DateTime.UtcNow.AddDays(-1.0)
                   To = DateTime.UtcNow }
                 []
     
         results =! []
-        DbService.getObservations Settings.ConnectionStrings.Weather () =! []
+        DbService.getObservations Settings.ConnectionStrings.Weather =! []
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day do not throw exception``() =
         let results = 
             ObservationsUploading.fillNewDataForStations
-                Settings.ConnectionStrings.Weather 
                 Settings.MinTimeSpan
+                Settings.ConnectionStrings.Weather 
                 { From = DateTime.UtcNow.AddDays(-1.0)
                   To = DateTime.UtcNow }
                 [33345]

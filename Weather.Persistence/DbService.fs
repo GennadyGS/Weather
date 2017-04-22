@@ -16,17 +16,38 @@ type private DataContext =
 
 // Utilities
 
-let private mapContextReadFunc (func : DataContext -> 'a -> 'b list) = 
+let private (|DatabaseFailure|_|) (ex : Exception) = 
+    match ex with
+    | :? System.Data.SqlClient.SqlException as sqlEx -> 
+        sqlEx.ToString() 
+        |> DatabaseError 
+        |> Failure 
+        |> Some
+    | _ -> None
+    
+let private mapContextReadFunc (func : DataContext -> 'a list) = 
+    let compositeFunc = SqlProvider.GetDataContext >> func
+    fun connectionString -> 
+        try
+            compositeFunc connectionString |> List.map Success
+        with
+          | DatabaseFailure failure -> List.singleton failure
+
+let private mapContextReadFunc2 (func : DataContext -> 'a -> 'b list) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg -> 
         try
             compositeFunc connectionString arg |> List.map Success
         with
-          | :? System.Data.SqlClient.SqlException as e -> 
-            e.ToString() 
-                |> DatabaseError 
-                |> Failure 
-                |> List.singleton
+          | DatabaseFailure failure -> List.singleton failure
+
+let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> 'c list) = 
+    let compositeFunc = SqlProvider.GetDataContext >> func
+    fun connectionString arg1 arg2 -> 
+        try
+            compositeFunc connectionString arg1 arg2 |> List.map Success
+        with
+          | DatabaseFailure failure -> List.singleton failure
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
@@ -36,7 +57,7 @@ let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) =
             dataContext.SubmitUpdates()
             Success result
         with
-          | :? System.Data.SqlClient.SqlException as e -> e.ToString() |> DatabaseError |> Failure
+          | DatabaseFailure failure -> failure
 
 // Observations
 
@@ -73,7 +94,7 @@ let private insertObservationParsingErrorListInternal (dataContext : DataContext
 let insertObservationParsingErrorList = mapContextUpdateFunc insertObservationParsingErrorListInternal
 
 // TODO: Add optional station number and interval parameters
-let private getObservationsInternal (dataContext : DataContext) () : Observation list = 
+let private getObservationsInternal (dataContext : DataContext) : Observation list = 
     let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -93,7 +114,8 @@ let getObservations = mapContextReadFunc getObservationsInternal
 
 let private getLastObservationTimeListInternal 
         (dataContext : DataContext) 
-        (stationNumberList : int list, interval : DateTimeInterval) = 
+        (interval : DateTimeInterval)
+        (stationNumberList : int list) =
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
@@ -122,7 +144,7 @@ let private getLastObservationTimeListInternal
         select (group.Key, maxObservationTime)
     } |> List.ofSeq
 
-let getLastObservationTimeList = mapContextReadFunc getLastObservationTimeListInternal
+let getLastObservationTimeList = mapContextReadFunc3 getLastObservationTimeListInternal
 
 // Collect observation tasks
 

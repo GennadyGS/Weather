@@ -14,8 +14,8 @@ let private handleInvalidObservationFormats connectionString = function
         |> Result.mapBoth (fun _ -> None) Some
     | value -> Some value
 
-let getMissingNewStationIntervals connectionString minTimeSpan interval stationList =
-    DbService.getLastObservationTimeList connectionString (stationList, interval)
+let getMissingNewStationIntervals minTimeSpan connectionString interval stationList =
+    DbService.getLastObservationTimeList connectionString interval stationList
     |> List.choose 
         (Result.mapToOption
             (Tuple.mapSecondOption
@@ -31,8 +31,8 @@ let fillStationIntervals connectionString stationIntervals =
     |> FailureHandling.handleFailures 
         (handleInvalidObservationFormats connectionString)
 
-let fillNewDataForStations connectionString minTimeSpan interval stationList =
-    getMissingNewStationIntervals connectionString minTimeSpan interval stationList
+let fillNewDataForStations minTimeSpan connectionString interval stationList =
+    getMissingNewStationIntervals minTimeSpan connectionString interval stationList
     |> ResultList.combineSuccesses 
     |> List.collect 
         (Result.bindToList 

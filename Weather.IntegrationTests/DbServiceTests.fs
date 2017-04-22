@@ -25,8 +25,8 @@ type DbServiceTests() =
         observations |> (List.sortBy (Result.map (fun o -> o.Header)))
 
     let testSaveObservations observations = 
-        DbService.insertObservationList connectionstring observations
-        let results = DbService.getObservations connectionstring ()
+        DbService.insertObservationList connectionstring observations |> ignore
+        let results = DbService.getObservations connectionstring
         (results |> sortObservations) =! (observations |> List.map Success |> sortObservations )
 
     let roundDateTimeToHours (dateTime : DateTime) = 
@@ -48,7 +48,7 @@ type DbServiceTests() =
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = DbService.getLastObservationTimeList connectionstring (requestedStationNumbers, interval)
+        let result = DbService.getLastObservationTimeList connectionstring interval requestedStationNumbers
 
         let expectedresult = 
             requestedStationNumbers 
@@ -69,7 +69,7 @@ type DbServiceTests() =
         
         DbService.insertObservationList connectionstring observationList
         
-        let result = DbService.getLastObservationTimeList connectionstring (requestedStationNumberList, interval)
+        let result = DbService.getLastObservationTimeList connectionstring interval requestedStationNumberList
 
         let expectedResult = 
             requestedStationNumberList
