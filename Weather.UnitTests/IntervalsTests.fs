@@ -1,4 +1,4 @@
-﻿module Weather.UnitTests.ObservationsLogicTests
+﻿module Weather.UnitTests.IntervalsTests
 
 open FsCheck
 open FsCheck.Xunit
@@ -17,7 +17,7 @@ let ``GetMissingTrailingInterval returns None when interval is empty``
     (minTimeSpan.Ticks > 0L) ==> lazy
     
     // Act
-    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Intervals.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! None 
@@ -32,7 +32,7 @@ let ``GetMissingTrailingInterval returns None when lastObservationTime is greate
     (lastObservationTime > interval.To + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Intervals.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! None 
@@ -48,7 +48,7 @@ let ``GetMissingTrailingInterval returns interval from lastObservationTime when 
     (lastObservationTime < interval.To + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Intervals.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! Some { interval with From = lastObservationTime + minTimeSpan }
@@ -63,7 +63,7 @@ let ``GetMissingTrailingInterval returns input interval when lastObservationTime
     (lastObservationTime < interval.From + minTimeSpan) ==> lazy
     
     // Act
-    let result = Observations.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
+    let result = Intervals.getMissingTrailingInterval minTimeSpan interval (Some lastObservationTime)
 
     // Assert
     result =! Some interval
@@ -77,7 +77,7 @@ let ``GetMissingTrailingInterval returns interval when lastObservationTime is No
     (interval.From + minTimeSpan < interval.To) ==> lazy
 
     // Act
-    let result = Observations.getMissingTrailingInterval minTimeSpan interval None
+    let result = Intervals.getMissingTrailingInterval minTimeSpan interval None
 
     // Assert
     result =! Some interval

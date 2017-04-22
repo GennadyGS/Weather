@@ -56,7 +56,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <Content Include="App.config" />
-    <Compile Include="ObservationsLogicTests.fs" />
+    <Compile Include="IntervalsTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">

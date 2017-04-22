@@ -1,4 +1,4 @@
-﻿module Weather.Logic.Observations
+﻿module Weather.Logic.Intervals
 
 open System
 open Weather.Utils

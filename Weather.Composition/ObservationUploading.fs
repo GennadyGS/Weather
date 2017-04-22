@@ -24,7 +24,7 @@ let fillNewDataForStations connectionString minTimeSpan interval stationList =
     |> List.choose 
         (Result.mapToOption
             (Tuple.mapSecondOption
-                (Weather.Logic.Observations.getMissingTrailingInterval minTimeSpan interval)))
+                (Weather.Logic.Intervals.getMissingTrailingInterval minTimeSpan interval)))
     |> List.collect (Result.bindToList (ObservationsProvider.fetchObservationsByInterval))
     |> combineSuccesses 
     |> List.map (Result.bind (DbService.insertObservationList connectionString))
