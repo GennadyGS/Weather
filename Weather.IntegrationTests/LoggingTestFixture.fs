@@ -1,11 +1,11 @@
 ﻿namespace Weather.IntegrationTests
 
 open System
-open log4net
+open Weather.Diagnostic
 
 type LoggingTestFixture() =
     do
-        log4net.Config.XmlConfigurator.Configure() |> ignore
+        Logger.configureLogger ()
 
     interface IDisposable with
         member __.Dispose() = 

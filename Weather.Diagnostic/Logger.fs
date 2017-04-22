@@ -7,6 +7,9 @@ let private loggerName = "Logger"
 let private logger = 
     LogManager.GetLogger(loggerName);
 
+let configureLogger () =
+    log4net.Config.XmlConfigurator.Configure() |> ignore
+
 let logFatal (message : string) =
     logger.Fatal(message)
     ()
