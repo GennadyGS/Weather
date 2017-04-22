@@ -5,6 +5,7 @@ open Weather.Utils
 open Weather.Persistence
 open Weather.Diagnostic
 open Weather.DataProvider
+open Weather.Logic
 
 let private handleInvalidObservationFormats connectionString = function
     | InvalidObservationFormat (header, message) -> 
@@ -14,12 +15,9 @@ let private handleInvalidObservationFormats connectionString = function
         |> Result.mapBoth (fun _ -> None) Some
     | value -> Some value
 
-let getMissingNewStationIntervals minTimeSpan connectionString interval stationList =
-    DbService.getLastObservationTimeList connectionString interval stationList
-    |> List.choose 
-        (Result.mapToOption
-            (Tuple.mapSecondOption
-                (Weather.Logic.Intervals.getMissingTrailingInterval minTimeSpan interval)))
+let tryGetMissingTrailingStationInterval minTimeSpan interval =
+    Tuple.mapSecondOption 
+        (Intervals.getMissingTrailingInterval minTimeSpan interval)
 
 let fillStationIntervals connectionString stationIntervals = 
     stationIntervals
@@ -32,7 +30,10 @@ let fillStationIntervals connectionString stationIntervals =
         (handleInvalidObservationFormats connectionString)
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
-    getMissingNewStationIntervals minTimeSpan connectionString interval stationList
+    DbService.getLastObservationTimeList connectionString interval stationList
+    |> List.choose 
+        (Result.mapToOption 
+            (tryGetMissingTrailingStationInterval minTimeSpan interval))
     |> ResultList.combineSuccesses 
     |> List.collect 
         (Result.bindToList 
