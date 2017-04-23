@@ -72,15 +72,19 @@ let private checkHttpStatusInResponseString string =
             HttpError (statusCode, message) |> Failure
     | _ -> Success string
 
-let private tryRequestHttpString baseUrl queryParams = 
-    let response : HttpResponse = Http.Request (baseUrl, query = queryParams)
+// TODO: Extract to separate module/assembly
+let private getHttpResponseBodyText = 
+    function
+    | Text text -> text
+    | Binary _ -> String.Empty
+
+let private requestHttpString baseUrl queryParams = 
+    let response : HttpResponse = Http.Request (baseUrl, query = queryParams, silentHttpErrors = true)
     let statusCode = LanguagePrimitives.EnumOfValue response.StatusCode
+    let bodyText = getHttpResponseBodyText response.Body
     match statusCode with
-    | HttpStatusCode.OK -> 
-        match response.Body with
-        | Text text -> Success text
-        | Binary _ -> InvalidResponseFormat "binary" |> Failure
-    | _ -> HttpError (statusCode, response.Body.ToString()) |> Failure
+    | HttpStatusCode.OK -> Success bodyText
+    | _ -> HttpError (statusCode, bodyText) |> Failure
 
 let private splitResponseIntoLines = 
     String.split [|'\r'; '\n'|] 
@@ -88,7 +92,7 @@ let private splitResponseIntoLines =
     >> List.filter (fun line -> line <> String.Empty)
 
 let fetchObservations stationNumber dateFrom dateTo = 
-    tryRequestHttpString Url (getUrlQueryParams stationNumber dateFrom dateTo)
+    requestHttpString Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
         |> List.map (Result.bind parseObservation)
