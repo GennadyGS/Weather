@@ -27,7 +27,7 @@ type ObservationsUploadingTests() =
         DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
 
     [<Fact>]
-    member this.``FillNewDataForStations for the last day do not throw exception``() =
+    member this.``FillNewDataForStations for the last day returns success result``() =
         let results = 
             ObservationsUploading.fillNewDataForStations
                 Settings.MinTimeSpan

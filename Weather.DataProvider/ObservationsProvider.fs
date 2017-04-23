@@ -66,7 +66,7 @@ let private parseObservation string =
 
 let private checkHttpStatusInResponseString string = 
     match string with
-    | Regex @"^Status: (\d{3}) (.*)$" 
+    | Regex @"^Status: (\d{3}) (.*)" 
         [Int(status); message] -> 
             let statusCode : WebExceptionStatus = LanguagePrimitives.EnumOfValue(status)
             HttpError (statusCode, message) |> Failure
