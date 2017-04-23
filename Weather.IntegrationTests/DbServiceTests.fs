@@ -41,12 +41,12 @@ type DbServiceTests() =
 
     [<Fact>]
     let ``SaveObservations should save single observation correctly``() = 
-        testSaveObservations [ getSampleObservation 0 currentTime ]
+        testSaveObservations [ getSampleObservation (StationNumber 0) currentTime ]
 
     [<Fact>]
     let ``GetLastObservationTimeListForStations should return empty list when there are no observations``() = 
         let now = System.DateTime.UtcNow;
-        let requestedStationNumbers = [0; 10; 100]
+        let requestedStationNumbers = [StationNumber 0; StationNumber 10; StationNumber 100]
         let interval = 
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
@@ -61,8 +61,8 @@ type DbServiceTests() =
 
     [<Fact>]
     let ``GetLastObservationTimeListForStations should return correct last observation time list when there are two observations``() = 
-        let savedStationNumberList = [1; 2]
-        let requestedStationNumberList = 0 :: savedStationNumberList
+        let savedStationNumberList = [StationNumber 1; StationNumber 2]
+        let requestedStationNumberList = StationNumber 0 :: savedStationNumberList
         let interval = 
             { From = currentTime.AddDays(-1.0)
               To = currentTime }

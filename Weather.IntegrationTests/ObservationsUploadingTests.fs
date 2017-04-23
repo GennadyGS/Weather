@@ -7,6 +7,7 @@ open Weather.Utils
 open Weather.IntegrationTests
 open Weather.Persistence
 open Weather.Composition
+open Weather.Model
 
 type ObservationsUploadingTests() =
     inherit DbTests()
@@ -33,7 +34,7 @@ type ObservationsUploadingTests() =
                 Settings.ConnectionStrings.Weather 
                 { From = DateTime.UtcNow.AddDays(-1.0)
                   To = DateTime.UtcNow }
-                [33345]
+                [StationNumber 33345]
 
         results =! [Success ()]
         // TODO: verify results in database

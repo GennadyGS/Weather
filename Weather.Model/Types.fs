@@ -7,8 +7,11 @@ type ObservationTime =
         member this.ToDateTime() = 
             this.Date.AddHours(float this.Hour)
 
+type StationNumber = 
+    | StationNumber of int
+
 type ObservationHeader = 
-    { StationNumber: int
+    { StationNumber: StationNumber
       ObservationTime: ObservationTime }
 
 type Observation = 

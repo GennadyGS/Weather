@@ -65,7 +65,8 @@ let private insertObservation (dataContext : DataContext) observation =
     let row = dataContext.Dbo.Observations.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
-    row.StationNumber <- observation.Header.StationNumber
+    let (StationNumber stationNumber) = observation.Header.StationNumber
+    row.StationNumber <- stationNumber
     row.Date <- observation.Header.ObservationTime.Date
     row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
@@ -81,7 +82,8 @@ let private insertObservationParsingError (dataContext : DataContext) (observati
     let row = dataContext.Dbo.ObservationParsingErrors.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
-    row.StationNumber <- observationHeader.StationNumber
+    let (StationNumber stationNumber) = observationHeader.StationNumber
+    row.StationNumber <- stationNumber
     row.Date <- observationHeader.ObservationTime.Date
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
@@ -103,7 +105,7 @@ let private getObservationsInternal (dataContext : DataContext) : Observation li
                 { ObservationTime = 
                     { Date = o.Date 
                       Hour = o.Hour }
-                  StationNumber = o.StationNumber }
+                  StationNumber = StationNumber o.StationNumber }
             Temperature = o.Temperature
         }
     } |> List.ofSeq
@@ -115,11 +117,11 @@ let getObservations = mapContextReadFunc getObservationsInternal
 let private getLastObservationTimeListForStationsInternal 
         (dataContext : DataContext) 
         (interval : DateTimeInterval)
-        (stationNumberList : int list) =
+        (stationNumberList : StationNumber list) =
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.Dbo.Observations do
-        select (o.StationNumber, o.Date.AddHours(float(o.Hour)))
+        select (StationNumber o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
     
     let filteredObservationsQuery = query {

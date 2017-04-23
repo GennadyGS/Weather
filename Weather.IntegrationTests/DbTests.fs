@@ -3,7 +3,7 @@
 open FSharp.Data.Sql.Providers
 
 type DbTests () =
-    let executeSqlCommand (sql : string) : int = 
+    let executeSqlCommand sql = 
         using 
             (MSSqlServer.createConnection Settings.ConnectionStrings.Weather)
             (fun connection -> 

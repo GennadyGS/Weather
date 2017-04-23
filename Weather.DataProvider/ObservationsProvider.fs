@@ -27,7 +27,7 @@ let private formatStationNumber =
 let private buildOptionalParam name optionalValue = 
     optionalValue |> Option.map (fun value -> (name, value))
 
-let private getUrlQueryParams (stationNumber : int) (dateFrom : DateTime option) (dateTo : DateTime option) = 
+let private getUrlQueryParams (StationNumber stationNumber) dateFrom dateTo = 
     ("block", stationNumber |> formatStationNumber) ::
     List.concat [
         buildOptionalParam "begin" (dateFrom |> Option.map formatDateTime) 
@@ -46,7 +46,7 @@ let private parseHeader string =
         | [|Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString|] -> 
             let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> roundToMinutes
             let header = 
-                { StationNumber = stationNumber
+                { StationNumber = StationNumber stationNumber
                   ObservationTime = 
                     { Date = roundedObservationTime.Date
                       Hour = byte roundedObservationTime.Hour }}
