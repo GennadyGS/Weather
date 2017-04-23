@@ -28,13 +28,11 @@ let private tryGetMissingTrailingStationInterval minTimeSpan interval =
         (Intervals.tryGetMissingTrailingInterval minTimeSpan interval)
 
 let fetchObservationsForLastObservationTime minTimeSpan interval = 
-    tryGetMissingTrailingStationInterval minTimeSpan interval
-    >> Option.toList
+    List.choose (tryGetMissingTrailingStationInterval minTimeSpan interval)
     >> List.collect (ObservationsProvider.fetchObservationsByInterval)
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
     DbService.getLastObservationTimeListForStations connectionString interval stationList
-    |> List.collect 
-        (Result.bindToList
-            (fetchObservationsForLastObservationTime minTimeSpan interval))
+    |> Result.bindToList
+            (fetchObservationsForLastObservationTime minTimeSpan interval)
     |> saveObservationsAndHandleErrors connectionString

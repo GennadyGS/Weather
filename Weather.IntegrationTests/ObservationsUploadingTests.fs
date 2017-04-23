@@ -23,7 +23,7 @@ type ObservationsUploadingTests() =
                 []
     
         results =! []
-        DbService.getObservations Settings.ConnectionStrings.Weather =! []
+        DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day do not throw exception``() =

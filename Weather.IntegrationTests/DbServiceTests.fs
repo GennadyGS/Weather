@@ -22,12 +22,12 @@ type DbServiceTests() =
           Temperature = -1.3m }
 
     let sortObservations observations = 
-        observations |> (List.sortBy (Result.map (fun o -> o.Header)))
+        observations |> (List.sortBy (fun o -> o.Header))
 
     let testSaveObservations observations = 
         DbService.insertObservationList connectionstring observations |> ignore
         let results = DbService.getObservations connectionstring
-        (results |> sortObservations) =! (observations |> List.map Success |> sortObservations )
+        (results |> Result.map sortObservations) =! (observations |> sortObservations |> Success)
 
     let roundDateTimeToHours (dateTime : DateTime) = 
         dateTime.Date.AddHours(float dateTime.Hour)
@@ -50,10 +50,11 @@ type DbServiceTests() =
         
         let result = DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
 
-        let expectedresult = 
+        let expectedResult = 
             requestedStationNumbers 
-                |> List.map (fun stNumber -> Success (stNumber, None))
-        result =! expectedresult
+                |> List.map (fun stNumber -> (stNumber, None))
+                |> Success
+        result =! expectedResult
 
     [<Fact>]
     let ``GetLastObservationTimeListForStations should return correct last observation time list when there are two observations``() = 
@@ -67,7 +68,7 @@ type DbServiceTests() =
             savedStationNumberList 
             |> List.map (fun stNumber -> getSampleObservation stNumber observationTime)
         
-        DbService.insertObservationList connectionstring observationList
+        DbService.insertObservationList connectionstring observationList |> ignore
         
         let result = DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
 
@@ -77,5 +78,5 @@ type DbServiceTests() =
                 | stNumber when List.contains stNumber savedStationNumberList -> 
                     (stNumber, Some (roundDateTimeToHours observationTime))
                 | stNumber -> (stNumber, None))
-            |> List.map Success
-        result |> (List.sortBy (Result.map fst)) =! expectedResult
+            |> Success
+        result |> Result.map (List.sortBy fst) =! expectedResult

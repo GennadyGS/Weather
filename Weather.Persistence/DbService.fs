@@ -29,25 +29,25 @@ let private mapContextReadFunc (func : DataContext -> 'a list) =
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString -> 
         try
-            compositeFunc connectionString |> List.map Success
+            compositeFunc connectionString |> Success
         with
-          | DatabaseFailure failure -> List.singleton failure
+          | DatabaseFailure failure -> failure
 
 let private mapContextReadFunc2 (func : DataContext -> 'a -> 'b list) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg -> 
         try
-            compositeFunc connectionString arg |> List.map Success
+            compositeFunc connectionString arg |> Success
         with
-          | DatabaseFailure failure -> List.singleton failure
+          | DatabaseFailure failure -> failure
 
 let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> 'c list) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg1 arg2 -> 
         try
-            compositeFunc connectionString arg1 arg2 |> List.map Success
+            compositeFunc connectionString arg1 arg2 |> Success
         with
-          | DatabaseFailure failure -> List.singleton failure
+          | DatabaseFailure failure -> failure
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
