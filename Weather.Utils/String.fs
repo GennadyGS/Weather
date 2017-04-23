@@ -1,5 +1,4 @@
-﻿namespace Weather.Utils
+﻿module Weather.Utils.String
 
-module String =
-    let split (chars : char array) (string : string) : string[] = 
-        string.Split(chars)
+let split chars (string : string) = 
+    string.Split(chars)

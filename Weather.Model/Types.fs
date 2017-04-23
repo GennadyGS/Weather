@@ -1,5 +1,7 @@
 ﻿namespace Weather.Model
 
+open System.Net
+
 type ObservationTime = 
     { Date: System.DateTime
       Hour: byte } 
@@ -20,5 +22,6 @@ type Observation =
 
 type Failure =
     | DatabaseError of string
+    | HttpError of (WebExceptionStatus * string)
     | InvalidHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)

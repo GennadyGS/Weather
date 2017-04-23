@@ -41,7 +41,7 @@ let private toObservation header synop =
 
 let private parseHeader string =
     string
-    |> split [|','|]
+    |> String.split [|','|]
     |> function
         | [|Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString|] -> 
             let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> roundToMinutes
@@ -63,21 +63,28 @@ let private parseObservation string =
         let! (header, synopString) = parseHeader string
         return! parseSynop header synopString
     }
-let private checkHttpStatusInResponseString (string : string) : string = 
+
+let private checkHttpStatusInResponseString string = 
     match string with
     | Regex @"^Status: (\d{3}) (.*)$" 
         [Int(status); message] -> 
-            let errorText = sprintf "The remote server returned an error: (%d) %s" status message
             let statusCode : WebExceptionStatus = LanguagePrimitives.EnumOfValue(status)
-            raise (WebException(errorText, statusCode))
-    | _ -> string
+            HttpError (statusCode, message) |> Failure
+    | _ -> Success string
+
+let private tryRequestHttpString baseUrl queryParams = 
+    Http.RequestString (baseUrl, query = queryParams) |> Success
+
+let private splitResponseIntoLines = 
+    String.split [|'\r'; '\n'|] 
+    >> List.ofArray 
+    >> List.filter (fun line -> line <> String.Empty)
 
 let fetchObservations stationNumber dateFrom dateTo = 
-    Http.RequestString (Url, query = getUrlQueryParams stationNumber dateFrom dateTo)
-        |> split [|'\r'; '\n'|] 
-        |> List.ofArray 
-        |> List.filter (fun line -> line <> String.Empty)
-        |> List.map (checkHttpStatusInResponseString >> parseObservation)
+    tryRequestHttpString Url (getUrlQueryParams stationNumber dateFrom dateTo)
+        |> Result.bind checkHttpStatusInResponseString
+        |> Result.mapToList splitResponseIntoLines
+        |> List.map (Result.bind parseObservation)
 
 let fetchObservationsByInterval (stationNumber, interval) = 
     fetchObservations stationNumber (Some interval.From) (Some interval.To)
