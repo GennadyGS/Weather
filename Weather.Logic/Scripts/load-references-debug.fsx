@@ -5,3 +5,4 @@
 #r "System.Numerics.dll"
 #r "../../Weather.Utils/bin/Debug/Weather.Utils.dll"
 #r "../../Weather.Model/bin/Debug/Weather.Model.dll"
+#r "../../Weather.Diagnostic/bin/Debug/Weather.Diagnostic.dll"

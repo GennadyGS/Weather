@@ -3,3 +3,4 @@
 #load "load-references-debug.fsx"
 #load "../AssemblyInfo.fs"
       "../Intervals.fs"
+      "ObservationsUploading.fs"
