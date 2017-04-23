@@ -51,12 +51,12 @@ let private parseHeader string =
                     { Date = roundedObservationTime.Date
                       Hour = byte roundedObservationTime.Hour }}
             Success (header, synopString)
-        | _ -> Failure (InvalidHeaderFormat (sprintf "Invalid observation string format: %s" string))
+        | _ -> InvalidObservationHeaderFormat string |> Failure
 
 let private parseSynop header string =  
     match string with
-    | Synop(synop) -> Success (toObservation header synop)
-    | _ -> Failure (InvalidObservationFormat (header, sprintf "Invalid SYNOP format: %s" string))
+    | Synop(synop) -> toObservation header synop |> Success
+    | _ -> InvalidObservationFormat (header, string) |> Failure
 
 let private parseObservation string = 
     result {
@@ -68,12 +68,19 @@ let private checkHttpStatusInResponseString string =
     match string with
     | Regex @"^Status: (\d{3}) (.*)" 
         [Int(status); message] -> 
-            let statusCode : WebExceptionStatus = LanguagePrimitives.EnumOfValue(status)
+            let statusCode = LanguagePrimitives.EnumOfValue(status)
             HttpError (statusCode, message) |> Failure
     | _ -> Success string
 
 let private tryRequestHttpString baseUrl queryParams = 
-    Http.RequestString (baseUrl, query = queryParams) |> Success
+    let response : HttpResponse = Http.Request (baseUrl, query = queryParams)
+    let statusCode = LanguagePrimitives.EnumOfValue response.StatusCode
+    match statusCode with
+    | HttpStatusCode.OK -> 
+        match response.Body with
+        | Text text -> Success text
+        | Binary _ -> InvalidResponseFormat "binary" |> Failure
+    | _ -> HttpError (statusCode, response.Body.ToString()) |> Failure
 
 let private splitResponseIntoLines = 
     String.split [|'\r'; '\n'|] 

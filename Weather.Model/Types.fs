@@ -22,6 +22,7 @@ type Observation =
 
 type Failure =
     | DatabaseError of string
-    | HttpError of (WebExceptionStatus * string)
-    | InvalidHeaderFormat of string
+    | HttpError of (HttpStatusCode * string)
+    | InvalidResponseFormat of string
+    | InvalidObservationHeaderFormat of string
     | InvalidObservationFormat of (ObservationHeader * string)
