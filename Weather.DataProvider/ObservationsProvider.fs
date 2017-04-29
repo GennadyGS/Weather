@@ -1,7 +1,7 @@
 ﻿module Weather.DataProvider.ObservationsProvider
 
-open FSharp.Data
 open System
+open Weather
 open Weather.Utils
 open Weather.Utils.TryParser
 open Weather.Utils.String
@@ -10,8 +10,6 @@ open Weather.Utils.RegEx
 open Weather.Model
 open Weather.Synop
 open Weather.Synop.Parser
-open System.Net
-open Weather.HttpClient
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
@@ -73,23 +71,18 @@ let private checkHttpStatusInResponseString string =
             HttpError (statusCode, message) |> Failure
     | _ -> Success string
 
-// TODO: Extract to separate module/assembly
-let private requestHttpString baseUrl queryParams = 
-    let (statusCode, bodyText) = HttpClient.httpGet baseUrl queryParams
-    match statusCode with
-    | HttpStatusCode.OK -> Success bodyText
-    | _ -> HttpError (statusCode, bodyText) |> Failure
-
 let private splitResponseIntoLines = 
     String.split [|'\r'; '\n'|] 
     >> List.ofArray 
     >> List.filter (fun line -> line <> String.Empty)
 
-let fetchObservations stationNumber dateFrom dateTo = 
-    requestHttpString Url (getUrlQueryParams stationNumber dateFrom dateTo)
+let fetchObservations httpGetFunc stationNumber dateFrom dateTo = 
+    Logic.HttpClient.safeHttpGet
+             httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
         |> List.map (Result.bind parseObservation)
 
-let fetchObservationsByInterval (stationNumber, interval) = 
-    fetchObservations stationNumber (Some interval.From) (Some interval.To)
+let fetchObservationsByInterval httpGetFunc (stationNumber, interval) = 
+    fetchObservations httpGetFunc stationNumber 
+        (Some interval.From) (Some interval.To)

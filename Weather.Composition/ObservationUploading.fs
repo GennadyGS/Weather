@@ -1,5 +1,6 @@
 ﻿module Weather.Composition.ObservationsUploading
 
+open Weather
 open Weather.Model
 open Weather.Utils
 open Weather.Persistence
@@ -8,13 +9,13 @@ open Weather.DataProvider
 open Weather.Logic
 
 let private saveObservationsAndHandleErrors = 
-    Weather.Logic.ObservationsUploading.saveObservationsAndHandleErrors
+    Logic.ObservationsUploading.saveObservationsAndHandleErrors
         DbService.insertObservationList
         DbService.insertObservationParsingErrorList
 
 let private fetchObservationsForLastObservationTimeList = 
-    Weather.Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
-        ObservationsProvider.fetchObservationsByInterval
+    Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
+        (ObservationsProvider.fetchObservationsByInterval HttpClient.HttpClient.httpGet)
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
     DbService.getLastObservationTimeListForStations connectionString interval stationList

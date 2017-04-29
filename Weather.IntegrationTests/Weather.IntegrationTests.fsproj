@@ -74,6 +74,11 @@
       <Project>{6d2b4b99-56db-406c-8773-b1a393ce8589}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Weather.HttpClient\Weather.HttpClient.fsproj">
+      <Name>Weather.HttpClient</Name>
+      <Project>{36350feb-6c6e-4a2a-8170-f1f6bcb579e8}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Weather.Model\Weather.Model.fsproj">
       <Name>Weather.Model</Name>
       <Project>{1ee46eee-c926-4d3c-9db2-4b2ed025f511}</Project>
