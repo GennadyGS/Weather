@@ -4,13 +4,17 @@ let map func = function
     | Success success -> Success (func success)
     | Failure failure -> Failure failure
 
-let mapBoth mapSuccess mapFailure = function
-    | Success success -> mapSuccess success
-    | Failure failure -> mapFailure failure
+let mapBoth successFunc failureFunc = function
+    | Success success -> Success <| successFunc success
+    | Failure failure -> Failure <| failureFunc failure
 
 let bind func = function
     | Success success -> func success
     | Failure failure -> Failure failure
+
+let bindBoth successFunc failureFunc = function
+    | Success success -> successFunc success
+    | Failure failure -> failureFunc failure
 
 let mapToList func = function
     | Success success -> func success |> List.map Success

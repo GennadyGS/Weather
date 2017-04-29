@@ -17,7 +17,7 @@ let private handleInvalidObservationFormats insertObservationParsingErrorListFun
         let errorMessage = sprintf "Invalid observation header format (header: %A): %s" header message
         Logger.logError errorMessage
         insertObservationParsingErrorListFunc connectionString [(header, message)]
-        |> Result.mapBoth (fun _ -> None) Some
+        |> Result.bindBoth (fun _ -> None) Some
     | value -> Some value
 
 let saveObservationsAndHandleErrors 

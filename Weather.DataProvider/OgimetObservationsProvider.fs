@@ -53,9 +53,11 @@ let private parseHeader string =
         | _ -> InvalidObservationHeaderFormat string |> Failure
 
 let private parseSynop header string =  
-    match string with
-    | Synop(synop) -> toObservation header synop |> Success
-    | _ -> InvalidObservationFormat (header, string) |> Failure
+    string
+    |> Synop.Parser.parseSynop 
+    |> Result.mapBoth
+        (fun synop -> toObservation header synop)
+        (fun message -> InvalidObservationFormat (header, message))
 
 let private parseObservation string = 
     result {
