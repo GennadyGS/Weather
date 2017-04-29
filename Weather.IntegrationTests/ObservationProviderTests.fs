@@ -8,7 +8,6 @@ open System.Net
 open Weather.IntegrationTests
 open Weather.Model
 
-
 type ObservationsProviderTests() =
     inherit DbTests()
 

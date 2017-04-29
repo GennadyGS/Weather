@@ -11,6 +11,7 @@ open Weather.Model
 open Weather.Synop
 open Weather.Synop.Parser
 open System.Net
+open Weather.HttpClient
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
@@ -73,15 +74,8 @@ let private checkHttpStatusInResponseString string =
     | _ -> Success string
 
 // TODO: Extract to separate module/assembly
-let private getHttpResponseBodyText = 
-    function
-    | Text text -> text
-    | Binary _ -> String.Empty
-
 let private requestHttpString baseUrl queryParams = 
-    let response : HttpResponse = Http.Request (baseUrl, query = queryParams, silentHttpErrors = true)
-    let statusCode = LanguagePrimitives.EnumOfValue response.StatusCode
-    let bodyText = getHttpResponseBodyText response.Body
+    let (statusCode, bodyText) = HttpClient.httpGet baseUrl queryParams
     match statusCode with
     | HttpStatusCode.OK -> Success bodyText
     | _ -> HttpError (statusCode, bodyText) |> Failure
