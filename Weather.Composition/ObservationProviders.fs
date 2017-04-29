@@ -3,6 +3,7 @@ module Weather.CompositionRoot.ObservationProviders
 open Weather.DataProvider
 open Weather.HttpClient
 
-let fetchObservationsByIntervalFromOgimet = 
-    OgimetObservationsProvider.fetchObservationsByInterval 
-        HttpClient.httpGet
+module Ogimet = 
+    let fetchObservationsByInterval = 
+        OgimetObservationsProvider.fetchObservationsByInterval 
+            HttpClient.httpGet

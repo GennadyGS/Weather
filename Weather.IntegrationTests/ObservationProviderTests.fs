@@ -1,22 +1,25 @@
 ﻿namespace Weather.IntegraionTests
 
 open Xunit
-open Weather.DataProvider
 open System
 open Swensen.Unquote
 open System.Net
-open Weather.IntegrationTests
+open Weather.Utils
 open Weather.Model
-open Weather.HttpClient
+open Weather.IntegrationTests
+open Weather.CompositionRoot
 
-type ObservationsProviderTests() =
+type OgimetObservationProviderTests() =
     inherit DbTests()
 
     [<Fact>]
     let ``FetchObservations for empty interval should throw WebException`` () =
-        raisesWith<WebException> 
-            <@ OgimetObservationsProvider.fetchObservations 
-                HttpClient.httpGet 
-                (StationNumber 33345)
-                (Some DateTime.Now) 
-                (Some (DateTime.Now.AddDays(-1.0))) @>
+        let result = 
+            ObservationProviders.Ogimet.fetchObservationsByInterval
+                ((StationNumber 33345),
+                { From = DateTime.Now
+                  To = DateTime.Now.AddDays(-1.0) })
+        
+        true =! match result with
+                | [Result.Failure (HttpError (HttpStatusCode.InternalServerError, _))] -> true 
+                | _ -> false

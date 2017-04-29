@@ -76,7 +76,7 @@ let private splitResponseIntoLines =
     >> List.ofArray 
     >> List.filter (fun line -> line <> String.Empty)
 
-let fetchObservations httpGetFunc stationNumber dateFrom dateTo = 
+let private fetchObservations httpGetFunc stationNumber dateFrom dateTo = 
     Logic.HttpClient.safeHttpGet
              httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString

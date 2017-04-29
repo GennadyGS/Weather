@@ -13,7 +13,7 @@ let private saveObservationsAndHandleErrors =
 
 let private fetchObservationsForLastObservationTimeList = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
-        ObservationProviders.fetchObservationsByIntervalFromOgimet
+        ObservationProviders.Ogimet.fetchObservationsByInterval
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
     DbService.getLastObservationTimeListForStations connectionString interval stationList
