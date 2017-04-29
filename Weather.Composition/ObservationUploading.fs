@@ -4,6 +4,7 @@ open Weather
 open Weather.Utils
 open Weather.Persistence
 open Weather.DataProvider
+open Weather.CompositionRoot
 
 let private saveObservationsAndHandleErrors = 
     Logic.ObservationsUploading.saveObservationsAndHandleErrors
@@ -12,7 +13,7 @@ let private saveObservationsAndHandleErrors =
 
 let private fetchObservationsForLastObservationTimeList = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
-        (OgimetObservationsProvider.fetchObservationsByInterval HttpClient.HttpClient.httpGet)
+        ObservationProviders.fetchObservationsByIntervalFromOgimet
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
     DbService.getLastObservationTimeListForStations connectionString interval stationList
