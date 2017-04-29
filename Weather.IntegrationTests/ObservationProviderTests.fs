@@ -15,7 +15,7 @@ type ObservationsProviderTests() =
     [<Fact>]
     let ``FetchObservations for empty interval should throw WebException`` () =
         raisesWith<WebException> 
-            <@ ObservationsProvider.fetchObservations 
+            <@ OgimetObservationsProvider.fetchObservations 
                 HttpClient.httpGet 
                 (StationNumber 33345)
                 (Some DateTime.Now) 

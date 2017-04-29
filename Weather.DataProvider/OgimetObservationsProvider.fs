@@ -1,4 +1,4 @@
-﻿module Weather.DataProvider.ObservationsProvider
+﻿module Weather.DataProvider.OgimetObservationsProvider
 
 open System
 open Weather
