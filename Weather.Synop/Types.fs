@@ -3,5 +3,5 @@
 type Synop = 
     { Day : byte;
       Hour : byte;
-      StationNumber : string;
+      StationNumber : int;
       Temperature : decimal }

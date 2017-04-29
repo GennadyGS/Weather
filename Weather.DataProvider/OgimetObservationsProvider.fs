@@ -34,10 +34,6 @@ let private getUrlQueryParams (StationNumber stationNumber) dateFrom dateTo =
         buildOptionalParam "end" (dateTo |> Option.map formatDateTime) 
             |> Option.toList]
     
-let private toObservation header synop =
-    { Header = header
-      Temperature = synop.Temperature }
-
 let private parseHeader string =
     string
     |> String.split [|','|]
@@ -50,14 +46,26 @@ let private parseHeader string =
                     { Date = roundedObservationTime.Date
                       Hour = byte roundedObservationTime.Hour }}
             Success (header, synopString)
-        | _ -> InvalidObservationHeaderFormat string |> Failure
+        | _ -> Failure <| InvalidObservationHeaderFormat string
 
-let private parseSynop header string =  
-    string
+let private safeToObservation (header : ObservationHeader) synop synopStr =
+    let (StationNumber headerStationNumber) = header.StationNumber
+    if synop.StationNumber <> headerStationNumber then
+        Failure <| InvalidObservationFormat (header, sprintf "Expected station number %d in SYNOP: '%s'" headerStationNumber synopStr)
+    elif synop.Day <> byte header.ObservationTime.Date.Day then
+        Failure <| InvalidObservationFormat (header, sprintf "Expected day %d in SYNOP: '%s'" header.ObservationTime.Date.Day synopStr)
+    elif Math.Abs(int synop.Hour - int header.ObservationTime.Hour) > 1 then
+        Failure <| InvalidObservationFormat (header, sprintf "Expected hour %d in SYNOP: '%s'" header.ObservationTime.Hour synopStr)
+    else
+        Success { Header = header
+                  Temperature = synop.Temperature }
+
+let private parseSynop header synopStr =  
+    synopStr
     |> Synop.Parser.parseSynop 
-    |> Result.mapBoth
-        (fun synop -> toObservation header synop)
-        (fun message -> InvalidObservationFormat (header, message))
+    |> Result.bindBoth
+        (fun synop -> safeToObservation header synop synopStr)
+        (fun message -> Failure <| InvalidObservationFormat (header, message))
 
 let private parseObservation string = 
     result {
