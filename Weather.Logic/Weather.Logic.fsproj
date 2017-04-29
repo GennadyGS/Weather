@@ -52,10 +52,10 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Intervals.fs" />
-    <Compile Include="Scripts\ObservationsUploading.fs" />
+    <Compile Include="HttpClient.fs" />
+    <Compile Include="ObservationsUploading.fs" />
     <None Include="Scripts\load-references-debug.fsx" />
     <None Include="Scripts\load-project-debug.fsx" />
-    <Compile Include="HttpClient.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
