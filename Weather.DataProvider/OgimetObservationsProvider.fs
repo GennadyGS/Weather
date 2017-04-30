@@ -9,7 +9,6 @@ open Weather.Utils.Result
 open Weather.Utils.RegEx
 open Weather.Model
 open Weather.Synop
-open Weather.Synop.Parser
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
@@ -60,17 +59,17 @@ let private safeToObservation (header : ObservationHeader) synop synopStr =
         Success { Header = header
                   Temperature = synop.Temperature }
 
-let private parseSynop header synopStr =  
+let private parseSynop parser header synopStr =  
     synopStr
-    |> Synop.Parser.parseSynop 
+    |> parser
     |> Result.bindBoth
         (fun synop -> safeToObservation header synop synopStr)
         (fun message -> Failure <| InvalidObservationFormat (header, message))
 
-let private parseObservation string = 
+let private parseObservation synopParser string = 
     result {
         let! (header, synopString) = parseHeader string
-        return! parseSynop header synopString
+        return! parseSynop synopParser header synopString
     }
 
 let private checkHttpStatusInResponseString string = 
@@ -86,13 +85,13 @@ let private splitResponseIntoLines =
     >> List.ofArray 
     >> List.filter (fun line -> line <> String.Empty)
 
-let private fetchObservations httpGetFunc stationNumber dateFrom dateTo = 
+let private fetchObservations synopParser httpGetFunc stationNumber dateFrom dateTo = 
     Logic.HttpClient.safeHttpGet
              httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
-        |> List.map (Result.bind parseObservation)
+        |> List.map (Result.bind (parseObservation synopParser))
 
-let fetchObservationsByInterval httpGetFunc (stationNumber, interval) = 
-    fetchObservations httpGetFunc stationNumber 
+let fetchObservationsByInterval synopParser httpGetFunc (stationNumber, interval) = 
+    fetchObservations synopParser httpGetFunc stationNumber 
         (Some interval.From) (Some interval.To)

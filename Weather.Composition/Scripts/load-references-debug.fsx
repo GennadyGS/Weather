@@ -11,3 +11,4 @@
 #r "../../Weather.Logic/bin/Debug/Weather.Logic.dll"
 #r "../../Weather.Model/bin/Debug/Weather.Model.dll"
 #r "../../Weather.Persistence/bin/Debug/Weather.Persistence.dll"
+#r "../../Weather.HttpClient/bin/Debug/Weather.HttpClient.dll"
