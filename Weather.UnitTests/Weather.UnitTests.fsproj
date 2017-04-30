@@ -55,9 +55,10 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="IntervalsTests.fs" />
+    <Compile Include="OgimetObservationsProviderTests.fs" />
     <Content Include="packages.config" />
     <Content Include="App.config" />
-    <Compile Include="IntervalsTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
@@ -98,6 +99,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Weather.DataProvider\Weather.DataProvider.fsproj">
+      <Name>Weather.DataProvider</Name>
+      <Project>{95e20368-ac52-4ed5-8f50-5da49cd3d8cf}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Weather.Logic\Weather.Logic.fsproj">
       <Name>Weather.Logic</Name>
       <Project>{79157338-0322-4af0-bbd9-3ee02e48796c}</Project>
