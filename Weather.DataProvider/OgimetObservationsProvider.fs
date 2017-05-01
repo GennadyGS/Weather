@@ -34,18 +34,17 @@ let private getUrlQueryParams (StationNumber stationNumber) dateFrom dateTo =
             |> Option.toList]
     
 let private parseHeader string =
-    string
-    |> String.split [|','|]
-    |> function
-        | [|Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString|] -> 
+    match string with
+    | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),(.*)$" 
+        [Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString] -> 
             let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> roundToMinutes
-            let header = 
+            let header =
                 { StationNumber = StationNumber stationNumber
                   ObservationTime = 
                     { Date = roundedObservationTime.Date
                       Hour = byte roundedObservationTime.Hour }}
             Success (header, synopString)
-        | _ -> Failure <| InvalidObservationHeaderFormat string
+    | _ -> Failure <| InvalidObservationHeaderFormat string
 
 let private safeToObservation (header : ObservationHeader) synop synopStr =
     let (StationNumber headerStationNumber) = header.StationNumber
