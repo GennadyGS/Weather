@@ -55,6 +55,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="GeneratorTestFixture.fs" />
     <Compile Include="IntervalsTests.fs" />
     <Compile Include="OgimetObservationsProviderTests.fs" />
     <Content Include="packages.config" />

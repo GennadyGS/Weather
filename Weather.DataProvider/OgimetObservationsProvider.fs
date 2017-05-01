@@ -15,10 +15,6 @@ let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 let private formatDateTime (dateTime : DateTime) : string = 
     dateTime.ToString("yyyyMMddHHmm")
 
-let private roundToMinutes (dateTime : DateTime) = 
-    let updated = dateTime.AddMinutes(30.0)
-    DateTime(updated.Year, updated.Month, updated.Day, updated.Hour, 0, 0, dateTime.Kind);
-
 let private formatStationNumber =
     sprintf "%05d"
 
@@ -37,7 +33,7 @@ let private parseHeader string =
     match string with
     | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),(.*)$" 
         [Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString] -> 
-            let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> roundToMinutes
+            let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> DateTime.roundToHours
             let header =
                 { StationNumber = StationNumber stationNumber
                   ObservationTime = 
