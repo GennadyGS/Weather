@@ -16,7 +16,7 @@ type OgimetObservationsProviderTests() =
     [<Literal>]
     let synopFormatCode = "AAXX"
 
-    let generateHeaderAndHeaderString date stationNumber observationFormatCode synopStr =
+    let generateHeaderAndHeaderString observationFormatCode synopStr stationNumber date =
         let roundedDate = DateTime.roundToHours date
         let headerString = 
             sprintf "%05d,%04d,%02d,%02d,%02d,%02d,%s %02d%02d1 %s" 
@@ -29,6 +29,13 @@ type OgimetObservationsProviderTests() =
                   Hour = byte roundedDate.Hour }}
         (header, headerString)
 
+    let toTupleOfLists listOfTuples =
+        let rec f listOfTuples (list1, list2) = 
+            match listOfTuples with
+            | (item1, item2)::tail -> f tail (item1::list1, item2::list2)
+            | [] -> (list1, list2)
+        f (List.rev listOfTuples) ([], [])
+
     [<Property>]
     member this. ``FetchObservationsByInterval returns observation for correct input string``
             (date : DateTime)
@@ -38,7 +45,7 @@ type OgimetObservationsProviderTests() =
             (synopStr : SingleLineString) =
 
         let (header, headerString) = 
-            generateHeaderAndHeaderString date stationNumber.Get synopFormatCode synopStr.Get
+            generateHeaderAndHeaderString synopFormatCode synopStr.Get stationNumber.Get date 
         let synopParser _ =
             Success { StationNumber = stationNumber.Get
                       Temperature = temperature }
@@ -55,6 +62,36 @@ type OgimetObservationsProviderTests() =
                   Temperature = temperature}]
 
     [<Property>]
+    member this. ``FetchObservationsByInterval returns observation for each of correct input string``
+            (dates : DateTime list)
+            (stationNumber : PositiveInt)
+            interval
+            temperature
+            (synopStr : SingleLineString) =
+
+        let (headers, headerStrings) =
+            dates
+            |> List.map (generateHeaderAndHeaderString synopFormatCode synopStr.Get stationNumber.Get)
+            |> toTupleOfLists
+            
+        let synopParser _ =
+            Success { StationNumber = stationNumber.Get
+                      Temperature = temperature }
+        let httpGetFunc _ _ = 
+            (HttpStatusCode.OK, String.Join("\r\n", headerStrings))
+
+        let result = 
+            OgimetObservationsProvider.fetchObservationsByInterval 
+                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+
+        result =! 
+            (headers
+            |> List.map 
+                (fun header ->
+                    Success { Header = header
+                              Temperature = temperature}))
+
+    [<Property>]
     member this. ``FetchObservationsByInterval returns empty list for non SYNOP input string``
             (date : DateTime)
             (stationNumber : PositiveInt)
@@ -62,7 +99,7 @@ type OgimetObservationsProviderTests() =
             (synopStr : SingleLineString) =
 
         let (_, headerString) = 
-            generateHeaderAndHeaderString date stationNumber.Get "AAXY" synopStr.Get
+            generateHeaderAndHeaderString "AAXY" synopStr.Get stationNumber.Get date 
         let synopParser _ =
             raise (Exception("SYNOP parser should not be called"))
         let httpGetFunc _ _ = 
