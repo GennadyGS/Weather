@@ -9,10 +9,25 @@ open Weather.Synop
 open Weather.Model
 open Weather.DataProvider
 open System.Net
-open Weather.Utils.Result
 
 type OgimetObservationsProviderTests() =
     inherit GeneratorTests()
+
+    [<Literal>]
+    let synopFormatCode = "AAXX"
+
+    let generateHeaderAndHeaderString date stationNumber observationFormatCode synopStr =
+        let roundedDate = DateTime.roundToHours date
+        let headerString = 
+            sprintf "%05d,%04d,%02d,%02d,%02d,%02d,%s %02d%02d1 %s" 
+                stationNumber date.Year date.Month date.Day date.Hour date.Minute 
+                observationFormatCode roundedDate.Day roundedDate.Hour synopStr
+        let header =
+            { StationNumber = StationNumber stationNumber
+              ObservationTime = 
+                { Date = roundedDate.Date
+                  Hour = byte roundedDate.Hour }}
+        (header, headerString)
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns observation for correct input string``
@@ -22,12 +37,8 @@ type OgimetObservationsProviderTests() =
             temperature
             (synopStr : SingleLineString) =
 
-        let roundedDate = DateTime.roundToHours date
-        let headerString = 
-            sprintf "%05d,%04d,%02d,%02d,%02d,%02d,AAXX %02d%02d1 %s" 
-                stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute 
-                roundedDate.Day roundedDate.Hour synopStr.Get
-
+        let (header, headerString) = 
+            generateHeaderAndHeaderString date stationNumber.Get synopFormatCode synopStr.Get
         let synopParser _ =
             Success { StationNumber = stationNumber.Get
                       Temperature = temperature }
@@ -37,13 +48,10 @@ type OgimetObservationsProviderTests() =
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
                 synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+
         result =! 
-            [Success 
-                { Header = 
-                    { StationNumber = StationNumber stationNumber.Get
-                      ObservationTime = 
-                        { Date = roundedDate.Date
-                          Hour = byte roundedDate.Hour }}
+            [Success
+                { Header = header
                   Temperature = temperature}]
 
     [<Property>]
@@ -53,12 +61,8 @@ type OgimetObservationsProviderTests() =
             interval
             (synopStr : SingleLineString) =
 
-        let roundedDate = DateTime.roundToHours date
-        let headerString = 
-            sprintf "%05d,%04d,%02d,%02d,%02d,%02d,AAXY %02d%02d1 %s" 
-                stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute 
-                roundedDate.Day roundedDate.Hour synopStr.Get
-
+        let (_, headerString) = 
+            generateHeaderAndHeaderString date stationNumber.Get "AAXY" synopStr.Get
         let synopParser _ =
             raise (Exception("SYNOP parser should not be called"))
         let httpGetFunc _ _ = 
