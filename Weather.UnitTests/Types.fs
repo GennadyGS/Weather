@@ -11,6 +11,6 @@ type SingleLineString = SingleLineString of string with
 type Generators =
     static member SingleLineString() =
         Arb.Default.String()
-        |> Arb.filter (fun s -> s <> null)
-        |> Arb.filter (fun s -> s |> String.split [|'\r'; '\n'|] |> Array.length <= 1)
+        |> Arb.filter (fun s -> not (String.IsNullOrEmpty s))
+        |> Arb.filter (fun s -> s |> String.split [|'\r'; '\n'|] |> Array.length = 1)
         |> Arb.convert SingleLineString string

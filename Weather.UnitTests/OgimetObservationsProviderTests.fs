@@ -23,7 +23,7 @@ type OgimetObservationsProviderTests() =
             (synopStr : SingleLineString) =
 
         let roundedDate = DateTime.roundToHours date
-        let observationString = 
+        let headerString = 
             sprintf "%05d,%04d,%02d,%02d,%02d,%02d,AAXX %02d%02d1 %s" 
                 stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute 
                 roundedDate.Day roundedDate.Hour synopStr.Get
@@ -32,7 +32,7 @@ type OgimetObservationsProviderTests() =
             Success { StationNumber = stationNumber.Get
                       Temperature = temperature }
         let httpGetFunc _ _ = 
-            (HttpStatusCode.OK, observationString)
+            (HttpStatusCode.OK, headerString)
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
@@ -54,7 +54,7 @@ type OgimetObservationsProviderTests() =
             (synopStr : SingleLineString) =
 
         let roundedDate = DateTime.roundToHours date
-        let observationString = 
+        let headerString = 
             sprintf "%05d,%04d,%02d,%02d,%02d,%02d,AAXY %02d%02d1 %s" 
                 stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute 
                 roundedDate.Day roundedDate.Hour synopStr.Get
@@ -62,12 +62,30 @@ type OgimetObservationsProviderTests() =
         let synopParser _ =
             raise (Exception("SYNOP parser should not be called"))
         let httpGetFunc _ _ = 
-            (HttpStatusCode.OK, observationString)
+            (HttpStatusCode.OK, headerString)
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
                 synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
         result =! []
+
+    [<Property>]
+    member this. ``FetchObservationsByInterval returns Failure InvalidObservationHeaderFormat for invalid input string``
+        (stationNumber : PositiveInt)
+        interval
+        (headerString : SingleLineString) = 
+
+        let httpGetFunc _ _ = 
+            (HttpStatusCode.OK, headerString.Get)
+        let synopParser _ =
+            raise (Exception("SYNOP parser should not be called"))
+
+        let result = 
+            OgimetObservationsProvider.fetchObservationsByInterval 
+                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+        test <@ match result with
+                | [Failure (InvalidObservationHeaderFormat _)] -> true
+                | _ -> false @>
 
     [<Property>]
     member this. ``FetchObservationsByInterval passes correct URL to httpGetFunc``
