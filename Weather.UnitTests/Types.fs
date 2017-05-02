@@ -1,4 +1,4 @@
-﻿namespace Weather.TestUtils
+﻿namespace Weather.UnitTests
 
 open FsCheck
 open Weather.Utils
@@ -9,20 +9,8 @@ type SingleLineString = SingleLineString of string with
     override x.ToString() = x.Get
 
 type Generators =
-    static member Int64() =
-        { new Arbitrary<int64>() with
-            override x.Generator = Arb.generate<int> |> Gen.map int64 }
-
-    static member Version() =
-        Arb.generate<byte>
-        |> Gen.map int
-        |> Gen.four
-        |> Gen.map (fun (ma, mi, bu, re) -> Version(ma, mi, bu, re))
-        |> Arb.fromGen
-
     static member SingleLineString() =
         Arb.Default.String()
-        |> Arb.filter (fun s -> (s <> null))
-        |> Arb.filter (fun s -> (String.length s > 10))
-        |> Arb.filter (fun s -> Array.length (String.split [|'\r'; '\n'|] s) <= 1)
+        |> Arb.filter (fun s -> s <> null)
+        |> Arb.filter (fun s -> s |> String.split [|'\r'; '\n'|] |> Array.length <= 1)
         |> Arb.convert SingleLineString string

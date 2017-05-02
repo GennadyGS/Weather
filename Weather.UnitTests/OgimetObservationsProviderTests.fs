@@ -8,11 +8,10 @@ open Weather.Utils
 open Weather.Synop
 open Weather.Model
 open Weather.DataProvider
-open Weather.TestUtils
 open System.Net
 
 type OgimetObservationsProviderTests() =
-    inherit GeneratorTestFixture()
+    inherit GeneratorTests()
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns correct result``
@@ -20,8 +19,7 @@ type OgimetObservationsProviderTests() =
             (stationNumber : PositiveInt)
             interval
             temperature
-            (synopStr : SingleLineString) 
-            (x: int64) =
+            (synopStr : SingleLineString) =
 
         let roundedDate = DateTime.roundToHours date
         let synopParser _ =
