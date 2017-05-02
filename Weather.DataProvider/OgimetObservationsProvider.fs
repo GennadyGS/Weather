@@ -48,12 +48,12 @@ let private tryParseHeader string =
                 Some <| Success (header, synopString)
     | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),[A-Z]{4}(.*)$" _ ->
         None
-    | _ -> Some (Failure (InvalidObservationHeaderFormat string))
+    | _ -> Some (Failure (InvalidObservationHeaderFormat (sprintf "Observation header does not match the template: '%s'" string)))
 
 let private safeCreateObservation (header : ObservationHeader) synop synopStr =
     let (StationNumber headerStationNumber) = header.StationNumber
     if synop.StationNumber <> headerStationNumber then
-        Failure <| InvalidObservationFormat (header, sprintf "Expected station number %d in SYNOP: '%s'" headerStationNumber synopStr)
+        Failure <| InvalidObservationFormat (header, sprintf "Expected station number '%05d' in SYNOP: '%s'" headerStationNumber synopStr)
     else
         Success { Header = header
                   Temperature = synop.Temperature }

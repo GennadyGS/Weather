@@ -14,7 +14,7 @@ let fetchObservationsForLastObservationTimeList fetchObservationsByIntervalFunc 
 
 let private handleInvalidObservationFormats insertObservationParsingErrorListFunc connectionString = function
     | InvalidObservationFormat (header, message) -> 
-        let errorMessage = sprintf "Invalid observation header format (header: %A): %s" header message
+        let errorMessage = sprintf "Invalid observation format (header: %A): %s" header message
         Logger.logError errorMessage
         insertObservationParsingErrorListFunc connectionString [(header, message)]
         |> Result.bindBoth (fun _ -> None) Some
