@@ -110,3 +110,22 @@ type OgimetObservationsProviderTests() =
             ("block", stationNumber.Get.ToString("D5"))
             ("begin", formatDate interval.From)
             ("end", formatDate interval.To)]
+
+    [<Property>]
+    member this. ``FetchObservationsByInterval returns Failure HttpError when httpGetFunc returns HttpError``
+            (stationNumber : PositiveInt)
+            interval
+            httpStatusCode
+            httpErrorMessage
+            synopParser =
+
+        httpStatusCode <> HttpStatusCode.OK ==> lazy
+
+        let httpGetFunc _ _ = 
+            (httpStatusCode, httpErrorMessage)
+
+        let result = 
+            OgimetObservationsProvider.fetchObservationsByInterval 
+                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)
+
+        result =! [Failure (HttpError (httpStatusCode, httpErrorMessage))]
