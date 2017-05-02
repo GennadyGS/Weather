@@ -14,7 +14,7 @@ type OgimetObservationsProviderTests() =
     inherit GeneratorTests()
 
     [<Property>]
-    member this. ``FetchObservationsByInterval returns correct result``
+    member this. ``FetchObservationsByInterval returns observation for correct input string``
             (date : DateTime)
             (stationNumber : PositiveInt)
             interval
@@ -23,14 +23,13 @@ type OgimetObservationsProviderTests() =
 
         let roundedDate = DateTime.roundToHours date
         let synopParser _ =
-            Success { Day = byte roundedDate.Day
-                      Hour = byte roundedDate.Hour
-                      StationNumber = stationNumber.Get
+            Success { StationNumber = stationNumber.Get
                       Temperature = temperature }
 
         let observationString = 
-            sprintf "%05d,%04d,%02d,%02d,%02d,%02d,%s" 
-                stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute synopStr.Get
+            sprintf "%05d,%04d,%02d,%02d,%02d,%02d,AAXX %02d%02d1 %s" 
+                stationNumber.Get date.Year date.Month date.Day date.Hour date.Minute 
+                roundedDate.Day roundedDate.Hour synopStr.Get
 
         let httpGetFunc _ _ = 
             (HttpStatusCode.OK, observationString)

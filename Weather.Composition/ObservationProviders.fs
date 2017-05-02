@@ -7,5 +7,5 @@ open Weather.HttpClient
 module Ogimet = 
     let fetchObservationsByInterval = 
         OgimetObservationsProvider.fetchObservationsByInterval 
-            Synop.Parser.parseSynop
+            Synop.Parser.safeParseSynop
             HttpClient.httpGet
