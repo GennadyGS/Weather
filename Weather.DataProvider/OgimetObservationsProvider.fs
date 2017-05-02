@@ -29,9 +29,9 @@ let private getUrlQueryParams (StationNumber stationNumber) dateFrom dateTo =
         buildOptionalParam "end" (dateTo |> Option.map formatDateTime) 
             |> Option.toList]
     
-let private parseHeader string =
+let private tryParseHeader string =
     match string with
-    | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),(.*)$" 
+    | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),AAXX(.*)$" 
         [Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); synopString] -> 
             let roundedObservationTime = DateTime(year, month, day, hour, minute, 0) |> DateTime.roundToHours
             let header =
@@ -39,8 +39,10 @@ let private parseHeader string =
                   ObservationTime = 
                     { Date = roundedObservationTime.Date
                       Hour = byte roundedObservationTime.Hour }}
-            Success (header, synopString)
-    | _ -> Failure <| InvalidObservationHeaderFormat string
+            Some <| Success (header, synopString)
+    | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),[A-Z]{4}(.*)$" _ ->
+        None
+    | _ -> Some (Failure (InvalidObservationHeaderFormat string))
 
 let private safeToObservation (header : ObservationHeader) synop synopStr =
     let (StationNumber headerStationNumber) = header.StationNumber
@@ -54,18 +56,16 @@ let private safeToObservation (header : ObservationHeader) synop synopStr =
         Success { Header = header
                   Temperature = synop.Temperature }
 
-let private parseSynop parser header synopStr =  
+let private parseSynop parser (header, synopStr) =  
     synopStr
     |> parser
     |> Result.bindBoth
         (fun synop -> safeToObservation header synop synopStr)
         (fun message -> Failure <| InvalidObservationFormat (header, message))
 
-let private parseObservation synopParser string = 
-    result {
-        let! (header, synopString) = parseHeader string
-        return! parseSynop synopParser header synopString
-    }
+let private tryParseObservation synopParser = 
+    tryParseHeader
+    >> Option.map (Result.bind (parseSynop synopParser))
 
 let private checkHttpStatusInResponseString string = 
     match string with
@@ -85,7 +85,7 @@ let private fetchObservations synopParser httpGetFunc stationNumber dateFrom dat
              httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
-        |> List.map (Result.bind (parseObservation synopParser))
+        |> List.choose (Result.bindToOption (tryParseObservation synopParser))
 
 let fetchObservationsByInterval synopParser httpGetFunc (stationNumber, interval) = 
     fetchObservations synopParser httpGetFunc stationNumber 
