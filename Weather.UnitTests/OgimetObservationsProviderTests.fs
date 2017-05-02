@@ -129,6 +129,27 @@ type OgimetObservationsProviderTests() =
                 | _ -> false @>
 
     [<Property>]
+    member this. ``FetchObservationsByInterval returns Failure InvalidObservationFormat when synopParser returns failure``
+            (date : DateTime)
+            (stationNumber : PositiveInt)
+            interval
+            (synopStr : SingleLineString) 
+            synopParserErrorMessage =
+
+        let (header, headerString) = 
+            generateHeaderAndHeaderString synopFormatCode synopStr.Get stationNumber.Get date 
+        let synopParser _ =
+            Failure synopParserErrorMessage
+        let httpGetFunc _ _ = 
+            (HttpStatusCode.OK, headerString)
+
+        let result = 
+            OgimetObservationsProvider.fetchObservationsByInterval 
+                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+
+        result =! [Failure (InvalidObservationFormat (header, synopParserErrorMessage))]
+
+    [<Property>]
     member this. ``FetchObservationsByInterval passes correct URL to httpGetFunc``
             (stationNumber : PositiveInt)
             interval
