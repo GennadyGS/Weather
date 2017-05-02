@@ -68,3 +68,27 @@ type OgimetObservationsProviderTests() =
             OgimetObservationsProvider.fetchObservationsByInterval 
                 synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
         result =! []
+
+    [<Property>]
+    member this. ``FetchObservationsByInterval passes correct URL to httpGetFunc``
+            (stationNumber : PositiveInt)
+            interval
+            (synopStr : SingleLineString) 
+            synopParser =
+
+        let mutable receivedBaseUrl = String.Empty
+        let mutable receivedUrlParams = []
+        let httpGetFunc baseUrl urlParams = 
+            receivedBaseUrl <- baseUrl
+            receivedUrlParams <- urlParams
+            (HttpStatusCode.OK, String.Empty)
+
+        OgimetObservationsProvider.fetchObservationsByInterval 
+            synopParser httpGetFunc (StationNumber stationNumber.Get, interval) |> ignore      
+        
+        let formatDate (date : DateTime) = date.ToString("yyyyMMddHHmm")
+        receivedBaseUrl =! "http://www.ogimet.com/cgi-bin/getsynop"
+        receivedUrlParams =! [
+            ("block", stationNumber.Get.ToString("D5"))
+            ("begin", formatDate interval.From)
+            ("end", formatDate interval.To)]
