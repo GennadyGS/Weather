@@ -36,24 +36,12 @@ let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) =
           | DatabaseFailure failure -> failure
 
 let private mapContextReadFunc2 (func : DataContext -> 'a -> IQueryable<'b>) = 
-    let compositeFunc = SqlProvider.GetDataContext >> func
-    fun connectionString arg -> 
-        try
-            compositeFunc connectionString arg 
-            |> Seq.toList
-            |> Success
-        with
-          | DatabaseFailure failure -> failure
+    fun connectionString a -> 
+        mapContextReadFunc (fun dataContext -> func dataContext a) connectionString
 
 let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> IQueryable<'c>) = 
-    let compositeFunc = SqlProvider.GetDataContext >> func
-    fun connectionString arg1 arg2 -> 
-        try
-            compositeFunc connectionString arg1 arg2
-            |> Seq.toList
-            |> Success
-        with
-          | DatabaseFailure failure -> failure
+    fun connectionString a b -> 
+        mapContextReadFunc (fun dataContext -> func dataContext a b) connectionString
 
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
