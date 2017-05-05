@@ -25,27 +25,33 @@ let private (|DatabaseFailure|_|) (ex : Exception) =
         |> Some
     | _ -> None
     
-let private mapContextReadFunc (func : DataContext -> 'a list) = 
+let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString -> 
         try
-            compositeFunc connectionString |> Success
+            compositeFunc connectionString 
+            |> Seq.toList
+            |> Success
         with
           | DatabaseFailure failure -> failure
 
-let private mapContextReadFunc2 (func : DataContext -> 'a -> 'b list) = 
+let private mapContextReadFunc2 (func : DataContext -> 'a -> IQueryable<'b>) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg -> 
         try
-            compositeFunc connectionString arg |> Success
+            compositeFunc connectionString arg 
+            |> Seq.toList
+            |> Success
         with
           | DatabaseFailure failure -> failure
 
-let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> 'c list) = 
+let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> IQueryable<'c>) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString arg1 arg2 -> 
         try
-            compositeFunc connectionString arg1 arg2 |> Success
+            compositeFunc connectionString arg1 arg2
+            |> Seq.toList
+            |> Success
         with
           | DatabaseFailure failure -> failure
 
@@ -96,7 +102,7 @@ let private insertObservationParsingErrorListInternal (dataContext : DataContext
 let insertObservationParsingErrorList = mapContextUpdateFunc insertObservationParsingErrorListInternal
 
 // TODO: Add optional station number and interval parameters
-let private getObservationsInternal (dataContext : DataContext) : Observation list = 
+let private getObservationsInternal (dataContext : DataContext) = 
     let observationsTable = dataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -108,7 +114,7 @@ let private getObservationsInternal (dataContext : DataContext) : Observation li
                   StationNumber = StationNumber o.StationNumber }
             Temperature = o.Temperature
         }
-    } |> List.ofSeq
+    }
 
 let getObservations = mapContextReadFunc getObservationsInternal
 
@@ -131,7 +137,7 @@ let private getLastObservationTimeListForStationsInternal
     }
     
     let observationTimesByStation = query {
-        for stationNumber in stationNumberList do
+        for stationNumber in stationNumberList.AsQueryable() do
         leftOuterJoin (stNumber, observationTime) in filteredObservationsQuery
             on (stationNumber = stNumber) into result
         for item in result do 
@@ -144,7 +150,7 @@ let private getLastObservationTimeListForStationsInternal
         groupBy stNumber into group
         let maxObservationTime = query { for (_, observationTime) in group do maxBy observationTime }
         select (group.Key, maxObservationTime)
-    } |> List.ofSeq
+    }
 
 let getLastObservationTimeListForStations = mapContextReadFunc3 getLastObservationTimeListForStationsInternal
 
