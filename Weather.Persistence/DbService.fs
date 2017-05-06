@@ -21,40 +21,6 @@ type DataContext(innerDataContext : SqlProvider.dataContext) =
     static member SaveChanges (dataContext : DataContext) = 
         dataContext.InnerDataContext.SubmitUpdates()
 
-let inline private createDataContext connectionString : ^dc = 
-    (^dc: (static member Create: string -> ^dc) connectionString)
-
-let inline private saveChangesToDataContext (dataContext : ^dc) = 
-    (^dc: (static member SaveChanges: ^dc -> unit) dataContext)
-
-let inline private mapContextReadFunc (func : 'dc -> IQueryable<'a>) = 
-    let compositeFunc = createDataContext >> func
-    fun connectionString -> 
-        try
-            compositeFunc connectionString 
-            |> Seq.toList
-            |> Success
-        with
-          | DatabaseFailure failure -> failure
-
-let inline private mapContextReadFunc2 (func : 'dc -> 'a -> IQueryable<'b>) = 
-    fun connectionString a -> 
-        mapContextReadFunc (fun dataContext -> func dataContext a) connectionString
-
-let inline private mapContextReadFunc3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) = 
-    fun connectionString a b -> 
-        mapContextReadFunc (fun dataContext -> func dataContext a b) connectionString
-
-let inline private mapContextUpdateFunc (func : 'dc -> 'a -> unit) = 
-    fun connectionString arg ->
-        try
-            let dataContext = createDataContext connectionString 
-            let result = func dataContext arg
-            saveChangesToDataContext dataContext
-            Success result
-        with
-          | DatabaseFailure failure -> failure
-
 // Observations
 
 let private insertObservation (dataContext : DataContext) observation =
