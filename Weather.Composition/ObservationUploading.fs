@@ -2,20 +2,22 @@
 
 open Weather
 open Weather.Utils
-open Weather.Logic.Database
+open Weather.Logic
 open Weather.Persistence
 open Weather.CompositionRoot
 
 let private saveObservationsAndHandleErrors = 
     Logic.ObservationsUploading.saveObservationsAndHandleErrors
-        (writeDataContext2 DbService.insertObservationList)
-        (writeDataContext2 DbService.insertObservationParsingErrorList)
+        DbService.insertObservation
+        DbService.insertObservationParsingError
 
 let private fetchObservationsForLastObservationTimeList = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
         ObservationProviders.Ogimet.fetchObservationsByInterval
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
-    readDataContext3 DbService.getLastObservationTimeListForStations connectionString interval stationList
+    Database.readDataContext3 
+        DbService.getLastObservationTimeListForStations connectionString interval stationList
     |> Result.bindToList (fetchObservationsForLastObservationTimeList minTimeSpan interval)
-    |> saveObservationsAndHandleErrors connectionString
+    |> Database.writeDataContext2 
+        saveObservationsAndHandleErrors connectionString

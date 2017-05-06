@@ -12,22 +12,22 @@ let fetchObservationsForLastObservationTimeList fetchObservationsByIntervalFunc 
     List.choose (tryGetMissingTrailingStationInterval minTimeSpan interval)
     >> List.collect fetchObservationsByIntervalFunc
 
-let private handleInvalidObservationFormats insertObservationParsingErrorListFunc connectionString = function
+let private handleInvalidObservationFormat insertObservationParsingErrorFunc dataContext = function
     | InvalidObservationFormat (header, message) -> 
         let errorMessage = sprintf "Invalid observation format (header: %A): %s" header message
         Logger.logError errorMessage
-        insertObservationParsingErrorListFunc connectionString [(header, message)]
-        |> Result.bindBoth (fun _ -> None) Some
+        insertObservationParsingErrorFunc dataContext (header, message)
+        None
     | value -> Some value
 
 let saveObservationsAndHandleErrors 
-        insertObservationListFunc 
-        insertObservationParsingErrorListFunc
-        connectionString = 
-    ResultList.combineSuccesses 
-    >> List.map 
-        (Result.bind (insertObservationListFunc connectionString))
+        insertObservationFunc 
+        insertObservationParsingErrorFunc
+        dataContext = 
+    List.map 
+        (Result.map (insertObservationFunc dataContext))
     >> FailureHandling.handleFailures 
-        (handleInvalidObservationFormats insertObservationParsingErrorListFunc connectionString)
+        (handleInvalidObservationFormat insertObservationParsingErrorFunc dataContext)
+    >> ignore
 
 
