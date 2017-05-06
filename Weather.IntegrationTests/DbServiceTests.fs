@@ -4,16 +4,16 @@ open System
 open Xunit
 open Swensen.Unquote
 open Weather.Model
-open Weather.Logic.Database
 open Weather.Persistence
 open Weather.IntegrationTests
 open Weather.Utils
+open Weather.Utils.Database
 
 type DbServiceTests() =
     inherit DbTests()
     
     let connectionstring = Settings.ConnectionStrings.Weather
-    let currentTime = System.DateTime.UtcNow
+    let currentTime = DateTime.UtcNow
     let getSampleObservation stationNumber (observationDateTime : DateTime) = 
         { Header = 
             { ObservationTime = 
@@ -26,9 +26,12 @@ type DbServiceTests() =
         observations |> (List.sortBy (fun o -> o.Header))
 
     let testSaveObservations observations = 
-        writeDataContext2 DbService.insertObservationList connectionstring observations |> ignore
+        Database.writeDataContext2 
+            DbService.insertObservationList connectionstring observations |> ignore
         
-        let result = readDataContext DbService.getObservations connectionstring
+        let result = 
+            Database.readDataContext 
+                DbService.getObservations connectionstring
         
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
@@ -52,7 +55,9 @@ type DbServiceTests() =
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = readDataContext3 DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
+        let result = 
+            Database.readDataContext3 
+                DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
 
         let expectedResult = 
             requestedStationNumbers 
@@ -72,9 +77,12 @@ type DbServiceTests() =
             savedStationNumberList 
             |> List.map (fun stNumber -> getSampleObservation stNumber observationTime)
         
-        writeDataContext2 DbService.insertObservationList connectionstring observationList |> ignore
+        Database.writeDataContext2 
+            DbService.insertObservationList connectionstring observationList |> ignore
         
-        let result = readDataContext3 DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
+        let result = 
+            Database.readDataContext3 
+                DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
 
         let expectedResult = 
             requestedStationNumberList
