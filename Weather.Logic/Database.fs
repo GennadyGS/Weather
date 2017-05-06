@@ -1,22 +1,22 @@
 ﻿module Weather.Logic.Database
 
 open System.Linq
-open Weather.Model
+open Weather
 open Weather.Utils
-open Weather.Utils.Database
+open Weather.Model
 
 let runQuerySafe query = 
     query
-    |> handleSqlException Seq.toList
+    |> Utils.Database.runQuerySafe
     |> Result.mapFailure DatabaseError
 
 let inline saveChangesSafe dataContext = 
     dataContext
-    |> handleSqlException saveChangesToDataContext
+    |> Utils.Database.saveChangesSafe
     |> Result.mapFailure DatabaseError
 
 let inline readDataContext (func : 'dc -> IQueryable<'a>) = 
-    createDataContext >> func >> runQuerySafe
+    Utils.Database.readDataContext func >> Result.mapFailure DatabaseError
 
 let inline readDataContext2 (func : 'dc -> 'a -> IQueryable<'b>) = 
     fun connectionString a -> 
@@ -27,10 +27,7 @@ let inline readDataContext3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) =
         readDataContext (fun dataContext -> func dataContext a b) connectionString
 
 let inline writeDataContext (func : 'dc -> unit) = 
-    createDataContext >>
-    fun dataContext -> 
-        func dataContext
-        saveChangesSafe dataContext
+    Utils.Database.writeDataContext func >> Result.mapFailure DatabaseError
 
 let inline writeDataContext2 (func : 'dc -> 'a -> unit) = 
     fun connectionString a ->
