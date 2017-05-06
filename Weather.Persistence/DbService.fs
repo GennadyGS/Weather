@@ -3,6 +3,7 @@
 open FSharp.Data.Sql
 open Weather.Utils
 open Weather.Model
+open Weather.Logic.Database
 open System
 open System.Linq
 
@@ -14,17 +15,6 @@ type private SqlProvider =
 type private DataContext = 
     SqlProvider.dataContext
 
-// Utilities
-
-let private (|DatabaseFailure|_|) (ex : Exception) = 
-    match ex with
-    | :? System.Data.SqlClient.SqlException as sqlEx -> 
-        sqlEx.ToString() 
-        |> DatabaseError 
-        |> Failure 
-        |> Some
-    | _ -> None
-    
 let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) = 
     let compositeFunc = SqlProvider.GetDataContext >> func
     fun connectionString -> 
