@@ -12,11 +12,18 @@ type private SqlProvider =
         ConnectionStringName = "Weather",
         UseOptionTypes = true>
 
-type private DataContext = 
-    SqlProvider.dataContext
+type DataContext(innerDataContext : SqlProvider.dataContext) = 
+    member internal this.InnerDataContext = innerDataContext
+    
+    static member Create connectionString = 
+        DataContext(SqlProvider.GetDataContext(connectionString))
+    
+    static member SaveChanges (dataContext : DataContext) = 
+        dataContext.InnerDataContext.SubmitUpdates()
+    
 
 let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) = 
-    let compositeFunc = SqlProvider.GetDataContext >> func
+    let compositeFunc = DataContext.Create >> func
     fun connectionString -> 
         try
             compositeFunc connectionString 
@@ -36,9 +43,9 @@ let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> IQueryable<'c
 let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
     fun connectionString arg ->
         try
-            let dataContext = SqlProvider.GetDataContext connectionString 
+            let dataContext = DataContext.Create connectionString 
             let result = func dataContext arg
-            dataContext.SubmitUpdates()
+            DataContext.SaveChanges dataContext
             Success result
         with
           | DatabaseFailure failure -> failure
@@ -46,7 +53,7 @@ let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) =
 // Observations
 
 let private insertObservation (dataContext : DataContext) observation =
-    let row = dataContext.Dbo.Observations.Create()
+    let row = dataContext.InnerDataContext.Dbo.Observations.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
     let (StationNumber stationNumber) = observation.Header.StationNumber
@@ -63,7 +70,7 @@ let private insertObservationListInternal (dataContext : DataContext) observatio
 let insertObservationList = mapContextUpdateFunc insertObservationListInternal
 
 let private insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
-    let row = dataContext.Dbo.ObservationParsingErrors.Create()
+    let row = dataContext.InnerDataContext.Dbo.ObservationParsingErrors.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
     let (StationNumber stationNumber) = observationHeader.StationNumber
@@ -81,7 +88,7 @@ let insertObservationParsingErrorList = mapContextUpdateFunc insertObservationPa
 
 // TODO: Add optional station number and interval parameters
 let private getObservationsInternal (dataContext : DataContext) = 
-    let observationsTable = dataContext.Dbo.Observations
+    let observationsTable = dataContext.InnerDataContext.Dbo.Observations
     query {
         for o in observationsTable do
         select {
@@ -104,7 +111,7 @@ let private getLastObservationTimeListForStationsInternal
         (stationNumberList : StationNumber list) =
     // TODO: decompose and reuse queries
     let observationsQuery = query {
-        for o in dataContext.Dbo.Observations do
+        for o in dataContext.InnerDataContext.Dbo.Observations do
         select (StationNumber o.StationNumber, o.Date.AddHours(float(o.Hour)))
     }
     
@@ -136,7 +143,7 @@ let getLastObservationTimeListForStations = mapContextReadFunc3 getLastObservati
 
 let private insertCollectObservationTaskInternal (dataContext : DataContext) 
         (stationNumberMask,  collectStartDate, collectIntervalHours) =
-    let row = dataContext.Dbo.CollectObservationTasks.Create()
+    let row = dataContext.InnerDataContext.Dbo.CollectObservationTasks.Create()
     row.StationNumberMask <- stationNumberMask
     row.CollectStartDate <- collectStartDate
     row.CollectIntervalHours <- collectIntervalHours
