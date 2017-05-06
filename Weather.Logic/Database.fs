@@ -1,23 +1,10 @@
 ﻿module Weather.Logic.Database
 
-open System.Data.SqlClient
+open System.Linq
 open Weather.Model
 open Weather.Utils
-open System.Linq
+open Weather.Utils.Database
 
-let inline private createDataContext connectionString : ^dc = 
-    (^dc: (static member Create: string -> ^dc) connectionString)
-
-let inline private saveChangesToDataContext (dataContext : ^dc) = 
-    (^dc: (static member SaveChanges: ^dc -> unit) dataContext)
-
-let handleSqlException func =
-    fun arg -> 
-        try
-            Success (func arg)
-        with
-            | :? SqlException as e -> Failure (e.ToString())
-        
 let runQuerySafe query = 
     query
     |> handleSqlException Seq.toList
