@@ -1,8 +1,12 @@
 ﻿module Weather.Utils.Result
 
 let map func = function
-    | Success success -> Success (func success)
+    | Success success -> Success <| func success
     | Failure failure -> Failure failure
+
+let mapFailure func = function
+    | Success success -> Success success
+    | Failure failure -> Failure <| func failure
 
 let mapBoth successFunc failureFunc = function
     | Success success -> Success <| successFunc success
