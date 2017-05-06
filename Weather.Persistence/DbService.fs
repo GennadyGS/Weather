@@ -20,10 +20,15 @@ type DataContext(innerDataContext : SqlProvider.dataContext) =
     
     static member SaveChanges (dataContext : DataContext) = 
         dataContext.InnerDataContext.SubmitUpdates()
-    
 
-let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) = 
-    let compositeFunc = DataContext.Create >> func
+let inline private createDataContext connectionString : ^dc = 
+    (^dc: (static member Create: string -> ^dc) connectionString)
+
+let inline private saveChangesToDataContext (dataContext : ^dc) = 
+    (^dc: (static member SaveChanges: ^dc -> unit) dataContext)
+
+let inline private mapContextReadFunc (func : 'dc -> IQueryable<'a>) = 
+    let compositeFunc = createDataContext >> func
     fun connectionString -> 
         try
             compositeFunc connectionString 
@@ -32,20 +37,20 @@ let private mapContextReadFunc (func : DataContext -> IQueryable<'a>) =
         with
           | DatabaseFailure failure -> failure
 
-let private mapContextReadFunc2 (func : DataContext -> 'a -> IQueryable<'b>) = 
+let inline private mapContextReadFunc2 (func : 'dc -> 'a -> IQueryable<'b>) = 
     fun connectionString a -> 
         mapContextReadFunc (fun dataContext -> func dataContext a) connectionString
 
-let private mapContextReadFunc3 (func : DataContext -> 'a -> 'b -> IQueryable<'c>) = 
+let inline private mapContextReadFunc3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) = 
     fun connectionString a b -> 
         mapContextReadFunc (fun dataContext -> func dataContext a b) connectionString
 
-let private mapContextUpdateFunc (func : DataContext -> 'a -> unit) = 
+let inline private mapContextUpdateFunc (func : 'dc -> 'a -> unit) = 
     fun connectionString arg ->
         try
-            let dataContext = DataContext.Create connectionString 
+            let dataContext = createDataContext connectionString 
             let result = func dataContext arg
-            DataContext.SaveChanges dataContext
+            saveChangesToDataContext dataContext
             Success result
         with
           | DatabaseFailure failure -> failure
