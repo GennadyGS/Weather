@@ -8,8 +8,8 @@ open Weather.CompositionRoot
 
 let private saveObservationsAndHandleErrors = 
     Logic.ObservationsUploading.saveObservationsAndHandleErrors
-        (writeDataContext DbService.insertObservationList)
-        (writeDataContext DbService.insertObservationParsingErrorList)
+        (writeDataContext2 DbService.insertObservationList)
+        (writeDataContext2 DbService.insertObservationParsingErrorList)
 
 let private fetchObservationsForLastObservationTimeList = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 

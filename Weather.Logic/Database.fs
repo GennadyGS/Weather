@@ -21,15 +21,23 @@ let inline private createDataContext connectionString : ^dc =
 let inline private saveChangesToDataContext (dataContext : ^dc) = 
     (^dc: (static member SaveChanges: ^dc -> unit) dataContext)
 
+let runQuerySafe (query : IQueryable<'a>) = 
+    try
+        query
+        |> Seq.toList
+        |> Success
+    with
+        | DatabaseFailure failure -> failure
+
+let inline saveChangesSafe dataContext = 
+    try
+        saveChangesToDataContext dataContext
+        Success ()
+    with
+        | DatabaseFailure failure -> failure
+
 let inline readDataContext (func : 'dc -> IQueryable<'a>) = 
-    let compositeFunc = createDataContext >> func
-    fun connectionString -> 
-        try
-            compositeFunc connectionString 
-            |> Seq.toList
-            |> Success
-        with
-          | DatabaseFailure failure -> failure
+    createDataContext >> func >> runQuerySafe
 
 let inline readDataContext2 (func : 'dc -> 'a -> IQueryable<'b>) = 
     fun connectionString a -> 
@@ -39,12 +47,12 @@ let inline readDataContext3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) =
     fun connectionString a b -> 
         readDataContext (fun dataContext -> func dataContext a b) connectionString
 
-let inline writeDataContext (func : 'dc -> 'a -> unit) = 
-    fun connectionString arg ->
-        try
-            let dataContext = createDataContext connectionString 
-            let result = func dataContext arg
-            saveChangesToDataContext dataContext
-            Success result
-        with
-          | DatabaseFailure failure -> failure
+let inline writeDataContext (func : 'dc -> unit) = 
+    createDataContext >>
+    fun dataContext -> 
+        func dataContext
+        saveChangesSafe dataContext
+
+let inline writeDataContext2 (func : 'dc -> 'a -> unit) = 
+    fun connectionString a ->
+        writeDataContext (fun dataContext -> func dataContext a) connectionString
