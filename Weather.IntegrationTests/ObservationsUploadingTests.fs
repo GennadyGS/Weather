@@ -8,6 +8,7 @@ open Weather.IntegrationTests
 open Weather.Persistence
 open Weather.Composition
 open Weather.Model
+open Weather.Logic.Database
 
 type ObservationsUploadingTests() =
     inherit DbTests()
@@ -24,7 +25,7 @@ type ObservationsUploadingTests() =
                 []
     
         results =! []
-        DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
+        readDataContext DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day returns success result``() =

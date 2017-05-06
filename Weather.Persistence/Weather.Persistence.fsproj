@@ -59,11 +59,6 @@
     <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Weather.Logic\Weather.Logic.fsproj">
-      <Name>Weather.Logic</Name>
-      <Project>{79157338-0322-4af0-bbd9-3ee02e48796c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Weather.Utils\Weather.Utils.fsproj">
       <Name>Weather.Utils</Name>
       <Project>{793beaf7-68d5-4f4a-830a-c53ab634d011}</Project>

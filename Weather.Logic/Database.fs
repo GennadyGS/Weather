@@ -21,7 +21,7 @@ let inline private createDataContext connectionString : ^dc =
 let inline private saveChangesToDataContext (dataContext : ^dc) = 
     (^dc: (static member SaveChanges: ^dc -> unit) dataContext)
 
-let inline mapContextReadFunc (func : 'dc -> IQueryable<'a>) = 
+let inline readDataContext (func : 'dc -> IQueryable<'a>) = 
     let compositeFunc = createDataContext >> func
     fun connectionString -> 
         try
@@ -31,15 +31,15 @@ let inline mapContextReadFunc (func : 'dc -> IQueryable<'a>) =
         with
           | DatabaseFailure failure -> failure
 
-let inline mapContextReadFunc2 (func : 'dc -> 'a -> IQueryable<'b>) = 
+let inline readDataContext2 (func : 'dc -> 'a -> IQueryable<'b>) = 
     fun connectionString a -> 
-        mapContextReadFunc (fun dataContext -> func dataContext a) connectionString
+        readDataContext (fun dataContext -> func dataContext a) connectionString
 
-let inline mapContextReadFunc3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) = 
+let inline readDataContext3 (func : 'dc -> 'a -> 'b -> IQueryable<'c>) = 
     fun connectionString a b -> 
-        mapContextReadFunc (fun dataContext -> func dataContext a b) connectionString
+        readDataContext (fun dataContext -> func dataContext a b) connectionString
 
-let inline mapContextUpdateFunc (func : 'dc -> 'a -> unit) = 
+let inline writeDataContext (func : 'dc -> 'a -> unit) = 
     fun connectionString arg ->
         try
             let dataContext = createDataContext connectionString 

@@ -4,6 +4,7 @@ open System
 open Xunit
 open Swensen.Unquote
 open Weather.Model
+open Weather.Logic.Database
 open Weather.Persistence
 open Weather.IntegrationTests
 open Weather.Utils
@@ -25,9 +26,9 @@ type DbServiceTests() =
         observations |> (List.sortBy (fun o -> o.Header))
 
     let testSaveObservations observations = 
-        DbService.insertObservationList connectionstring observations |> ignore
+        writeDataContext DbService.insertObservationList connectionstring observations |> ignore
         
-        let result = DbService.getObservations connectionstring
+        let result = readDataContext DbService.getObservations connectionstring
         
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
@@ -51,7 +52,7 @@ type DbServiceTests() =
             { From = currentTime.AddDays(-1.0)
               To = currentTime }
         
-        let result = DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
+        let result = readDataContext3 DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
 
         let expectedResult = 
             requestedStationNumbers 
@@ -71,9 +72,9 @@ type DbServiceTests() =
             savedStationNumberList 
             |> List.map (fun stNumber -> getSampleObservation stNumber observationTime)
         
-        DbService.insertObservationList connectionstring observationList |> ignore
+        writeDataContext DbService.insertObservationList connectionstring observationList |> ignore
         
-        let result = DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
+        let result = readDataContext3 DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
 
         let expectedResult = 
             requestedStationNumberList

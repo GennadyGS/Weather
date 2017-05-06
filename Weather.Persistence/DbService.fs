@@ -3,7 +3,6 @@
 open FSharp.Data.Sql
 open Weather.Utils
 open Weather.Model
-open Weather.Logic.Database
 open System
 open System.Linq
 
@@ -23,7 +22,7 @@ type DataContext(innerDataContext : SqlProvider.dataContext) =
 
 // Observations
 
-let private insertObservation (dataContext : DataContext) observation =
+let insertObservation (dataContext : DataContext) observation =
     let row = dataContext.InnerDataContext.Dbo.Observations.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
@@ -33,14 +32,12 @@ let private insertObservation (dataContext : DataContext) observation =
     row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
 
-let private insertObservationListInternal (dataContext : DataContext) observations =
+let insertObservationList (dataContext : DataContext) observations =
     observations 
     |> List.map (insertObservation dataContext) 
     |> ignore
 
-let insertObservationList = mapContextUpdateFunc insertObservationListInternal
-
-let private insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
+let insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
     let row = dataContext.InnerDataContext.Dbo.ObservationParsingErrors.Create()
     // TODO: insert request time 
     row.RequestTime <- DateTime.UtcNow
@@ -50,15 +47,13 @@ let private insertObservationParsingError (dataContext : DataContext) (observati
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let private insertObservationParsingErrorListInternal (dataContext : DataContext) observationParsingErrorList =
+let insertObservationParsingErrorList (dataContext : DataContext) observationParsingErrorList =
     observationParsingErrorList
     |> List.map (insertObservationParsingError dataContext) 
     |> ignore
 
-let insertObservationParsingErrorList = mapContextUpdateFunc insertObservationParsingErrorListInternal
-
 // TODO: Add optional station number and interval parameters
-let private getObservationsInternal (dataContext : DataContext) = 
+let getObservations (dataContext : DataContext) = 
     let observationsTable = dataContext.InnerDataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -72,11 +67,9 @@ let private getObservationsInternal (dataContext : DataContext) =
         }
     }
 
-let getObservations = mapContextReadFunc getObservationsInternal
-
 // Last observation times
 
-let private getLastObservationTimeListForStationsInternal 
+let getLastObservationTimeListForStations
         (dataContext : DataContext) 
         (interval : DateTimeInterval)
         (stationNumberList : StationNumber list) =
@@ -108,15 +101,11 @@ let private getLastObservationTimeListForStationsInternal
         select (group.Key, maxObservationTime)
     }
 
-let getLastObservationTimeListForStations = mapContextReadFunc3 getLastObservationTimeListForStationsInternal
-
 // Collect observation tasks
 
-let private insertCollectObservationTaskInternal (dataContext : DataContext) 
+let insertCollectObservationTask (dataContext : DataContext) 
         (stationNumberMask,  collectStartDate, collectIntervalHours) =
     let row = dataContext.InnerDataContext.Dbo.CollectObservationTasks.Create()
     row.StationNumberMask <- stationNumberMask
     row.CollectStartDate <- collectStartDate
     row.CollectIntervalHours <- collectIntervalHours
-    
-let insertCollectObservationTask = mapContextUpdateFunc insertCollectObservationTaskInternal
