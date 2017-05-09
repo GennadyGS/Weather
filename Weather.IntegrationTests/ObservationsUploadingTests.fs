@@ -25,7 +25,7 @@ type ObservationsUploadingTests() =
                 []
     
         results =! Success ()
-        Database.readDataContext2 
+        Database.readDataContext
             DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
 
     [<Fact>]

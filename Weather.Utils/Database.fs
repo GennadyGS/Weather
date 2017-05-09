@@ -24,19 +24,14 @@ let inline saveChangesSafe dataContext =
     dataContext
     |> handleSqlException saveChangesToDataContext
 
-let inline readDataContext (func : 'dc -> IQueryable<'a>) = 
-    createDataContext >> func >> runQuerySafe
-
-let inline readDataContext2 (func : 'dc -> 'a -> IQueryable<'b>) = 
-    fun connectionString a -> 
-        readDataContext (fun dataContext -> func dataContext a) connectionString
-
-let inline writeDataContext (func : 'dc -> unit) = 
+let inline readDataContext (func : 'dc -> 'a -> IQueryable<'b>) = 
     createDataContext >>
-    fun dataContext -> 
-        func dataContext
-        saveChangesSafe dataContext
+    fun dataContext a -> 
+        func dataContext a
+        |> runQuerySafe
 
-let inline writeDataContext2 (func : 'dc -> 'a -> unit) = 
-    fun connectionString a ->
-        writeDataContext (fun dataContext -> func dataContext a) connectionString
+let inline writeDataContext (func : 'dc -> 'a -> unit) = 
+    createDataContext >>
+    fun dataContext a -> 
+        func dataContext a
+        saveChangesSafe dataContext

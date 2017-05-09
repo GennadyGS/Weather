@@ -15,16 +15,12 @@ let inline saveChangesSafe dataContext =
     |> Utils.Database.saveChangesSafe
     |> Result.mapFailure DatabaseError
 
-let inline readDataContext (func : 'dc -> IQueryable<'a>) = 
-    Utils.Database.readDataContext func >> Result.mapFailure DatabaseError
-
-let inline readDataContext2 (func : 'dc -> 'a -> IQueryable<'b>) = 
-    fun connectionString a -> 
-        readDataContext (fun dataContext -> func dataContext a) connectionString
-
-let inline writeDataContext (func : 'dc -> unit) = 
-    Utils.Database.writeDataContext func >> Result.mapFailure DatabaseError
-
-let inline writeDataContext2 (func : 'dc -> 'a -> unit) = 
+let inline readDataContext (func : 'dc -> 'a -> IQueryable<'b>) = 
     fun connectionString a ->
-        writeDataContext (fun dataContext -> func dataContext a) connectionString
+        Utils.Database.readDataContext func connectionString a 
+        |> Result.mapFailure DatabaseError
+
+let inline writeDataContext (func : 'dc -> 'a -> unit) = 
+    fun connectionString a ->
+        Utils.Database.writeDataContext func connectionString a 
+        |> Result.mapFailure DatabaseError
