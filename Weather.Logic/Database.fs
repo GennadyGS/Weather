@@ -19,3 +19,8 @@ let inline unitOfWork (func : 'dc -> 'a -> 'r when 'r : equality) =
     fun connectionString a ->
         Utils.Database.unitOfWork func connectionString a 
         |> Tuple.mapSecond (Result.mapFailure DatabaseError)
+
+let inline unitOfWorkForList (func : 'dc -> 'a -> 'r when 'r : equality) = 
+    fun connectionString list ->
+        Utils.Database.unitOfWorkForList func connectionString list 
+        |> Tuple.mapSecond (Result.mapFailure DatabaseError)

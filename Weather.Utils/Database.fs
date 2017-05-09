@@ -42,10 +42,4 @@ let inline unitOfWork (func : 'dc -> 'a -> 'r when 'r : equality) =
         func dataContext a, saveChangesSafe dataContext
 
 let inline unitOfWorkForList (func : 'dc -> 'a -> 'r when 'r : equality) = 
-    fun connectionString list ->
-        createDataContext connectionString
-        |> fun dataContext -> 
-            let result = 
-                list
-                |> List.map (fun item -> func dataContext item)
-            result, saveChangesSafe dataContext
+    unitOfWork (fun dataContext -> List.map (func dataContext))
