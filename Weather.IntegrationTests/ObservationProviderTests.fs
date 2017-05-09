@@ -7,7 +7,7 @@ open System.Net
 open Weather.Utils
 open Weather.Model
 open Weather.IntegrationTests
-open Weather.CompositionRoot
+open Weather.Composition
 
 type OgimetObservationProviderTests() =
     inherit DbTests()

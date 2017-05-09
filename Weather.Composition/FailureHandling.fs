@@ -1,4 +1,4 @@
-﻿module FailureHandling
+﻿module Weather.Composition.FailureHandling
 
 open Weather.Model
 open Weather.Diagnostic

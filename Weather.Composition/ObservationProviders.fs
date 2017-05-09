@@ -1,4 +1,4 @@
-module Weather.CompositionRoot.ObservationProviders
+module Weather.Composition.ObservationProviders
 
 open Weather
 open Weather.DataProvider

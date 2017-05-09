@@ -4,7 +4,7 @@ open Weather
 open Weather.Utils
 open Weather.Logic
 open Weather.Persistence
-open Weather.CompositionRoot
+open Weather.Composition
 
 let private saveObservationsAndHandleErrors = 
     Logic.ObservationsUploading.saveObservationsAndHandleErrors
