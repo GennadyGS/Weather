@@ -24,7 +24,7 @@ type ObservationsUploadingTests() =
                   To = DateTime.UtcNow }
                 []
     
-        results =! Success ()
+        results =! []
         Database.readDataContext
             DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
 
@@ -38,5 +38,5 @@ type ObservationsUploadingTests() =
                   To = DateTime.UtcNow }
                 [StationNumber 33345]
 
-        results =! Success ()
+        results =! []
         // TODO: verify results in database

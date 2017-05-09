@@ -14,3 +14,8 @@ let inline writeDataContext (func : 'dc -> 'a -> unit) =
     fun connectionString a ->
         Utils.Database.writeDataContext func connectionString a 
         |> Result.mapFailure DatabaseError
+
+let inline unitOfWork (func : 'dc -> 'a -> 'r when 'r : equality) = 
+    fun connectionString a ->
+        Utils.Database.unitOfWork func connectionString a 
+        |> Tuple.mapSecond (Result.mapFailure DatabaseError)

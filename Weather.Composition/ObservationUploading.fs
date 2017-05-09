@@ -19,5 +19,7 @@ let fillNewDataForStations minTimeSpan connectionString interval stationList =
     Database.readDataContext 
         DbService.getLastObservationTimeListForStations connectionString (interval, stationList)
     |> Result.bindToList (fetchObservationsForLastObservationTimeList minTimeSpan interval)
-    |> Database.writeDataContext 
+    |> Database.unitOfWork 
         saveObservationsAndHandleErrors connectionString
+    |> fun (r1, r2) -> r2 :: r1
+    |> ResultList.getFailures

@@ -28,6 +28,3 @@ let saveObservationsAndHandleErrors
         (Result.map (insertObservationFunc dataContext))
     >> FailureHandling.handleFailures 
         (handleInvalidObservationFormat insertObservationParsingErrorFunc dataContext)
-    >> ignore
-
-
