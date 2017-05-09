@@ -32,11 +32,6 @@ let insertObservation (dataContext : DataContext) observation =
     row.Hour <- observation.Header.ObservationTime.Hour
     row.Temperature <- observation.Temperature
 
-let insertObservationList (dataContext : DataContext) observations =
-    observations 
-    |> List.map (insertObservation dataContext) 
-    |> ignore
-
 let insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
     let row = dataContext.InnerDataContext.Dbo.ObservationParsingErrors.Create()
     // TODO: insert request time 

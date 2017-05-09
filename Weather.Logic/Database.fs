@@ -15,6 +15,11 @@ let inline writeDataContext (func : 'dc -> 'a -> unit) =
         Utils.Database.writeDataContext func connectionString a 
         |> Result.mapFailure DatabaseError
 
+let inline writeDataContextForList (func : 'dc -> 'a -> unit) = 
+    fun connectionString a ->
+        Utils.Database.writeDataContextForList func connectionString a 
+        |> Result.mapFailure DatabaseError
+
 let inline unitOfWork (func : 'dc -> 'a -> 'r when 'r : equality) = 
     fun connectionString a ->
         Utils.Database.unitOfWork func connectionString a 
