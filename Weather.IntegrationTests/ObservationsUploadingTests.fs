@@ -25,8 +25,8 @@ type ObservationsUploadingTests() =
                 []
     
         results =! Success ()
-        Database.readDataContext 
-            DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
+        Database.readDataContext2 
+            DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day returns success result``() =

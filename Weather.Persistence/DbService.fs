@@ -47,13 +47,8 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let insertObservationParsingErrorList (dataContext : DataContext) observationParsingErrorList =
-    observationParsingErrorList
-    |> List.map (insertObservationParsingError dataContext) 
-    |> ignore
-
 // TODO: Add optional station number and interval parameters
-let getObservations (dataContext : DataContext) = 
+let getObservations (dataContext : DataContext) () = 
     let observationsTable = dataContext.InnerDataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -71,8 +66,7 @@ let getObservations (dataContext : DataContext) =
 
 let getLastObservationTimeListForStations
         (dataContext : DataContext) 
-        (interval : DateTimeInterval)
-        (stationNumberList : StationNumber list) =
+        (interval : DateTimeInterval, stationNumberList : StationNumber list) =
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.InnerDataContext.Dbo.Observations do

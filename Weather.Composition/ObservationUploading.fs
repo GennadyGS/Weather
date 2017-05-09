@@ -16,8 +16,8 @@ let private fetchObservationsForLastObservationTimeList =
         ObservationProviders.Ogimet.fetchObservationsByInterval
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
-    Database.readDataContext3 
-        DbService.getLastObservationTimeListForStations connectionString interval stationList
+    Database.readDataContext2 
+        DbService.getLastObservationTimeListForStations connectionString (interval, stationList)
     |> Result.bindToList (fetchObservationsForLastObservationTimeList minTimeSpan interval)
     |> Database.writeDataContext2 
         saveObservationsAndHandleErrors connectionString

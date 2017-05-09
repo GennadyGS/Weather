@@ -30,8 +30,8 @@ type DbServiceTests() =
             DbService.insertObservationList connectionstring observations |> ignore
         
         let result = 
-            Database.readDataContext 
-                DbService.getObservations connectionstring
+            Database.readDataContext2 
+                DbService.getObservations connectionstring ()
         
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
@@ -56,8 +56,8 @@ type DbServiceTests() =
               To = currentTime }
         
         let result = 
-            Database.readDataContext3 
-                DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumbers
+            Database.readDataContext2
+                DbService.getLastObservationTimeListForStations connectionstring (interval, requestedStationNumbers)
 
         let expectedResult = 
             requestedStationNumbers 
@@ -81,8 +81,8 @@ type DbServiceTests() =
             DbService.insertObservationList connectionstring observationList |> ignore
         
         let result = 
-            Database.readDataContext3 
-                DbService.getLastObservationTimeListForStations connectionstring interval requestedStationNumberList
+            Database.readDataContext2 
+                DbService.getLastObservationTimeListForStations connectionstring (interval, requestedStationNumberList)
 
         let expectedResult = 
             requestedStationNumberList
