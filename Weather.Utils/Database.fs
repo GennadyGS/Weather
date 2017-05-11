@@ -38,11 +38,3 @@ let inline writeDataContext (func : 'dc -> 'a -> unit) =
 
 let inline writeDataContextForList (func : 'dc -> 'a -> unit) = 
     writeDataContext (fun dataContext -> List.map (func dataContext) >> ignore)
-
-let inline unitOfWork (func : 'dc -> 'a -> 'r when 'r : equality) = 
-    createDataContext >>
-    fun dataContext a -> 
-        func dataContext a, saveChangesSafe dataContext
-
-let inline unitOfWorkForList (func : 'dc -> 'a -> 'r when 'r : equality) = 
-    unitOfWork (fun dataContext -> List.map (func dataContext))

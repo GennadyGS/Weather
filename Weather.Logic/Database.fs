@@ -15,11 +15,3 @@ let inline writeDataContext func connectionString =
 let inline writeDataContextForList func connectionString = 
     Utils.Database.writeDataContextForList func connectionString
     >> Result.mapFailure DatabaseError
-
-let inline unitOfWork func connectionString = 
-    Utils.Database.unitOfWork func connectionString 
-    >> Tuple.mapSecond (Result.mapFailure DatabaseError)
-
-let inline unitOfWorkForList func connectionString = 
-    Utils.Database.unitOfWorkForList func connectionString 
-    >> Tuple.mapSecond (Result.mapFailure DatabaseError)

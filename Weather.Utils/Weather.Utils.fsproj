@@ -55,9 +55,7 @@
     <Compile Include="Nullable.fs" />
     <Compile Include="DateTime.fs" />
     <Compile Include="ListPartition.fs" />
-    <Compile Include="ResultList.fs" />
     <Compile Include="Tuple.fs" />
-    <Compile Include="FailureHandling.fs" />
     <Compile Include="Database.fs" />
   </ItemGroup>
   <PropertyGroup>

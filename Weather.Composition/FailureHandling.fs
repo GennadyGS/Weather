@@ -1,17 +1,7 @@
 ﻿module Weather.Composition.FailureHandling
 
-open Weather.Model
+open Weather
 open Weather.Diagnostic
 
-let private logFailure failure = 
-    let errorMessage = 
-        match failure with
-        | DatabaseError message -> sprintf "Database error: %s" message
-        | HttpError (statusCode, message) -> sprintf "Http error %d: %s" (int statusCode) message
-        | InvalidObservationHeaderFormat message -> sprintf "Invalid header format: %s" message
-        | InvalidObservationFormat _ -> sprintf "Unexpected error: %A" failure
-    Logger.logError errorMessage
-    None
-
-let logFailures results = 
-    Weather.Utils.FailureHandling.handleFailures logFailure results
+let logFailure = 
+    Logic.FailureHandling.logFailure Logger.logError

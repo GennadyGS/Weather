@@ -40,6 +40,10 @@ let bindToOption func = function
     | Success success -> func success
     | Failure failure -> Some (Failure failure)
 
+let ignore (result : Result<unit, unit>) = ()
+
+let ignoreAll (result : Result<unit, unit> seq) = ()
+
 type ResultBuilder() =
     member this.Return x = Success x
     member this.ReturnFrom x = x

@@ -2,7 +2,13 @@
 
 open Weather.Utils
 open Weather.Model
-open Weather.Diagnostic
+open Weather.Logic
+
+// TODO: To utils?
+let private tee sideEffect =
+    fun x ->
+        do sideEffect x
+        x
 
 let private tryGetMissingTrailingStationInterval minTimeSpan interval =
     Tuple.mapSecondOption 
@@ -12,19 +18,20 @@ let fetchObservationsForLastObservationTimeList fetchObservationsByIntervalFunc 
     List.choose (tryGetMissingTrailingStationInterval minTimeSpan interval)
     >> List.collect fetchObservationsByIntervalFunc
 
-let private handleInvalidObservationFormat insertObservationParsingErrorFunc dataContext = function
+let private handleFailure insertObservationParsingErrorFunc dataContext = function
     | InvalidObservationFormat (header, message) -> 
-        let errorMessage = sprintf "Invalid observation format (header: %A): %s" header message
-        Logger.logError errorMessage
         insertObservationParsingErrorFunc dataContext (header, message)
-        None
-    | value -> Some value
+    | _ -> ()
 
 let saveObservationsAndHandleErrors 
         insertObservationFunc 
         insertObservationParsingErrorFunc
+        logErrorFunc
         dataContext = 
     List.map 
         (Result.map (insertObservationFunc dataContext))
-    >> FailureHandling.handleFailures 
-        (handleInvalidObservationFormat insertObservationParsingErrorFunc dataContext)
+    >> List.map 
+        (Result.mapFailure 
+            (tee (Weather.Logic.FailureHandling.logFailure logErrorFunc) 
+            >> (handleFailure insertObservationParsingErrorFunc dataContext)))
+    >> Result.ignoreAll
