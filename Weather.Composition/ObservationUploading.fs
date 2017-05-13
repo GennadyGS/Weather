@@ -16,7 +16,7 @@ let private saveObservationsToDataContextAndHandleErrors =
 let private saveObservationsAndHandleErrors connectionString =
     Database.writeDataContext 
         saveObservationsToDataContextAndHandleErrors connectionString
-    >> Result.mapFailure FailureHandling.logFailure
+    >> Result.mapFailure (Logic.FailureHandling.logFailure Logger.logError)
     >> Result.ignore
 
 let private fetchObservationsForLastObservationTimeList = 
