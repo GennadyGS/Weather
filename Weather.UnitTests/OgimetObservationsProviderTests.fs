@@ -30,7 +30,7 @@ type OgimetObservationsProviderTests() =
               ObservationTime = 
                 { Date = roundedDate.Date
                   Hour = byte roundedDate.Hour }
-              RequestTime = roundToMilliseconds currentTime }
+              RequestTime = roundToSeconds currentTime }
         (header, headerString)
 
     let toTupleOfLists listOfTuples =

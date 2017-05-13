@@ -24,7 +24,7 @@ type DbServiceTests() =
                 { Date = roundedObservationTime.Date
                   Hour = byte(roundedObservationTime.Hour) }
               StationNumber = stationNumber 
-              RequestTime = DateTime((roundToMilliseconds currentTime).Ticks, DateTimeKind.Unspecified) }
+              RequestTime = roundToSeconds currentTime }
           Temperature = -1.3m }
 
     let sortObservations observations = 

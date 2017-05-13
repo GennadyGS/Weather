@@ -44,7 +44,7 @@ let private tryParseHeader requestTime string =
                       ObservationTime = 
                         { Date = roundedObservationTime.Date
                           Hour = byte roundedObservationTime.Hour }
-                      RequestTime = roundToMilliseconds requestTime }
+                      RequestTime = roundToSeconds requestTime }
                 Some <| Success (header, synopString)
     | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),[A-Z]{4}(.*)$" _ ->
         None
