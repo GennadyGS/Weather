@@ -16,7 +16,7 @@ type OgimetObservationProviderTests() =
     let ``FetchObservations for empty interval should throw WebException`` () =
         let result = 
             ObservationProviders.Ogimet.fetchObservationsByInterval
-                (Settings.OgimetBaseUrl.ToString())
+                Settings.OgimetBaseUrl
                 DateTime.UtcNow
                 ((StationNumber 33345),
                 { From = DateTime.Now

@@ -8,8 +8,8 @@ let private getHttpResponseBodyText =
     | Text text -> text
     | Binary _ -> String.Empty
 
-let httpGet baseUrl queryParams =
-    let response : FSharp.Data.HttpResponse = Http.Request (baseUrl, query = queryParams, silentHttpErrors = true)
+let httpGet (baseUrl : Uri) queryParams =
+    let response : FSharp.Data.HttpResponse = Http.Request (baseUrl.ToString(), query = queryParams, silentHttpErrors = true)
     let statusCode = LanguagePrimitives.EnumOfValue response.StatusCode
     let bodyText = getHttpResponseBodyText response.Body
     (statusCode, bodyText)
