@@ -4,12 +4,6 @@ open Weather.Utils
 open Weather.Model
 open Weather.Logic
 
-// TODO: To utils?
-let private tee sideEffect =
-    fun x ->
-        do sideEffect x
-        x
-
 let private tryGetMissingTrailingStationInterval minTimeSpan interval =
     Tuple.mapSecondOption 
         (Intervals.tryGetMissingTrailingInterval minTimeSpan interval)
@@ -32,6 +26,6 @@ let saveObservationsAndHandleErrors
         (Result.map (insertObservationFunc dataContext))
     >> List.map 
         (Result.mapFailure 
-            (tee (Weather.Logic.FailureHandling.logFailure logErrorFunc) 
+            (Core.tee (Weather.Logic.FailureHandling.logFailure logErrorFunc) 
             >> (handleFailure insertObservationParsingErrorFunc dataContext)))
     >> Result.ignoreAll
