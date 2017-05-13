@@ -28,11 +28,17 @@ type ObservationsUploadingTests() =
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day returns success result``() =
-            ObservationsUploading.fillNewDataForStations
-                Settings.MinTimeSpan
-                Settings.ConnectionStrings.Weather 
-                { From = DateTime.UtcNow.AddDays(-1.0)
-                  To = DateTime.UtcNow }
-                [StationNumber 33345]
+        ObservationsUploading.fillNewDataForStations
+            Settings.MinTimeSpan
+            Settings.ConnectionStrings.Weather 
+            { From = DateTime.UtcNow.AddDays(-1.0)
+              To = DateTime.UtcNow }
+            [StationNumber 33345]
 
-        // TODO: verify results in database
+        let result = 
+            Database.readDataContext
+                DbService.getObservations Settings.ConnectionStrings.Weather ()
+        // TODO: More detailed verification
+        match result with
+            | Success observations -> List.length observations >=! 7
+            | Failure _ -> failwith "Result should be success"
