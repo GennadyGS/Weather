@@ -1,6 +1,7 @@
 ﻿namespace Weather.Model
 
 open System.Net
+open System
 
 type ObservationTime = 
     { Date: System.DateTime
@@ -14,7 +15,8 @@ type StationNumber =
 
 type ObservationHeader = 
     { StationNumber: StationNumber
-      ObservationTime: ObservationTime }
+      ObservationTime: ObservationTime 
+      RequestTime: DateTime }
 
 type Observation = 
     { Header : ObservationHeader

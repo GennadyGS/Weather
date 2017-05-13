@@ -24,8 +24,7 @@ type DataContext private (innerDataContext : SqlProvider.dataContext) =
 
 let insertObservation (dataContext : DataContext) observation =
     let row = dataContext.InnerDataContext.Dbo.Observations.Create()
-    // TODO: insert request time 
-    row.RequestTime <- DateTime.UtcNow
+    row.RequestTime <- observation.Header.RequestTime
     let (StationNumber stationNumber) = observation.Header.StationNumber
     row.StationNumber <- stationNumber
     row.Date <- observation.Header.ObservationTime.Date
@@ -34,8 +33,7 @@ let insertObservation (dataContext : DataContext) observation =
 
 let insertObservationParsingError (dataContext : DataContext) (observationHeader, errorText) =
     let row = dataContext.InnerDataContext.Dbo.ObservationParsingErrors.Create()
-    // TODO: insert request time 
-    row.RequestTime <- DateTime.UtcNow
+    row.RequestTime <- observationHeader.RequestTime
     let (StationNumber stationNumber) = observationHeader.StationNumber
     row.StationNumber <- stationNumber
     row.Date <- observationHeader.ObservationTime.Date
@@ -49,10 +47,11 @@ let getObservations (dataContext : DataContext) () =
         for o in observationsTable do
         select {
             Header = 
-                { ObservationTime = 
+                { StationNumber = StationNumber o.StationNumber
+                  ObservationTime = 
                     { Date = o.Date 
                       Hour = o.Hour }
-                  StationNumber = StationNumber o.StationNumber }
+                  RequestTime = o.RequestTime }
             Temperature = o.Temperature
         }
     }

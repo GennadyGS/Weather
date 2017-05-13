@@ -9,12 +9,15 @@ open Weather.Synop
 open Weather.Model
 open Weather.DataProvider
 open System.Net
+open Weather.Utils.DateTime
 
 type OgimetObservationsProviderTests() =
     inherit GeneratorTests()
 
     [<Literal>]
     let synopFormatCode = "AAXX"
+
+    let currentTime = DateTime.UtcNow
 
     let generateHeaderAndHeaderString observationFormatCode synopStr stationNumber date =
         let roundedDate = DateTime.roundToHours date
@@ -26,7 +29,8 @@ type OgimetObservationsProviderTests() =
             { StationNumber = StationNumber stationNumber
               ObservationTime = 
                 { Date = roundedDate.Date
-                  Hour = byte roundedDate.Hour }}
+                  Hour = byte roundedDate.Hour }
+              RequestTime = roundToMilliseconds currentTime }
         (header, headerString)
 
     let toTupleOfLists listOfTuples =
@@ -54,7 +58,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime 
+                (StationNumber stationNumber.Get, interval)        
 
         result =! 
             [Success
@@ -82,7 +87,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime 
+                (StationNumber stationNumber.Get, interval)        
 
         result =! 
             (headers
@@ -107,7 +113,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime 
+                (StationNumber stationNumber.Get, interval)        
         result =! []
 
     [<Property>]
@@ -123,7 +130,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime 
+                (StationNumber stationNumber.Get, interval)        
         test <@ match result with
                 | [Failure (InvalidObservationHeaderFormat _)] -> true
                 | _ -> false @>
@@ -145,7 +153,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime 
+                (StationNumber stationNumber.Get, interval)        
 
         result =! [Failure (InvalidObservationFormat (header, synopParserErrorMessage))]
 
@@ -167,7 +176,8 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)        
+                synopParser httpGetFunc currentTime
+                (StationNumber stationNumber.Get, interval)        
 
         test <@ match result with
                 | [Failure (InvalidObservationFormat (header, _))] -> true
@@ -188,7 +198,8 @@ type OgimetObservationsProviderTests() =
             (HttpStatusCode.OK, String.Empty)
 
         OgimetObservationsProvider.fetchObservationsByInterval 
-            synopParser httpGetFunc (StationNumber stationNumber.Get, interval) |> ignore      
+            synopParser httpGetFunc currentTime
+            (StationNumber stationNumber.Get, interval) |> ignore      
         
         let formatDate (date : DateTime) = date.ToString("yyyyMMddHHmm")
         receivedBaseUrl =! "http://www.ogimet.com/cgi-bin/getsynop"
@@ -212,6 +223,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc (StationNumber stationNumber.Get, interval)
+                synopParser httpGetFunc currentTime
+                (StationNumber stationNumber.Get, interval)
 
         result =! [Failure (HttpError (httpStatusCode, httpErrorMessage))]

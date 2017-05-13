@@ -16,6 +16,7 @@ type OgimetObservationProviderTests() =
     let ``FetchObservations for empty interval should throw WebException`` () =
         let result = 
             ObservationProviders.Ogimet.fetchObservationsByInterval
+                DateTime.UtcNow
                 ((StationNumber 33345),
                 { From = DateTime.Now
                   To = DateTime.Now.AddDays(-1.0) })

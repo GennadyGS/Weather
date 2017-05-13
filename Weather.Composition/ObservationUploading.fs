@@ -19,12 +19,13 @@ let private saveObservationsAndHandleErrors connectionString =
     >> Result.mapFailure (Logic.FailureHandling.logFailure Logger.logError)
     >> Result.ignore
 
-let private fetchObservationsForLastObservationTimeList = 
+let private fetchObservationsForLastObservationTimeList requestTime = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
-        ObservationProviders.Ogimet.fetchObservationsByInterval
+        (ObservationProviders.Ogimet.fetchObservationsByInterval requestTime)
 
 let fillNewDataForStations minTimeSpan connectionString interval stationList =
+    let requestTime = System.DateTime.UtcNow
     Database.readDataContext 
         DbService.getLastObservationTimeListForStations connectionString (interval, stationList)
-    |> Result.bindToList (fetchObservationsForLastObservationTimeList minTimeSpan interval)
+    |> Result.bindToList (fetchObservationsForLastObservationTimeList requestTime minTimeSpan interval)
     |> saveObservationsAndHandleErrors connectionString

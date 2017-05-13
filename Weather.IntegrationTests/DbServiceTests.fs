@@ -8,18 +8,22 @@ open Weather.Persistence
 open Weather.IntegrationTests
 open Weather.Utils
 open Weather.Utils.Database
+open Weather.Utils.DateTime
 
 type DbServiceTests() =
     inherit DbTests()
     
     let connectionstring = Settings.ConnectionStrings.Weather
+
     let currentTime = DateTime.UtcNow
+
     let getSampleObservation stationNumber (observationDateTime : DateTime) = 
         { Header = 
             { ObservationTime = 
                 { Date = observationDateTime.Date
                   Hour = byte(observationDateTime.Hour) }
-              StationNumber = stationNumber }
+              StationNumber = stationNumber 
+              RequestTime = roundToMilliseconds currentTime }
           Temperature = -1.3m }
 
     let sortObservations observations = 
@@ -36,9 +40,6 @@ type DbServiceTests() =
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
 
-    let roundDateTimeToHours (dateTime : DateTime) = 
-        dateTime.Date.AddHours(float dateTime.Hour)
-
     [<Fact>]
     let ``SaveObservations should save empty list of observation correctly``() = 
         testSaveObservations []
@@ -49,7 +50,6 @@ type DbServiceTests() =
 
     [<Fact>]
     let ``GetLastObservationTimeListForStations should return empty list when there are no observations``() = 
-        let now = System.DateTime.UtcNow;
         let requestedStationNumbers = [StationNumber 0; StationNumber 10; StationNumber 100]
         let interval = 
             { From = currentTime.AddDays(-1.0)
@@ -89,7 +89,7 @@ type DbServiceTests() =
             |> List.map (
                 function 
                 | stNumber when List.contains stNumber savedStationNumberList -> 
-                    (stNumber, Some (roundDateTimeToHours observationTime))
+                    (stNumber, Some (roundToHours observationTime))
                 | stNumber -> (stNumber, None))
             |> Success
         expectedResult =! (result |> Result.map (List.sortBy fst))

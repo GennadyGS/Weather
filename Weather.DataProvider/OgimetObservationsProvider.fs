@@ -9,6 +9,7 @@ open Weather.Utils.Result
 open Weather.Utils.RegEx
 open Weather.Model
 open Weather.Synop
+open Weather.Utils.DateTime
 
 let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
 
@@ -29,7 +30,7 @@ let private getUrlQueryParams (StationNumber stationNumber) dateFrom dateTo =
         buildOptionalParam "end" (dateTo |> Option.map formatDateTime) 
             |> Option.toList]
     
-let private tryParseHeader string =
+let private tryParseHeader requestTime string =
     match string with
     | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),AAXX (\d{2})(\d{2})\d (.*)$" 
         [Int(stationNumber); Int(year); Int(month); Int(day); Int(hour); Int(minute); 
@@ -44,7 +45,8 @@ let private tryParseHeader string =
                     { StationNumber = StationNumber stationNumber
                       ObservationTime = 
                         { Date = roundedObservationTime.Date
-                          Hour = byte roundedObservationTime.Hour }}
+                          Hour = byte roundedObservationTime.Hour }
+                      RequestTime = roundToMilliseconds requestTime }
                 Some <| Success (header, synopString)
     | Regex @"^(\d{5}),(\d{4}),(\d{2}),(\d{2}),(\d{2}),(\d{2}),[A-Z]{4}(.*)$" _ ->
         None
@@ -65,8 +67,8 @@ let private parseSynop parser (header, synopStr) =
         (fun synop -> safeCreateObservation header synop synopStr)
         (fun message -> Failure <| InvalidObservationFormat (header, message))
 
-let private tryParseObservation synopParser = 
-    tryParseHeader
+let private tryParseObservation synopParser requestTime = 
+    tryParseHeader requestTime
     >> Option.map (Result.bind (parseSynop synopParser))
 
 let private checkHttpStatusInResponseString string = 
@@ -82,13 +84,13 @@ let private splitResponseIntoLines =
     >> List.ofArray 
     >> List.filter (fun line -> line <> String.Empty)
 
-let fetchObservations synopParser httpGetFunc stationNumber dateFrom dateTo = 
+let fetchObservations synopParser httpGetFunc requestTime stationNumber dateFrom dateTo = 
     Logic.HttpClient.safeHttpGet
              httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
-        |> List.choose (Result.bindToOption (tryParseObservation synopParser))
+        |> List.choose (Result.bindToOption (tryParseObservation synopParser requestTime))
 
-let fetchObservationsByInterval synopParser httpGetFunc (stationNumber, interval) = 
-    fetchObservations synopParser httpGetFunc stationNumber 
+let fetchObservationsByInterval synopParser httpGetFunc requestTime (stationNumber, interval) = 
+    fetchObservations synopParser httpGetFunc requestTime stationNumber 
         (Some interval.From) (Some interval.To)
