@@ -18,10 +18,11 @@ type DbServiceTests() =
     let currentTime = DateTime.UtcNow
 
     let getSampleObservation stationNumber (observationDateTime : DateTime) = 
+        let roundedObservationTime = roundToHours observationDateTime
         { Header = 
             { ObservationTime = 
-                { Date = observationDateTime.Date
-                  Hour = byte(observationDateTime.Hour) }
+                { Date = roundedObservationTime.Date
+                  Hour = byte(roundedObservationTime.Hour) }
               StationNumber = stationNumber 
               RequestTime = roundToMilliseconds currentTime }
           Temperature = -1.3m }
