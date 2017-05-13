@@ -42,6 +42,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns observation for correct input string``
+            (baseProviderUrl : string)
             (date : DateTime)
             (stationNumber : PositiveInt)
             interval
@@ -58,7 +59,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime 
+                synopParser httpGetFunc baseProviderUrl currentTime 
                 (StationNumber stationNumber.Get, interval)        
 
         result =! 
@@ -68,6 +69,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns observation for each of correct input string``
+            (baseProviderUrl : string)
             (dates : DateTime list)
             (stationNumber : PositiveInt)
             interval
@@ -87,7 +89,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime 
+                synopParser httpGetFunc baseProviderUrl currentTime
                 (StationNumber stationNumber.Get, interval)        
 
         result =! 
@@ -99,6 +101,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns empty list for non SYNOP input string``
+            (baseProviderUrl : string)
             (date : DateTime)
             (stationNumber : PositiveInt)
             interval
@@ -113,15 +116,16 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime 
+                synopParser httpGetFunc baseProviderUrl currentTime 
                 (StationNumber stationNumber.Get, interval)        
         result =! []
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns Failure InvalidObservationHeaderFormat for invalid input string``
-        (stationNumber : PositiveInt)
-        interval
-        (headerString : SingleLineString) = 
+            (baseProviderUrl : string)
+            (stationNumber : PositiveInt)
+            interval
+            (headerString : SingleLineString) = 
 
         let httpGetFunc _ _ = 
             (HttpStatusCode.OK, headerString.Get)
@@ -130,7 +134,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime 
+                synopParser httpGetFunc baseProviderUrl currentTime 
                 (StationNumber stationNumber.Get, interval)        
         test <@ match result with
                 | [Failure (InvalidObservationHeaderFormat _)] -> true
@@ -138,6 +142,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns Failure InvalidObservationFormat when synopParser returns failure``
+            (baseProviderUrl : string)
             (date : DateTime)
             (stationNumber : PositiveInt)
             interval
@@ -153,13 +158,14 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime 
+                synopParser httpGetFunc baseProviderUrl currentTime 
                 (StationNumber stationNumber.Get, interval)        
 
         result =! [Failure (InvalidObservationFormat (header, synopParserErrorMessage))]
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns Failure InvalidObservationFormat when synopParser returns Synop with invalid station number``
+            (baseProviderUrl : string)
             (date : DateTime)
             (stationNumber : PositiveInt)
             interval
@@ -176,7 +182,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime
+                synopParser httpGetFunc baseProviderUrl currentTime
                 (StationNumber stationNumber.Get, interval)        
 
         test <@ match result with
@@ -185,6 +191,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval passes correct URL to httpGetFunc``
+            (baseProviderUrl : string)
             (stationNumber : PositiveInt)
             interval
             (synopStr : SingleLineString) 
@@ -198,11 +205,11 @@ type OgimetObservationsProviderTests() =
             (HttpStatusCode.OK, String.Empty)
 
         OgimetObservationsProvider.fetchObservationsByInterval 
-            synopParser httpGetFunc currentTime
+            synopParser httpGetFunc baseProviderUrl currentTime
             (StationNumber stationNumber.Get, interval) |> ignore      
         
         let formatDate (date : DateTime) = date.ToString("yyyyMMddHHmm")
-        receivedBaseUrl =! "http://www.ogimet.com/cgi-bin/getsynop"
+        receivedBaseUrl =! baseProviderUrl
         receivedUrlParams =! [
             ("block", stationNumber.Get.ToString("D5"))
             ("begin", formatDate interval.From)
@@ -210,6 +217,7 @@ type OgimetObservationsProviderTests() =
 
     [<Property>]
     member this. ``FetchObservationsByInterval returns Failure HttpError when httpGetFunc returns HttpError``
+            (baseProviderUrl : string)
             (stationNumber : PositiveInt)
             interval
             httpStatusCode
@@ -223,7 +231,7 @@ type OgimetObservationsProviderTests() =
 
         let result = 
             OgimetObservationsProvider.fetchObservationsByInterval 
-                synopParser httpGetFunc currentTime
+                synopParser httpGetFunc baseProviderUrl currentTime
                 (StationNumber stationNumber.Get, interval)
 
         result =! [Failure (HttpError (httpStatusCode, httpErrorMessage))]

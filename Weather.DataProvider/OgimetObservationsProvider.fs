@@ -11,8 +11,6 @@ open Weather.Model
 open Weather.Synop
 open Weather.Utils.DateTime
 
-let [<Literal>] private Url = "http://www.ogimet.com/cgi-bin/getsynop"
-
 let private formatDateTime (dateTime : DateTime) : string = 
     dateTime.ToString("yyyyMMddHHmm")
 
@@ -84,13 +82,13 @@ let private splitResponseIntoLines =
     >> List.ofArray 
     >> List.filter (fun line -> line <> String.Empty)
 
-let fetchObservations synopParser httpGetFunc requestTime stationNumber dateFrom dateTo = 
+let fetchObservations synopParser httpGetFunc baseUrl requestTime stationNumber dateFrom dateTo = 
     Logic.HttpClient.safeHttpGet
-             httpGetFunc Url (getUrlQueryParams stationNumber dateFrom dateTo)
+             httpGetFunc baseUrl (getUrlQueryParams stationNumber dateFrom dateTo)
         |> Result.bind checkHttpStatusInResponseString
         |> Result.mapToList splitResponseIntoLines
         |> List.choose (Result.bindToOption (tryParseObservation synopParser requestTime))
 
-let fetchObservationsByInterval synopParser httpGetFunc requestTime (stationNumber, interval) = 
-    fetchObservations synopParser httpGetFunc requestTime stationNumber 
+let fetchObservationsByInterval synopParser httpGetFunc baseUrl requestTime (stationNumber, interval) = 
+    fetchObservations synopParser httpGetFunc baseUrl requestTime stationNumber 
         (Some interval.From) (Some interval.To)

@@ -19,6 +19,7 @@ type ObservationsUploadingTests() =
         ObservationsUploading.fillNewDataForStations
             Settings.MinTimeSpan 
             Settings.ConnectionStrings.Weather 
+            (Settings.OgimetBaseUrl.ToString())
             { From = DateTime.UtcNow.AddDays(-1.0)
               To = DateTime.UtcNow }
             []
@@ -31,6 +32,7 @@ type ObservationsUploadingTests() =
         ObservationsUploading.fillNewDataForStations
             Settings.MinTimeSpan
             Settings.ConnectionStrings.Weather 
+            (Settings.OgimetBaseUrl.ToString())
             { From = DateTime.UtcNow.AddDays(-1.0)
               To = DateTime.UtcNow }
             [StationNumber 33345]
