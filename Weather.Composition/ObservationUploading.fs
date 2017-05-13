@@ -7,11 +7,17 @@ open Weather.Persistence
 open Weather.Diagnostic
 open Weather.Composition
 
-let private saveObservationsAndHandleErrors = 
-    Logic.ObservationsUploading.saveObservationsAndHandleErrors
+let private saveObservationsToDataContextAndHandleErrors = 
+    Logic.ObservationsUploading.saveObservationsToDataContextAndHandleErrors
         DbService.insertObservation
         DbService.insertObservationParsingError
         Logger.logError
+
+let private saveObservationsAndHandleErrors connectionString =
+    Database.writeDataContext 
+        saveObservationsToDataContextAndHandleErrors connectionString
+    >> Result.mapFailure FailureHandling.logFailure
+    >> Result.ignore
 
 let private fetchObservationsForLastObservationTimeList = 
     Logic.ObservationsUploading.fetchObservationsForLastObservationTimeList 
@@ -21,7 +27,4 @@ let fillNewDataForStations minTimeSpan connectionString interval stationList =
     Database.readDataContext 
         DbService.getLastObservationTimeListForStations connectionString (interval, stationList)
     |> Result.bindToList (fetchObservationsForLastObservationTimeList minTimeSpan interval)
-    |> Database.writeDataContext 
-        saveObservationsAndHandleErrors connectionString
-    |> Result.mapFailure FailureHandling.logFailure
-    |> Result.ignore
+    |> saveObservationsAndHandleErrors connectionString

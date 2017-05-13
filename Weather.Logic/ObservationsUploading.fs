@@ -17,7 +17,7 @@ let private handleFailure insertObservationParsingErrorFunc dataContext = functi
         insertObservationParsingErrorFunc dataContext (header, message)
     | _ -> ()
 
-let saveObservationsAndHandleErrors 
+let saveObservationsToDataContextAndHandleErrors 
         insertObservationFunc 
         insertObservationParsingErrorFunc
         logErrorFunc
