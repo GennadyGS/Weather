@@ -94,3 +94,16 @@ type DbServiceTests() =
                 | stNumber -> (stNumber, None))
             |> Success
         expectedResult =! (result |> Result.map (List.sortBy fst))
+
+    [<Fact>]
+    let ``Test``() = 
+        Database.writeDataContext
+            DbService.insertObservation connectionstring (getSampleObservation (StationNumber 0) currentTime) |> ignore
+        let results = 
+            Database.readDataContext 
+                DbService.getObservationsAndStations connectionstring ()
+
+        match results with
+            | Success list -> list.Length >! 0
+            | Failure failure -> failwith failure
+        

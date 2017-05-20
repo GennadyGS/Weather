@@ -40,6 +40,22 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
+let getObservationsAndStations (dataContext : DataContext) () = 
+    let observationsTable = dataContext.InnerDataContext.Dbo.Observations
+    query {
+        for o in observationsTable do
+        for station in (!!) o.``dbo.Stations by Number`` do
+        select (station, {
+            Header = 
+                { StationNumber = StationNumber o.StationNumber
+                  ObservationTime = 
+                    { Date = o.Date 
+                      Hour = o.Hour }
+                  RequestTime = o.RequestTime }
+            Temperature = o.Temperature
+        })
+    }
+
 // TODO: Add optional station number and interval parameters
 let getObservations (dataContext : DataContext) () = 
     let observationsTable = dataContext.InnerDataContext.Dbo.Observations
