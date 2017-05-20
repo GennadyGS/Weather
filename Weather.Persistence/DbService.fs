@@ -5,6 +5,7 @@ open Weather.Utils
 open Weather.Model
 open System
 open System.Linq
+open Weather.Utils.Nullable
 
 type private SqlProvider = 
     SqlDataProvider<
@@ -41,19 +42,10 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.ErrorText <- errorText
 
 let getObservationsAndStations (dataContext : DataContext) () = 
-    let observationsTable = dataContext.InnerDataContext.Dbo.Observations
     query {
-        for o in observationsTable do
-        for station in (!!) o.``dbo.Stations by Number`` do
-        select (station, {
-            Header = 
-                { StationNumber = StationNumber o.StationNumber
-                  ObservationTime = 
-                    { Date = o.Date 
-                      Hour = o.Hour }
-                  RequestTime = o.RequestTime }
-            Temperature = o.Temperature
-        })
+        for station in dataContext.InnerDataContext.Dbo.Stations do
+        for o in (!!) station.``dbo.Observations by Number`` do
+        select (station.Number, o.StationNumber, o.GetColumnOption("Temperature"))
     }
 
 // TODO: Add optional station number and interval parameters
