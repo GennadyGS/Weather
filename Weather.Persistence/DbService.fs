@@ -102,6 +102,27 @@ let private getStationNumbersAndObservationsQuery
                 (StationNumber stationEntity.Number, None))
     } 
 
+let private getObservationsByStationNumbersQuery 
+        (stationEntitiesQuery : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
+    let stationNumberAndObservationQuery = query {
+        for stationEntity in stationEntitiesQuery do
+        for observationEntity in (!!) stationEntity.``dbo.Observations by Number`` do
+        select (stationEntity.Number, observationEntity)
+    } 
+    query {
+        for (number, o) in stationNumberAndObservationQuery do
+        groupBy number into group
+        let maxObservationTime = query {
+            for (observation, _) in group do
+            maxBy (observation.Date.AddHours(float(observation.Hour)))
+        }
+        select (StationNumber group.Key, maxObservationTime)
+    } 
+
+let getObservationsByStationNumbers (dataContext : DataContext) stationNumbers =
+    getObservationsByStationNumbersQuery (getStationEntitiesByNumbersQuery dataContext stationNumbers)
+    |> runQuerySafe
+
 let getStationNumbersAndObservationsByStationNumbers (dataContext : DataContext) stationNumbers = 
     let stationEntitiesQuery = getStationEntitiesByNumbersQuery dataContext stationNumbers
     getStationNumbersAndObservationsQuery stationEntitiesQuery

@@ -109,7 +109,6 @@ type DbServiceTests() =
         let targetStationNumber = StationNumber 2
         let stationNumbers = targetStationNumber :: [StationNumber 3; StationNumber 4]
         let observation = getSampleObservation targetStationNumber currentTime
-
         saveObservation observation
 
         let results = 
@@ -123,3 +122,18 @@ type DbServiceTests() =
                         if (sn = targetStationNumber) then (sn, Some observation) else (sn, None))
         results =! Success expectedResults
         
+    [<Fact>]
+    let ``Test 2``() = 
+
+        let targetStationNumber = StationNumber 2
+        let stationNumbers = targetStationNumber :: [StationNumber 3; StationNumber 4]
+        let observation = getSampleObservation targetStationNumber currentTime
+
+        saveObservation observation
+
+        let results = 
+            Database.readDataContext 
+                DbService.getObservationsByStationNumbers connectionString stationNumbers
+        ()
+
+    
