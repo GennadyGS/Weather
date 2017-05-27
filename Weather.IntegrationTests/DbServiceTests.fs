@@ -101,7 +101,7 @@ type DbServiceTests() =
             DbService.insertObservation connectionstring (getSampleObservation (StationNumber 0) currentTime) |> ignore
         let results = 
             Database.readDataContext 
-                DbService.getObservationsAndStations connectionstring
+                DbService.getStationNumbersAndObservationsByStationNumbers connectionstring [1]
 
         match results with
             | Success list -> list.Length >! 0

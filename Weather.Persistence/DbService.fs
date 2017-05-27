@@ -42,13 +42,38 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let getObservationsAndStations (dataContext : DataContext) = 
+let private getObservationTaskStations (dataContext : DataContext) =
     query {
         for station in dataContext.InnerDataContext.Dbo.Stations do
-        for o in (!!) station.``dbo.Observations by Number`` do
-        select (station.Number, o.StationNumber, o.GetColumnOption("Temperature"))
+        join task in dataContext.InnerDataContext.Dbo.CollectObservationTasks on (string station.Number = task.StationNumberMask)
+        select station
+    }
+
+let private getStationsByNumbers (dataContext : DataContext) stationNumbers =
+    query {
+        for station in dataContext.InnerDataContext.Dbo.Stations do
+        where (station.Number |=| stationNumbers)
+    }
+
+let private getStationNumbersAndObservations 
+        (dataContext : DataContext) 
+        (stations : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
+    query {
+        for station in stations do
+        for observation in (!!) station.``dbo.Observations by Number`` do
+        select 
+            (if station.Number = observation.StationNumber then
+                (station.Number, Some observation)
+            else
+                (station.Number, None))
     } 
     |> runQuerySafe
+
+let getStationNumbersAndObservationsByStationNumbers (dataContext : DataContext) stationNumbers = 
+    getStationNumbersAndObservations dataContext (getStationsByNumbers dataContext stationNumbers)
+
+let getStationNumbersAndObservationsByTasks (dataContext : DataContext) = 
+    getStationNumbersAndObservations dataContext (getObservationTaskStations dataContext)
 
 // TODO: Add optional station number and interval parameters
 let getObservations (dataContext : DataContext) = 
