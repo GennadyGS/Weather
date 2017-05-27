@@ -24,21 +24,24 @@ type DataContext private (innerDataContext : SqlProvider.dataContext) =
 
 // Stations
 
-let private getOrderedStationsQuery (dataContext : DataContext) =
+let private getOrderedStationEntitiesQuery (dataContext : DataContext) =
     dataContext.InnerDataContext.Dbo.Stations
         .OrderBy(fun station -> station.Number)
 
-let private getStationsFromObservationTasksQuery (dataContext : DataContext) =
+let private getStationEntitiesFromObservationTasksQuery (dataContext : DataContext) =
     query {
-        for station in getOrderedStationsQuery dataContext do
-        join task in dataContext.InnerDataContext.Dbo.CollectObservationTasks on (string station.Number = task.StationNumberMask)
-        select station
+        for stationEntity in getOrderedStationEntitiesQuery dataContext do
+        join taskEntity in dataContext.InnerDataContext.Dbo.CollectObservationTasks on (string stationEntity.Number = taskEntity.StationNumberMask)
+        select stationEntity
     }
 
-let private getStationsByIntNumbersQuery (dataContext : DataContext) stationNumbers =
+let private getStationEntitiesByNumbersQuery (dataContext : DataContext) stationNumbers =
+    let intStationNumbers = 
+        stationNumbers 
+        |> List.map (fun (StationNumber stationNumber) -> stationNumber)
     query {
-        for station in getOrderedStationsQuery dataContext do
-        where (station.Number |=| stationNumbers)
+        for station in getOrderedStationEntitiesQuery dataContext do
+        where (station.Number |=| intStationNumbers)
     }
 
 // Observations
@@ -87,32 +90,33 @@ let getObservations (dataContext : DataContext) =
 
 // Stations and observations
 
-let private getStationNumbersAndObservations 
-        (stationsQuery : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
+let private getStationNumbersAndObservationsQuery 
+        (stationEntitiesQuery : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
     query {
-        for station in stationsQuery do
-        for observationEntity in (!!) station.``dbo.Observations by Number`` do
+        for stationEntity in stationEntitiesQuery do
+        for observationEntity in (!!) stationEntity.``dbo.Observations by Number`` do
         select 
-            (if station.Number = observationEntity.StationNumber then
-                (StationNumber station.Number, Some (entityToObservation observationEntity))
+            (if stationEntity.Number = observationEntity.StationNumber then
+                (StationNumber stationEntity.Number, Some (entityToObservation observationEntity))
             else
-                (StationNumber station.Number, None))
+                (StationNumber stationEntity.Number, None))
     } 
-    |> runQuerySafe
 
 let getStationNumbersAndObservationsByStationNumbers (dataContext : DataContext) stationNumbers = 
-    let intStationNumbers = 
-        stationNumbers 
-        |> List.map (fun (StationNumber stationNumber) -> stationNumber)
-    getStationNumbersAndObservations (getStationsByIntNumbersQuery dataContext intStationNumbers)
+    let stationEntitiesQuery = getStationEntitiesByNumbersQuery dataContext stationNumbers
+    getStationNumbersAndObservationsQuery stationEntitiesQuery
+    |> runQuerySafe
 
 let getStationNumbersAndObservationsFromObservationTasks (dataContext : DataContext) = 
-    getStationNumbersAndObservations (getStationsFromObservationTasksQuery dataContext)
+    let stationEntitiesQuery = getStationEntitiesFromObservationTasksQuery dataContext
+    getStationNumbersAndObservationsQuery stationEntitiesQuery
+    |> runQuerySafe
 
 // Last observation times
+
 let getLastObservationTimeListForStations
         (dataContext : DataContext) 
-        (interval : DateTimeInterval, stationNumberList : StationNumber list) =
+        (interval : DateTimeInterval, stationNumbers : StationNumber list) =
     // TODO: decompose and reuse queries
     let observationsQuery = query {
         for o in dataContext.InnerDataContext.Dbo.Observations do
@@ -126,7 +130,7 @@ let getLastObservationTimeListForStations
     }
     
     let observationTimesByStation = query {
-        for stationNumber in stationNumberList.AsQueryable() do
+        for stationNumber in stationNumbers.AsQueryable() do
         leftOuterJoin (stNumber, observationTime) in filteredObservationsQuery
             on (stationNumber = stNumber) into result
         for item in result do 
