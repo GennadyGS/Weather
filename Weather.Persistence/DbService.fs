@@ -6,6 +6,7 @@ open Weather.Model
 open System
 open System.Linq
 open Weather.Utils.Nullable
+open Weather.Utils.Database
 
 type private SqlProvider = 
     SqlDataProvider<
@@ -41,15 +42,16 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let getObservationsAndStations (dataContext : DataContext) () = 
+let getObservationsAndStations (dataContext : DataContext) = 
     query {
         for station in dataContext.InnerDataContext.Dbo.Stations do
         for o in (!!) station.``dbo.Observations by Number`` do
         select (station.Number, o.StationNumber, o.GetColumnOption("Temperature"))
-    }
+    } 
+    |> runQuerySafe
 
 // TODO: Add optional station number and interval parameters
-let getObservations (dataContext : DataContext) () = 
+let getObservations (dataContext : DataContext) = 
     let observationsTable = dataContext.InnerDataContext.Dbo.Observations
     query {
         for o in observationsTable do
@@ -63,6 +65,7 @@ let getObservations (dataContext : DataContext) () =
             Temperature = o.Temperature
         }
     }
+    |> runQuerySafe
 
 // Last observation times
 
@@ -96,6 +99,7 @@ let getLastObservationTimeListForStations
         let maxObservationTime = query { for (_, observationTime) in group do maxBy observationTime }
         select (group.Key, maxObservationTime)
     }
+    |> runQuerySafe
 
 // Collect observation tasks
 

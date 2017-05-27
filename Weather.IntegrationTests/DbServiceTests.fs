@@ -36,7 +36,7 @@ type DbServiceTests() =
         
         let result = 
             Database.readDataContext 
-                DbService.getObservations connectionstring ()
+                DbService.getObservations connectionstring
         
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
@@ -101,7 +101,7 @@ type DbServiceTests() =
             DbService.insertObservation connectionstring (getSampleObservation (StationNumber 0) currentTime) |> ignore
         let results = 
             Database.readDataContext 
-                DbService.getObservationsAndStations connectionstring ()
+                DbService.getObservationsAndStations connectionstring
 
         match results with
             | Success list -> list.Length >! 0

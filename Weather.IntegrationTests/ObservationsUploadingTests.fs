@@ -25,7 +25,7 @@ type ObservationsUploadingTests() =
             []
     
         Database.readDataContext
-            DbService.getObservations Settings.ConnectionStrings.Weather () =! Success []
+            DbService.getObservations Settings.ConnectionStrings.Weather =! Success []
 
     [<Fact>]
     member this.``FillNewDataForStations for the last day returns success result``() =
@@ -39,7 +39,7 @@ type ObservationsUploadingTests() =
 
         let result = 
             Database.readDataContext
-                DbService.getObservations Settings.ConnectionStrings.Weather ()
+                DbService.getObservations Settings.ConnectionStrings.Weather
         // TODO: More detailed verification
         match result with
             | Success observations -> List.length observations >=! 7

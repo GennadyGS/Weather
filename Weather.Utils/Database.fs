@@ -1,7 +1,6 @@
 ﻿module Weather.Utils.Database
 
 open System.Data.SqlClient
-open System.Linq
 
 let inline createDataContext connectionString : ^dc = 
     (^dc: (static member Create: string -> ^dc) connectionString)
@@ -24,11 +23,8 @@ let inline saveChangesSafe dataContext =
     dataContext
     |> handleSqlException saveChangesToDataContext
 
-let inline readDataContext (func : 'dc -> 'a -> IQueryable<'b>) = 
-    createDataContext >>
-    fun dataContext a -> 
-        func dataContext a
-        |> runQuerySafe
+let inline readDataContext func = 
+    createDataContext >> func
 
 let inline writeDataContext (func : 'dc -> 'a -> unit) = 
     createDataContext >>
