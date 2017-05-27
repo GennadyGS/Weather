@@ -22,6 +22,25 @@ type DataContext private (innerDataContext : SqlProvider.dataContext) =
     static member SaveChanges (dataContext : DataContext) = 
         dataContext.InnerDataContext.SubmitUpdates()
 
+// Stations
+
+let private getOrderedStationsQuery (dataContext : DataContext) =
+    dataContext.InnerDataContext.Dbo.Stations
+        .OrderBy(fun station -> station.Number)
+
+let private getStationsFromObservationTasksQuery (dataContext : DataContext) =
+    query {
+        for station in getOrderedStationsQuery dataContext do
+        join task in dataContext.InnerDataContext.Dbo.CollectObservationTasks on (string station.Number = task.StationNumberMask)
+        select station
+    }
+
+let private getStationsByIntNumbersQuery (dataContext : DataContext) stationNumbers =
+    query {
+        for station in getOrderedStationsQuery dataContext do
+        where (station.Number |=| stationNumbers)
+    }
+
 // Observations
 
 let insertObservation (dataContext : DataContext) observation =
@@ -42,58 +61,55 @@ let insertObservationParsingError (dataContext : DataContext) (observationHeader
     row.Hour <- observationHeader.ObservationTime.Hour
     row.ErrorText <- errorText
 
-let private getObservationTaskStations (dataContext : DataContext) =
-    query {
-        for station in dataContext.InnerDataContext.Dbo.Stations do
-        join task in dataContext.InnerDataContext.Dbo.CollectObservationTasks on (string station.Number = task.StationNumberMask)
-        select station
-    }
+[<ReflectedDefinition>]
+let entityToObservation (entity : SqlProvider.dataContext.``dbo.ObservationsEntity``) = 
+    { Header = 
+        { StationNumber = StationNumber entity.StationNumber
+          ObservationTime = 
+            { Date = entity.Date 
+              Hour = entity.Hour }
+          RequestTime = entity.RequestTime }
+      Temperature = entity.Temperature }
 
-let private getStationsByNumbers (dataContext : DataContext) stationNumbers =
+let private getOrderedObservationsQuery (dataContext : DataContext) = 
+    dataContext.InnerDataContext.Dbo.Observations
+        .OrderBy(fun o -> o.StationNumber)
+        .ThenBy(fun o -> o.Date)
+        .ThenBy(fun o -> o.Hour)
+
+// TODO: Add optional station number and interval parameters
+let getObservations (dataContext : DataContext) = 
     query {
-        for station in dataContext.InnerDataContext.Dbo.Stations do
-        where (station.Number |=| stationNumbers)
+        for observationEntity in (getOrderedObservationsQuery dataContext) do
+        select (entityToObservation observationEntity)
     }
+    |> runQuerySafe
+
+// Stations and observations
 
 let private getStationNumbersAndObservations 
-        (dataContext : DataContext) 
-        (stations : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
+        (stationsQuery : IQueryable<SqlProvider.dataContext.``dbo.StationsEntity``>) = 
     query {
-        for station in stations do
-        for observation in (!!) station.``dbo.Observations by Number`` do
+        for station in stationsQuery do
+        for observationEntity in (!!) station.``dbo.Observations by Number`` do
         select 
-            (if station.Number = observation.StationNumber then
-                (station.Number, Some observation)
+            (if station.Number = observationEntity.StationNumber then
+                (StationNumber station.Number, Some (entityToObservation observationEntity))
             else
-                (station.Number, None))
+                (StationNumber station.Number, None))
     } 
     |> runQuerySafe
 
 let getStationNumbersAndObservationsByStationNumbers (dataContext : DataContext) stationNumbers = 
-    getStationNumbersAndObservations dataContext (getStationsByNumbers dataContext stationNumbers)
+    let intStationNumbers = 
+        stationNumbers 
+        |> List.map (fun (StationNumber stationNumber) -> stationNumber)
+    getStationNumbersAndObservations (getStationsByIntNumbersQuery dataContext intStationNumbers)
 
-let getStationNumbersAndObservationsByTasks (dataContext : DataContext) = 
-    getStationNumbersAndObservations dataContext (getObservationTaskStations dataContext)
-
-// TODO: Add optional station number and interval parameters
-let getObservations (dataContext : DataContext) = 
-    let observationsTable = dataContext.InnerDataContext.Dbo.Observations
-    query {
-        for o in observationsTable do
-        select {
-            Header = 
-                { StationNumber = StationNumber o.StationNumber
-                  ObservationTime = 
-                    { Date = o.Date 
-                      Hour = o.Hour }
-                  RequestTime = o.RequestTime }
-            Temperature = o.Temperature
-        }
-    }
-    |> runQuerySafe
+let getStationNumbersAndObservationsFromObservationTasks (dataContext : DataContext) = 
+    getStationNumbersAndObservations (getStationsFromObservationTasksQuery dataContext)
 
 // Last observation times
-
 let getLastObservationTimeListForStations
         (dataContext : DataContext) 
         (interval : DateTimeInterval, stationNumberList : StationNumber list) =

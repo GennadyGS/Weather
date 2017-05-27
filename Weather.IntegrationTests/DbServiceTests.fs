@@ -9,11 +9,12 @@ open Weather.IntegrationTests
 open Weather.Utils
 open Weather.Utils.Database
 open Weather.Utils.DateTime
+open Weather.Utils.Result
 
 type DbServiceTests() =
     inherit DbTests()
     
-    let connectionstring = Settings.ConnectionStrings.Weather
+    let connectionString = Settings.ConnectionStrings.Weather
 
     let currentTime = DateTime.UtcNow
 
@@ -29,14 +30,23 @@ type DbServiceTests() =
 
     let sortObservations observations = 
         observations |> (List.sortBy (fun o -> o.Header))
+    
+    let saveObservation observation =
+        Database.writeDataContext 
+            DbService.insertObservation connectionString observation
+        |> Result.unwrap
 
-    let testSaveObservations observations = 
+    let saveObservations observations =
         Database.writeDataContextForList 
-            DbService.insertObservation connectionstring observations |> ignore
+            DbService.insertObservation connectionString observations
+        |> Result.unwrap
+    
+    let testSaveObservations observations = 
+        saveObservations observations
         
         let result = 
             Database.readDataContext 
-                DbService.getObservations connectionstring
+                DbService.getObservations connectionString
         
         let expectedResult = observations |> sortObservations |> Success
         expectedResult =! (result |> Result.map sortObservations)
@@ -58,7 +68,7 @@ type DbServiceTests() =
         
         let result = 
             Database.readDataContext
-                DbService.getLastObservationTimeListForStations connectionstring (interval, requestedStationNumbers)
+                DbService.getLastObservationTimeListForStations connectionString (interval, requestedStationNumbers)
 
         let expectedResult = 
             requestedStationNumbers 
@@ -77,13 +87,12 @@ type DbServiceTests() =
         let observationList = 
             savedStationNumberList 
             |> List.map (fun stNumber -> getSampleObservation stNumber observationTime)
-        
-        Database.writeDataContextForList 
-            DbService.insertObservation connectionstring observationList |> ignore
+
+        saveObservations observationList
         
         let result = 
             Database.readDataContext 
-                DbService.getLastObservationTimeListForStations connectionstring (interval, requestedStationNumberList)
+                DbService.getLastObservationTimeListForStations connectionString (interval, requestedStationNumberList)
 
         let expectedResult = 
             requestedStationNumberList
@@ -97,13 +106,20 @@ type DbServiceTests() =
 
     [<Fact>]
     let ``Test``() = 
-        Database.writeDataContext
-            DbService.insertObservation connectionstring (getSampleObservation (StationNumber 0) currentTime) |> ignore
+        let targetStationNumber = StationNumber 2
+        let stationNumbers = targetStationNumber :: [StationNumber 3; StationNumber 4]
+        let observation = getSampleObservation targetStationNumber currentTime
+
+        saveObservation observation
+
         let results = 
             Database.readDataContext 
-                DbService.getStationNumbersAndObservationsByStationNumbers connectionstring [1]
+                DbService.getStationNumbersAndObservationsByStationNumbers connectionString stationNumbers
 
-        match results with
-            | Success list -> list.Length >! 0
-            | Failure failure -> failwith failure
+        let expectedResults = 
+            stationNumbers
+            |> List.map 
+                    (fun sn ->
+                        if (sn = targetStationNumber) then (sn, Some observation) else (sn, None))
+        results =! Success expectedResults
         

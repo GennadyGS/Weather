@@ -40,6 +40,10 @@ let bindToOption func = function
     | Success success -> func success
     | Failure failure -> Some (Failure failure)
 
+let unwrap = function
+    | Success success -> success
+    | Failure failure -> failwith failure
+
 let ignore (result : Result<unit, unit>) = ()
 
 let ignoreAll (result : Result<unit, unit> seq) = ()
