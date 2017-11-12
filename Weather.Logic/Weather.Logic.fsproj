@@ -10,7 +10,7 @@
     <RootNamespace>Weather.Logic</RootNamespace>
     <AssemblyName>Weather.Logic</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Weather.Logic</Name>
   </PropertyGroup>
