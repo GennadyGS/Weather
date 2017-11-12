@@ -16,7 +16,7 @@ type private SqlProvider =
 type DataContext private (innerDataContext : SqlProvider.dataContext) = 
     member internal this.InnerDataContext = innerDataContext
     
-    static member Create connectionString = 
+    static member Create (connectionString: string) = 
         DataContext(SqlProvider.GetDataContext(connectionString))
     
     static member SaveChanges (dataContext : DataContext) = 

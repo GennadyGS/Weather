@@ -96,7 +96,7 @@
       <Private>True</Private>
     </ProjectReference>
     <Reference Include="FSharp.Data.SqlProvider">
-      <HintPath>..\packages\SQLProvider.1.0.55\lib\FSharp.Data.SqlProvider.dll</HintPath>
+      <HintPath>..\packages\SQLProvider.1.1.22\lib\net451\FSharp.Data.SqlProvider.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
